@@ -153,7 +153,7 @@
           <li><svg class="icon" aria-hidden="true"><use href="#i-close-circle-outline" /></svg></li>
           <li class="help">Reject the last hypothesis, see below.</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-ellipsis-circle-outline" /></svg></li>
-          <li class="help">Tools: fill in the pencil marks (every empty cell gets all digits that are still possible); restart this sudoku (all progress, including all hypotheses, is lost); mark mistakes (marks digits that differ from the solution in red); solve the sudoku (using the solver does not count as a solved sudoku in the history); input your own sudoku (the grid is emptied, set the digits you want, then tap the check mark that replaces the guess buttons, or choose &ldquo;Finish input&rdquo; in the tools, after that you solve it as usual; custom sudokus cannot be checked or solved by the app).</li>
+          <li class="help">Tools: fill in the pencil marks (every empty cell gets all digits that are still possible); restart this sudoku (all progress, including all hypotheses, is lost); mark mistakes (marks digits that differ from the solution in red); solve the sudoku (using the solver does not count as a solved sudoku in the history); input your own sudoku (the grid is emptied, set the digits you want, then tap the check mark that replaces the guess buttons, or choose &ldquo;Finish input&rdquo; in the tools, the app checks that the sudoku has exactly one solution; after that you solve it as usual, and mistakes can be marked and the solver used. Custom sudokus are not recorded in the history).</li>
         </ul>
 
         <p>Guessing: hypotheses</p>
@@ -277,6 +277,14 @@
         <ul>
           <li id="confirm-yes">yes</li>
           <li id="confirm-cancel">cancel</li>
+        </ul>
+      </dialog>
+
+      <dialog id="info">
+        <h2 id="info-title"></h2>
+        <p id="info-desc"></p>
+        <ul>
+          <li data-close>ok</li>
         </ul>
       </dialog>
 

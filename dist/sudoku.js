@@ -124,6 +124,81 @@ function allowed(A, y, x, ignoreSet = false) {
             res.push(i);
     return res;
 }
+function solveSudoku(grid, limit = 2) {
+    const g = grid.map((row) => row.slice());
+    const rows = new Array(9).fill(0);
+    const cols = new Array(9).fill(0);
+    const blocks = new Array(9).fill(0);
+    for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9; x++) {
+            const v = g[y][x];
+            if (v === 0)
+                continue;
+            const bit = 1 << v;
+            const b = Math.floor(y / 3) * 3 + Math.floor(x / 3);
+            if (!(v >= 1 && v <= 9) || (rows[y] | cols[x] | blocks[b]) & bit) {
+                return { count: 0, solution: null };
+            }
+            rows[y] |= bit;
+            cols[x] |= bit;
+            blocks[b] |= bit;
+        }
+    }
+    let count = 0;
+    let solution = null;
+    const popcount = (m) => {
+        let n = 0;
+        for (; m; m &= m - 1)
+            n++;
+        return n;
+    };
+    const search = () => {
+        let bestY = -1;
+        let bestX = -1;
+        let bestMask = 0;
+        let bestN = 10;
+        for (let y = 0; y < 9 && bestN > 0; y++) {
+            for (let x = 0; x < 9; x++) {
+                if (g[y][x] !== 0)
+                    continue;
+                const b = Math.floor(y / 3) * 3 + Math.floor(x / 3);
+                const mask = ~(rows[y] | cols[x] | blocks[b]) & 0x3fe;
+                const n = popcount(mask);
+                if (n < bestN) {
+                    bestN = n;
+                    bestY = y;
+                    bestX = x;
+                    bestMask = mask;
+                    if (n === 0)
+                        break;
+                }
+            }
+        }
+        if (bestY < 0) {
+            count++;
+            if (solution === null)
+                solution = g.map((row) => row.slice());
+            return;
+        }
+        const b = Math.floor(bestY / 3) * 3 + Math.floor(bestX / 3);
+        for (let v = 1; v <= 9 && count < limit; v++) {
+            const bit = 1 << v;
+            if (!(bestMask & bit))
+                continue;
+            g[bestY][bestX] = v;
+            rows[bestY] |= bit;
+            cols[bestX] |= bit;
+            blocks[b] |= bit;
+            search();
+            g[bestY][bestX] = 0;
+            rows[bestY] &= ~bit;
+            cols[bestX] &= ~bit;
+            blocks[b] &= ~bit;
+        }
+    };
+    search();
+    return { count, solution };
+}
 function randomLineOrder() {
     return shuffle(range(3)).flatMap((band) => shuffle(range(3)).map((i) => 3 * band + i));
 }
@@ -146,5 +221,5 @@ function permuteSuds(s, sudokuSol) {
         }
     }
 }
-export { LEVEL_NAMES, MAX_LEVEL, levelName, congratulation, T, Tsol, Tinit, DEBUG, Marked, range, shuffle, deepCopy2D, readSudokuFromFile, parseSudokuLine, gridToString, permuteSuds, copyTo2d, allowed, checkSolved, deepCopy3D, };
+export { LEVEL_NAMES, MAX_LEVEL, levelName, congratulation, T, Tsol, Tinit, DEBUG, Marked, range, shuffle, deepCopy2D, readSudokuFromFile, parseSudokuLine, gridToString, permuteSuds, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy3D, };
 //# sourceMappingURL=sudoku.js.map

@@ -1,4 +1,4 @@
-import { LEVEL_NAMES, MAX_LEVEL, levelName, congratulation, T, DEBUG, Marked, readSudokuFromFile, Tsol, Tinit, permuteSuds, parseSudokuLine, gridToString, copyTo2d, allowed, checkSolved, deepCopy2D, deepCopy3D, } from "./sudoku.js";
+import { LEVEL_NAMES, MAX_LEVEL, levelName, congratulation, T, DEBUG, Marked, readSudokuFromFile, Tsol, Tinit, permuteSuds, parseSudokuLine, gridToString, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy2D, deepCopy3D, } from "./sudoku.js";
 import { storageGet, storageSet, storageRemove } from "./storage.js";
 import { settings, loadSettings } from "./settings.js";
 import { currentPage } from "./pages.js";
@@ -176,6 +176,11 @@ function confirmAction(title, description, action) {
     getAssertedButton("confirm-desc").textContent = description;
     openDialog("confirm");
 }
+function showInfo(title, text) {
+    getAssertedButton("info-title").textContent = title;
+    getAssertedButton("info-desc").textContent = text;
+    openDialog("info");
+}
 function updateToolButtons() {
     setEnabled("check", solAvailable);
     setEnabled("solve", solAvailable);
@@ -257,7 +262,7 @@ function setButtons() {
             inputCustomSudoku();
         }
         else {
-            confirmAction("Empty grid?", "Add your own sudoku. Current game will be lost.", inputCustomSudoku);
+            confirmAction("Empty grid?", "Add your own sudoku. Current game will be lost.", () => inputCustomSudoku());
         }
     });
     enableHyp();
@@ -929,7 +934,7 @@ function enableSmallDigs() {
     smallDigsEnabled = true;
     setEnabled("mode-but", true);
 }
-function inputCustomSudoku() {
+function inputCustomSudoku(force = false) {
     if (!inputtingOwnSud) {
         log("Own Input");
         puzzleId = null;
@@ -956,10 +961,25 @@ function inputCustomSudoku() {
         disableSmallDigs();
     }
     else {
+        const { count, solution } = solveSudoku(T);
+        if (!force && (count !== 1 || solution === null)) {
+            if (count === 0) {
+                showInfo("No solution", "This sudoku cannot be solved. Check the digits you entered.");
+            }
+            else {
+                showInfo("Not unique", "This sudoku has more than one solution. Add more digits.");
+            }
+            return;
+        }
         log("Done inputting own sudoku!");
         enableHyp();
         sudLvl = -1;
+        if (solution !== null && count === 1) {
+            copyTo2d(solution, Tsol);
+            solAvailable = true;
+        }
         inputtingOwnSud = false;
+        updateToolButtons();
         updateOwnInputUi();
         copyTo2d(T, Tinit);
         setClickableTrefT();
@@ -969,7 +989,7 @@ function inputCustomSudoku() {
 }
 function loadRandomSud(lvl = MAX_LEVEL) {
     if (inputtingOwnSud) {
-        inputCustomSudoku();
+        inputCustomSudoku(true);
     }
     sudLvl = lvl;
     readSudokuFromFile(setSudFromStr, lvl);
@@ -1017,7 +1037,7 @@ function clearHyps() {
 }
 function restart() {
     if (inputtingOwnSud) {
-        inputCustomSudoku();
+        inputCustomSudoku(true);
     }
     log("Restarting");
     elapsedMs = 0;
