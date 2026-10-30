@@ -656,7 +656,10 @@ li {
 
 /* Tools dialog */
 .tool-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
     width: 100%;
     font: inherit;
     font-size: 18px;
@@ -665,6 +668,12 @@ li {
     border: none;
     padding: 10px 0;
     cursor: pointer;
+}
+
+.tool-item .icon {
+    margin: 0;
+    flex: none;
+    font-size: 24px;
 }
 
 .tool-item:focus,

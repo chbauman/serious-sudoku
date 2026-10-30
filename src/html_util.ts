@@ -258,9 +258,12 @@ function updateToolButtons() {
 // While a custom sudoku is entered, the tools button is highlighted and the
 // entry in the tools dialog finishes the input; restarting makes no sense then
 function updateOwnInputUi() {
-  getAssertedButton("own_sud").textContent = inputtingOwnSud
+  getAssertedButton("own-sud-text").textContent = inputtingOwnSud
     ? "Finish input"
     : "Input own sudoku";
+  getAssertedButton("own_sud")
+    .querySelector("use")!
+    .setAttribute("href", inputtingOwnSud ? "#i-checkmark-circle-outline" : "#i-create-outline");
   setActive("tools-btn", inputtingOwnSud);
   setEnabled("tools-restart", !inputtingOwnSud);
   setEnabled("auto-fill-button", !inputtingOwnSud);

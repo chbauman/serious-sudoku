@@ -60,6 +60,7 @@ export function init() {
     "but1",
     "but3",
     "own_sud",
+    "own-sud-text",
     "tools-btn",
     "finish-input",
     "tools-restart",
