@@ -252,7 +252,6 @@ function confirmAction(
 function updateToolButtons() {
   setEnabled("check", solAvailable);
   setEnabled("solve", solAvailable);
-  getAssertedButton("tools-note").hidden = solAvailable;
 }
 
 // While a custom sudoku is entered, the tools button is highlighted and the

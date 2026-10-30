@@ -50,7 +50,6 @@ export function init() {
   const butIds = [
     "mode-but",
     "undo-but",
-    "tools-note",
     "confirm-title",
     "confirm-desc",
     "confirm-yes",

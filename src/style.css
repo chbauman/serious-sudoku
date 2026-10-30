@@ -685,10 +685,6 @@ li {
     color: var(--disabled);
 }
 
-#tools-note {
-    margin: 4px 0 8px;
-}
-
 /* Keyboard shortcuts in the help (shown by src/pages.ts when a keyboard is likely) */
 
 .shortcuts {
