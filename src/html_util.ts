@@ -15,6 +15,7 @@ import {
   gridToString,
   copyTo2d,
   allowed,
+  solveSudoku,
   checkSolved,
   deepCopy2D,
   deepCopy3D,
@@ -248,7 +249,14 @@ function confirmAction(
   openDialog("confirm");
 }
 
-// "Mark mistakes" and "Solve" need the solution, which custom sudokus lack
+function showInfo(title: string, text: string) {
+  getAssertedButton("info-title").textContent = title;
+  getAssertedButton("info-desc").textContent = text;
+  openDialog("info");
+}
+
+// "Mark mistakes" and "Solve" need the solution (found by the solver for the
+// custom sudokus)
 function updateToolButtons() {
   setEnabled("check", solAvailable);
   setEnabled("solve", solAvailable);
@@ -352,7 +360,7 @@ function setButtons() {
       confirmAction(
         "Empty grid?",
         "Add your own sudoku. Current game will be lost.",
-        inputCustomSudoku
+        () => inputCustomSudoku()
       );
     }
   });
@@ -1134,8 +1142,11 @@ function enableSmallDigs() {
   setEnabled("mode-but", true);
 }
 
-// Lets the user input a custom sudoku
-function inputCustomSudoku() {
+// Lets the user input a custom sudoku. Finishing the input needs a sudoku with
+// exactly one solution (then it can be checked and solved like the others),
+// otherwise a message is shown and the input goes on. force: leave the input
+// mode in any case (when the sudoku is replaced by another one).
+function inputCustomSudoku(force = false) {
   if (!inputtingOwnSud) {
     log("Own Input");
     puzzleId = null;
@@ -1165,12 +1176,32 @@ function inputCustomSudoku() {
     updateDigitCounts();
     disableSmallDigs();
   } else {
+    const { count, solution } = solveSudoku(T);
+    if (!force && (count !== 1 || solution === null)) {
+      if (count === 0) {
+        showInfo(
+          "No solution",
+          "This sudoku cannot be solved. Check the digits you entered."
+        );
+      } else {
+        showInfo(
+          "Not unique",
+          "This sudoku has more than one solution. Add more digits."
+        );
+      }
+      return;
+    }
     log("Done inputting own sudoku!");
     enableHyp();
     sudLvl = -1;
+    if (solution !== null && count === 1) {
+      copyTo2d(solution, Tsol);
+      solAvailable = true;
+    }
 
     // Toggle State
     inputtingOwnSud = false;
+    updateToolButtons();
     updateOwnInputUi();
 
     // Activate small numbers and set set numbers to unclickable
@@ -1184,7 +1215,7 @@ function inputCustomSudoku() {
 // Reads a random sudoku from the file and loads it.
 function loadRandomSud(lvl = MAX_LEVEL) {
   if (inputtingOwnSud) {
-    inputCustomSudoku();
+    inputCustomSudoku(true);
   }
   sudLvl = lvl;
   readSudokuFromFile(setSudFromStr, lvl);
@@ -1237,7 +1268,7 @@ function clearHyps() {
 // Restart
 function restart() {
   if (inputtingOwnSud) {
-    inputCustomSudoku();
+    inputCustomSudoku(true);
   }
   log("Restarting");
   elapsedMs = 0;

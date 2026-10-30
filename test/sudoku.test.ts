@@ -12,6 +12,7 @@ import {
   LEVEL_NAMES,
   MAX_LEVEL,
   congratulation,
+  solveSudoku,
   levelName,
   copyTo2d,
   allowed,
@@ -270,4 +271,63 @@ test("win dialog messages", () => {
     expect(title.length).toBeGreaterThan(0);
     expect(text).not.toContain("undefined");
   }
+});
+
+describe("solver for custom sudokus", () => {
+  const dataDir = path.join(__dirname, "..", "assets", "data");
+  const emptyGrid = () => range(9).map(() => new Array(9).fill(0));
+
+  test("finds the solution of the sudokus of the level files", () => {
+    for (let level = 0; level <= MAX_LEVEL; ++level) {
+      const lines = fs
+        .readFileSync(path.join(dataDir, `ext_lvl_${level}.txt`), "utf8")
+        .split("\n")
+        .filter((l) => l.trim());
+      for (const line of lines.slice(0, 15)) {
+        const { sud, sol } = parseSudokuLine(line);
+        const res = solveSudoku(sud);
+        expect(res.count).toBe(1);
+        expect(res.solution).toEqual(sol);
+      }
+    }
+  });
+
+  test("a solved sudoku has the one solution, the input is not changed", () => {
+    const { sud, sol } = parseSudokuLine(
+      fs.readFileSync(path.join(dataDir, "ext_lvl_0.txt"), "utf8").split("\n")[0]
+    );
+    const before = deepCopy2D(sud);
+    expect(solveSudoku(sol)).toEqual({ count: 1, solution: sol });
+    solveSudoku(sud);
+    expect(sud).toEqual(before);
+  });
+
+  test("an empty grid and a sudoku with a removed digit pair are not unique", () => {
+    expect(solveSudoku(emptyGrid()).count).toBe(2);
+    expect(solveSudoku(emptyGrid(), 5).count).toBe(5);
+    // two solutions: swap the 1 and 2 in a solved grid, with only these digits missing
+    const { sol } = parseSudokuLine(
+      fs.readFileSync(path.join(dataDir, "ext_lvl_0.txt"), "utf8").split("\n")[0]
+    );
+    const g = deepCopy2D(sol);
+    // remove all digits 1 and 2: both can be exchanged, so there are at least 2 solutions
+    for (const row of g) for (let x = 0; x < 9; x++) if (row[x] <= 2) row[x] = 0;
+    expect(solveSudoku(g).count).toBe(2);
+  });
+
+  test("contradicting givens and unsolvable sudokus have no solution", () => {
+    const twoInRow = emptyGrid();
+    twoInRow[0][0] = 5;
+    twoInRow[0][4] = 5;
+    expect(solveSudoku(twoInRow)).toEqual({ count: 0, solution: null });
+    const twoInBlock = emptyGrid();
+    twoInBlock[0][0] = 3;
+    twoInBlock[2][2] = 3;
+    expect(solveSudoku(twoInBlock).count).toBe(0);
+    // no conflict in a row, column or block, but cell (0, 8) has no candidate left
+    const stuck = emptyGrid();
+    [1, 2, 3, 4, 5, 6, 7, 8].forEach((v, i) => (stuck[0][i] = v));
+    stuck[1][8] = 9;
+    expect(solveSudoku(stuck)).toEqual({ count: 0, solution: null });
+  });
 });
