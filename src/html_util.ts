@@ -256,7 +256,8 @@ let customSolution: number[][] | null = null;
 // Solves the custom sudoku (its givens), when "Mark mistakes" or "Solve" is
 // requested. Exactly one solution: it is stored (solAvailable), the tools work
 // as for the other sudokus. Otherwise a message is shown: no solution, or
-// several (then one of them is kept for "Solve").
+// several (then one of them is kept for "Solve" and "Mark mistakes", after a
+// warning).
 // Returns whether the solution is known.
 function analyseCustomSudoku(forSolve: boolean): boolean {
   if (solAvailable) return true;
@@ -283,9 +284,14 @@ function analyseCustomSudoku(forSolve: boolean): boolean {
       () => solve(customSolution)
     );
   } else {
-    showInfo(
+    customSolution = solution;
+    confirmAction(
       "Not unique",
-      "This sudoku has more than one solution, so mistakes cannot be marked."
+      "This sudoku has more than one solution. Mistakes are marked against one of them, so a marked digit may be right in another solution. Mark anyway?",
+      () => {
+        check(customSolution);
+        reselect();
+      }
     );
   }
   return false;
@@ -640,12 +646,13 @@ function disableHypRejection() {
 
 // Checks if any input digits are wrong and sets their background to
 // red.
-function check() {
-  if (solAvailable == false) return;
+function check(solution: number[][] | null = null) {
+  const sol = solution ?? Tsol;
+  if (solution === null && solAvailable == false) return;
   console.log("Checking Sudoku: ");
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
-      if (T[i][j] != Tsol[i][j] && T[i][j] != 0) {
+      if (T[i][j] != sol[i][j] && T[i][j] != 0) {
         console.log(`Cell (${i}, ${j}) is incorrect!`);
         Tref[i][j].style.backgroundColor = wrongHypCol;
         Marked[i][j] = 1;

@@ -104,8 +104,8 @@ analysed when "Mark mistakes" or "Solve" is requested: `solveSudoku`
 (`src/sudoku.ts`, backtracking that fills the cell with the fewest candidates and
 stops after 2 solutions) solves its givens. With exactly one solution the tools
 work as for the other sudokus; a sudoku without a solution is reported, for one
-with several solutions "Solve" fills in one of them (after asking) and mistakes
-cannot be marked. Custom sudokus are not recorded in the history.
+with several solutions a warning is shown first (the mistakes are marked against one
+of the solutions, "Solve" fills in one of them). Custom sudokus are not recorded in the history.
 
 ## Saved game
 
