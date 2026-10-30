@@ -161,6 +161,85 @@ function allowed(A: number[][], y: number, x: number, ignoreSet = false) {
   return res;
 }
 
+// Solves a sudoku (0 = empty) by backtracking, always filling the cell with the
+// fewest candidates. Stops after `limit` solutions, so the count is exact up to
+// the limit (2 is enough to tell whether the solution is unique). The solution
+// is the first one found, null if there is none. Contradicting givens give 0.
+function solveSudoku(
+  grid: number[][],
+  limit = 2
+): { count: number; solution: number[][] | null } {
+  const g = grid.map((row) => row.slice());
+  const rows = new Array(9).fill(0);
+  const cols = new Array(9).fill(0);
+  const blocks = new Array(9).fill(0);
+  for (let y = 0; y < 9; y++) {
+    for (let x = 0; x < 9; x++) {
+      const v = g[y][x];
+      if (v === 0) continue;
+      const bit = 1 << v;
+      const b = Math.floor(y / 3) * 3 + Math.floor(x / 3);
+      if (!(v >= 1 && v <= 9) || (rows[y] | cols[x] | blocks[b]) & bit) {
+        return { count: 0, solution: null };
+      }
+      rows[y] |= bit;
+      cols[x] |= bit;
+      blocks[b] |= bit;
+    }
+  }
+
+  let count = 0;
+  let solution: number[][] | null = null;
+  const popcount = (m: number) => {
+    let n = 0;
+    for (; m; m &= m - 1) n++;
+    return n;
+  };
+  const search = () => {
+    // Cell with the fewest candidates
+    let bestY = -1;
+    let bestX = -1;
+    let bestMask = 0;
+    let bestN = 10;
+    for (let y = 0; y < 9 && bestN > 0; y++) {
+      for (let x = 0; x < 9; x++) {
+        if (g[y][x] !== 0) continue;
+        const b = Math.floor(y / 3) * 3 + Math.floor(x / 3);
+        const mask = ~(rows[y] | cols[x] | blocks[b]) & 0x3fe;
+        const n = popcount(mask);
+        if (n < bestN) {
+          bestN = n;
+          bestY = y;
+          bestX = x;
+          bestMask = mask;
+          if (n === 0) break;
+        }
+      }
+    }
+    if (bestY < 0) {
+      count++;
+      if (solution === null) solution = g.map((row) => row.slice());
+      return;
+    }
+    const b = Math.floor(bestY / 3) * 3 + Math.floor(bestX / 3);
+    for (let v = 1; v <= 9 && count < limit; v++) {
+      const bit = 1 << v;
+      if (!(bestMask & bit)) continue;
+      g[bestY][bestX] = v;
+      rows[bestY] |= bit;
+      cols[bestX] |= bit;
+      blocks[b] |= bit;
+      search();
+      g[bestY][bestX] = 0;
+      rows[bestY] &= ~bit;
+      cols[bestX] &= ~bit;
+      blocks[b] &= ~bit;
+    }
+  };
+  search();
+  return { count, solution };
+}
+
 // Random order of the 9 rows (or columns) that keeps the bands (stacks):
 // the 3 bands are shuffled, and the 3 lines within each band.
 function randomLineOrder(): number[] {
@@ -214,6 +293,7 @@ export {
   permuteSuds,
   copyTo2d,
   allowed,
+  solveSudoku,
   checkSolved,
   deepCopy3D,
 };
