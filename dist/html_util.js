@@ -179,7 +179,20 @@ function confirmAction(title, description, action) {
 function updateToolButtons() {
     setEnabled("check", solAvailable);
     setEnabled("solve", solAvailable);
-    getAssertedButton("tools-note").hidden = solAvailable;
+}
+function updateOwnInputUi() {
+    getAssertedButton("own-sud-text").textContent = inputtingOwnSud
+        ? "Finish input"
+        : "Input own sudoku";
+    getAssertedButton("own_sud")
+        .querySelector("use")
+        .setAttribute("href", inputtingOwnSud ? "#i-checkmark-circle-outline" : "#i-create-outline");
+    setActive("tools-btn", inputtingOwnSud);
+    setEnabled("tools-restart", !inputtingOwnSud);
+    setEnabled("auto-fill-button", !inputtingOwnSud);
+    getAssertedButton("but1").hidden = inputtingOwnSud;
+    getAssertedButton("but3").hidden = inputtingOwnSud;
+    getAssertedButton("finish-input").hidden = !inputtingOwnSud;
 }
 function setButtons() {
     setupDialogs();
@@ -206,6 +219,12 @@ function setButtons() {
         e.stopPropagation();
     }
     getAssertedButton("restart_but").addEventListener("click", restAndClose);
+    getAssertedButton("tools-restart").addEventListener("click", () => {
+        if (inputtingOwnSud)
+            return;
+        closeDialog("tools");
+        openDialog("restart");
+    });
     getAssertedButton("confirm-yes").addEventListener("click", (e) => {
         const action = pendingConfirm;
         pendingConfirm = null;
@@ -219,11 +238,21 @@ function setButtons() {
         closeDialog("confirm");
         e.stopPropagation();
     });
-    getAssertedButton("auto-fill-button").addEventListener("click", () => confirmAction("Fill in pencil marks?", "Adds all digits that are still possible as pencil marks to every empty cell.", () => {
-        autoFillUsed = true;
-        withUndo(fillSmallDigits);
-    }));
+    getAssertedButton("finish-input").addEventListener("click", () => {
+        if (inputtingOwnSud)
+            inputCustomSudoku();
+    });
+    getAssertedButton("auto-fill-button").addEventListener("click", () => {
+        if (inputtingOwnSud)
+            return;
+        closeDialog("tools");
+        confirmAction("Fill in pencil marks?", "Adds all digits that are still possible as pencil marks to every empty cell.", () => {
+            autoFillUsed = true;
+            withUndo(fillSmallDigits);
+        });
+    });
     getAssertedButton("own_sud").addEventListener("click", () => {
+        closeDialog("tools");
         if (inputtingOwnSud) {
             inputCustomSudoku();
         }
@@ -913,7 +942,7 @@ function inputCustomSudoku() {
         inputtingOwnSud = true;
         solAvailable = false;
         updateToolButtons();
-        setActive("own_sud", true);
+        updateOwnInputUi();
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
                 T[i][j] = 0;
@@ -931,7 +960,7 @@ function inputCustomSudoku() {
         enableHyp();
         sudLvl = -1;
         inputtingOwnSud = false;
-        setActive("own_sud", false);
+        updateOwnInputUi();
         copyTo2d(T, Tinit);
         setClickableTrefT();
         enableSmallDigs();

@@ -17,14 +17,13 @@ export function init() {
     }
     document.addEventListener("click", (e) => {
         const target = e.target;
-        if (!target.closest("dialog, [data-open], #auto-fill-button, #own_sud, .bar button, #menu, #digits")) {
+        if (!target.closest("dialog, [data-open], .bar button, #menu, #digits")) {
             elsewhere();
         }
     });
     const butIds = [
         "mode-but",
         "undo-but",
-        "tools-note",
         "confirm-title",
         "confirm-desc",
         "confirm-yes",
@@ -34,6 +33,10 @@ export function init() {
         "but1",
         "but3",
         "own_sud",
+        "own-sud-text",
+        "tools-btn",
+        "finish-input",
+        "tools-restart",
         "digits",
         "lvl_list",
         "solve",
