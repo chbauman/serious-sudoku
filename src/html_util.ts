@@ -259,8 +259,8 @@ function updateToolButtons() {
 // entry in the tools dialog finishes the input; restarting makes no sense then
 function updateOwnInputUi() {
   getAssertedButton("own_sud").textContent = inputtingOwnSud
-    ? "Finish entering your sudoku"
-    : "Enter your own sudoku";
+    ? "Finish input"
+    : "Input own sudoku";
   setActive("tools-btn", inputtingOwnSud);
   setEnabled("tools-restart", !inputtingOwnSud);
 }
