@@ -255,6 +255,16 @@ function updateToolButtons() {
   getAssertedButton("tools-note").hidden = solAvailable;
 }
 
+// While a custom sudoku is entered, the tools button is highlighted and the
+// entry in the tools dialog finishes the input; restarting makes no sense then
+function updateOwnInputUi() {
+  getAssertedButton("own_sud").textContent = inputtingOwnSud
+    ? "Finish entering your sudoku"
+    : "Enter your own sudoku";
+  setActive("tools-btn", inputtingOwnSud);
+  setEnabled("tools-restart", !inputtingOwnSud);
+}
+
 // Sets functionality to the buttons
 function setButtons() {
   setupDialogs();
@@ -287,6 +297,11 @@ function setButtons() {
     e.stopPropagation();
   }
   getAssertedButton("restart_but").addEventListener("click", restAndClose);
+  getAssertedButton("tools-restart").addEventListener("click", () => {
+    if (inputtingOwnSud) return;
+    closeDialog("tools");
+    openDialog("restart");
+  });
 
   // Confirmation dialog
   getAssertedButton("confirm-yes").addEventListener("click", (e) => {
@@ -317,6 +332,7 @@ function setButtons() {
   // Custom sudoku import: only the first click (clearing the grid) needs
   // confirmation, the second click finishes the input.
   getAssertedButton("own_sud").addEventListener("click", () => {
+    closeDialog("tools");
     if (inputtingOwnSud) {
       inputCustomSudoku();
     } else {
@@ -1121,7 +1137,7 @@ function inputCustomSudoku() {
     inputtingOwnSud = true;
     solAvailable = false;
     updateToolButtons();
-    setActive("own_sud", true);
+    updateOwnInputUi();
 
     // Remove current sudoku
     for (let i = 0; i < 9; i++) {
@@ -1142,7 +1158,7 @@ function inputCustomSudoku() {
 
     // Toggle State
     inputtingOwnSud = false;
-    setActive("own_sud", false);
+    updateOwnInputUi();
 
     // Activate small numbers and set set numbers to unclickable
     copyTo2d(T, Tinit);
