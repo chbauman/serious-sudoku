@@ -249,17 +249,65 @@ function confirmAction(
   openDialog("confirm");
 }
 
+// Solution of a custom sudoku with several solutions (one of them), null if
+// unknown, see analyseCustomSudoku
+let customSolution: number[][] | null = null;
+
+// Solves the custom sudoku (its givens), when "Mark mistakes" or "Solve" is
+// requested. Exactly one solution: it is stored (solAvailable), the tools work
+// as for the other sudokus. Otherwise a message is shown: no solution, or
+// several (then one of them is kept for "Solve").
+// Returns whether the solution is known.
+function analyseCustomSudoku(forSolve: boolean): boolean {
+  if (solAvailable) return true;
+  if (!isCustomSudoku()) return false;
+  const { count, solution } = solveSudoku(Tinit);
+  if (count === 1 && solution !== null) {
+    copyTo2d(solution, Tsol);
+    solAvailable = true;
+    customSolution = null;
+    updateToolButtons();
+    saveGame();
+    return true;
+  }
+  if (count === 0) {
+    showInfo(
+      "No solution",
+      "This sudoku cannot be solved. Check the digits you entered."
+    );
+  } else if (forSolve) {
+    customSolution = solution;
+    confirmAction(
+      "Not unique",
+      "This sudoku has more than one solution. Fill in one of them?",
+      () => solve(customSolution)
+    );
+  } else {
+    showInfo(
+      "Not unique",
+      "This sudoku has more than one solution, so mistakes cannot be marked."
+    );
+  }
+  return false;
+}
+
 function showInfo(title: string, text: string) {
   getAssertedButton("info-title").textContent = title;
   getAssertedButton("info-desc").textContent = text;
   openDialog("info");
 }
 
-// "Mark mistakes" and "Solve" need the solution (found by the solver for the
-// custom sudokus)
+// A sudoku of the user (not from the level files), once the input is finished
+function isCustomSudoku(): boolean {
+  return puzzleId === null && !inputtingOwnSud && hasDigits(Tinit);
+}
+
+// "Mark mistakes" and "Solve" need the solution. The sudokus of the level files
+// have it, a custom sudoku is solved when one of them is requested.
 function updateToolButtons() {
-  setEnabled("check", solAvailable);
-  setEnabled("solve", solAvailable);
+  const available = solAvailable || isCustomSudoku();
+  setEnabled("check", available);
+  setEnabled("solve", available);
 }
 
 // While a custom sudoku is entered, the tools button is highlighted and the
@@ -360,7 +408,7 @@ function setButtons() {
       confirmAction(
         "Empty grid?",
         "Add your own sudoku. Current game will be lost.",
-        () => inputCustomSudoku()
+        inputCustomSudoku
       );
     }
   });
@@ -378,8 +426,8 @@ function setButtons() {
 
   // Tools dialog: each tool asks for confirmation first
   getAssertedButton("check").addEventListener("click", () => {
-    if (!solAvailable) return;
     closeDialog("tools");
+    if (!analyseCustomSudoku(false)) return;
     confirmAction(
       "Mark mistakes?",
       "Marks every digit that differs from the solution.",
@@ -390,12 +438,12 @@ function setButtons() {
     );
   });
   getAssertedButton("solve").addEventListener("click", () => {
-    if (!solAvailable) return;
     closeDialog("tools");
+    if (!analyseCustomSudoku(true)) return;
     confirmAction(
       "Solve?",
       "Fills in the solution. The sudoku counts as solved with the solver.",
-      solve
+      () => solve()
     );
   });
   updateToolButtons();
@@ -1142,11 +1190,9 @@ function enableSmallDigs() {
   setEnabled("mode-but", true);
 }
 
-// Lets the user input a custom sudoku. Finishing the input needs a sudoku with
-// exactly one solution (then it can be checked and solved like the others),
-// otherwise a message is shown and the input goes on. force: leave the input
-// mode in any case (when the sudoku is replaced by another one).
-function inputCustomSudoku(force = false) {
+// Lets the user input a custom sudoku (any sudoku, it is only analysed when
+// "Mark mistakes" or "Solve" is requested, see customSolution).
+function inputCustomSudoku() {
   if (!inputtingOwnSud) {
     log("Own Input");
     puzzleId = null;
@@ -1176,36 +1222,17 @@ function inputCustomSudoku(force = false) {
     updateDigitCounts();
     disableSmallDigs();
   } else {
-    const { count, solution } = solveSudoku(T);
-    if (!force && (count !== 1 || solution === null)) {
-      if (count === 0) {
-        showInfo(
-          "No solution",
-          "This sudoku cannot be solved. Check the digits you entered."
-        );
-      } else {
-        showInfo(
-          "Not unique",
-          "This sudoku has more than one solution. Add more digits."
-        );
-      }
-      return;
-    }
     log("Done inputting own sudoku!");
     enableHyp();
     sudLvl = -1;
-    if (solution !== null && count === 1) {
-      copyTo2d(solution, Tsol);
-      solAvailable = true;
-    }
 
     // Toggle State
     inputtingOwnSud = false;
-    updateToolButtons();
     updateOwnInputUi();
 
     // Activate small numbers and set set numbers to unclickable
     copyTo2d(T, Tinit);
+    updateToolButtons();
     setClickableTrefT();
     enableSmallDigs();
     saveGame();
@@ -1215,7 +1242,7 @@ function inputCustomSudoku(force = false) {
 // Reads a random sudoku from the file and loads it.
 function loadRandomSud(lvl = MAX_LEVEL) {
   if (inputtingOwnSud) {
-    inputCustomSudoku(true);
+    inputCustomSudoku();
   }
   sudLvl = lvl;
   readSudokuFromFile(setSudFromStr, lvl);
@@ -1229,20 +1256,21 @@ function setHypButtons() {
   setEnabled("but3", false);
 }
 
-// Sets the current sudoku to the solution.
-function solve() {
-  if (solAvailable == false) return;
+// Sets the current sudoku to the solution (or to the given one).
+function solve(solution: number[][] | null = null) {
+  const sol = solution ?? Tsol;
+  if (solution === null && solAvailable == false) return;
   sudLvl = -2;
   timing = false;
   updateTimer();
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
       if (T[i][j] == 0) {
-        T[i][j] = Tsol[i][j];
+        T[i][j] = sol[i][j];
         setCell(i, j, T[i][j]);
         Tref[i][j].style.color = "var(--disabled)";
-      } else if (T[i][j] != Tsol[i][j]) {
-        T[i][j] = Tsol[i][j];
+      } else if (T[i][j] != sol[i][j]) {
+        T[i][j] = sol[i][j];
         setCell(i, j, T[i][j]);
         Tref[i][j].style.color = "var(--disabled)";
         Tref[i][j].style.backgroundColor = "var(--same-bg)";
@@ -1268,7 +1296,7 @@ function clearHyps() {
 // Restart
 function restart() {
   if (inputtingOwnSud) {
-    inputCustomSudoku(true);
+    inputCustomSudoku();
   }
   log("Restarting");
   elapsedMs = 0;
