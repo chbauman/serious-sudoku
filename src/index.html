@@ -155,7 +155,7 @@
           <li><svg class="icon" aria-hidden="true"><use href="#i-close-circle-outline" /></svg></li>
           <li class="help">Reject the last hypothesis, see below.</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-ellipsis-circle-outline" /></svg></li>
-          <li class="help">Tools: restart this sudoku (all progress, including all hypotheses, is lost); enter your own sudoku (the grid is emptied, set the digits you want, then open the tools again and choose &ldquo;Finish entering your sudoku&rdquo;, after that you solve it as usual; custom sudokus cannot be checked or solved by the app); mark mistakes (marks digits that differ from the solution in red); solve the sudoku (using the solver does not count as a solved sudoku in the history).</li>
+          <li class="help">Tools: restart this sudoku (all progress, including all hypotheses, is lost); mark mistakes (marks digits that differ from the solution in red); solve the sudoku (using the solver does not count as a solved sudoku in the history); enter your own sudoku (the grid is emptied, set the digits you want, then open the tools again and choose &ldquo;Finish entering your sudoku&rdquo;, after that you solve it as usual; custom sudokus cannot be checked or solved by the app).</li>
         </ul>
 
         <p>Guessing: hypotheses</p>
@@ -285,9 +285,9 @@
       <dialog id="tools">
         <h2>Tools</h2>
         <button id="tools-restart" class="tool-item">Restart</button>
-        <button id="own_sud" class="tool-item">Enter your own sudoku</button>
         <button id="check" class="tool-item">Mark mistakes</button>
         <button id="solve" class="tool-item">Solve</button>
+        <button id="own_sud" class="tool-item">Enter your own sudoku</button>
         <p id="tools-note" hidden>Not available for custom sudokus.</p>
         <ul>
           <li data-close>close</li>
