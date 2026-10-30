@@ -39,7 +39,7 @@ export function init() {
     const target = e.target as Element;
     if (
       !target.closest(
-        "dialog, [data-open], #auto-fill-button, #own_sud, .bar button, #menu, #digits"
+        "dialog, [data-open], .bar button, #menu, #digits"
       )
     ) {
       elsewhere();
@@ -50,7 +50,6 @@ export function init() {
   const butIds = [
     "mode-but",
     "undo-but",
-    "tools-note",
     "confirm-title",
     "confirm-desc",
     "confirm-yes",
@@ -60,6 +59,10 @@ export function init() {
     "but1",
     "but3",
     "own_sud",
+    "own-sud-text",
+    "tools-btn",
+    "finish-input",
+    "tools-restart",
     "digits",
     "lvl_list",
     "solve",

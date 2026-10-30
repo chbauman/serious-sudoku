@@ -252,7 +252,25 @@ function confirmAction(
 function updateToolButtons() {
   setEnabled("check", solAvailable);
   setEnabled("solve", solAvailable);
-  getAssertedButton("tools-note").hidden = solAvailable;
+}
+
+// While a custom sudoku is entered, the tools button is highlighted and the
+// entry in the tools dialog finishes the input; restarting makes no sense then
+function updateOwnInputUi() {
+  getAssertedButton("own-sud-text").textContent = inputtingOwnSud
+    ? "Finish input"
+    : "Input own sudoku";
+  getAssertedButton("own_sud")
+    .querySelector("use")!
+    .setAttribute("href", inputtingOwnSud ? "#i-checkmark-circle-outline" : "#i-create-outline");
+  setActive("tools-btn", inputtingOwnSud);
+  setEnabled("tools-restart", !inputtingOwnSud);
+  setEnabled("auto-fill-button", !inputtingOwnSud);
+  // The guess buttons make no sense while the digits are entered, the check
+  // mark finishes the input instead
+  getAssertedButton("but1").hidden = inputtingOwnSud;
+  getAssertedButton("but3").hidden = inputtingOwnSud;
+  getAssertedButton("finish-input").hidden = !inputtingOwnSud;
 }
 
 // Sets functionality to the buttons
@@ -287,6 +305,11 @@ function setButtons() {
     e.stopPropagation();
   }
   getAssertedButton("restart_but").addEventListener("click", restAndClose);
+  getAssertedButton("tools-restart").addEventListener("click", () => {
+    if (inputtingOwnSud) return;
+    closeDialog("tools");
+    openDialog("restart");
+  });
 
   // Confirmation dialog
   getAssertedButton("confirm-yes").addEventListener("click", (e) => {
@@ -302,8 +325,13 @@ function setButtons() {
     e.stopPropagation();
   });
 
-  // Autofill button
-  getAssertedButton("auto-fill-button").addEventListener("click", () =>
+  // Check mark: finishes the input of a custom sudoku
+  getAssertedButton("finish-input").addEventListener("click", () => {
+    if (inputtingOwnSud) inputCustomSudoku();
+  });
+  getAssertedButton("auto-fill-button").addEventListener("click", () => {
+    if (inputtingOwnSud) return;
+    closeDialog("tools");
     confirmAction(
       "Fill in pencil marks?",
       "Adds all digits that are still possible as pencil marks to every empty cell.",
@@ -311,12 +339,13 @@ function setButtons() {
         autoFillUsed = true;
         withUndo(fillSmallDigits);
       }
-    )
-  );
+    );
+  });
 
   // Custom sudoku import: only the first click (clearing the grid) needs
   // confirmation, the second click finishes the input.
   getAssertedButton("own_sud").addEventListener("click", () => {
+    closeDialog("tools");
     if (inputtingOwnSud) {
       inputCustomSudoku();
     } else {
@@ -1121,7 +1150,7 @@ function inputCustomSudoku() {
     inputtingOwnSud = true;
     solAvailable = false;
     updateToolButtons();
-    setActive("own_sud", true);
+    updateOwnInputUi();
 
     // Remove current sudoku
     for (let i = 0; i < 9; i++) {
@@ -1142,7 +1171,7 @@ function inputCustomSudoku() {
 
     // Toggle State
     inputtingOwnSud = false;
-    setActive("own_sud", false);
+    updateOwnInputUi();
 
     // Activate small numbers and set set numbers to unclickable
     copyTo2d(T, Tinit);
