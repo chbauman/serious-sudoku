@@ -39,7 +39,7 @@ export function init() {
     const target = e.target as Element;
     if (
       !target.closest(
-        "dialog, [data-open], #auto-fill-button, .bar button, #menu, #digits"
+        "dialog, [data-open], .bar button, #menu, #digits"
       )
     ) {
       elsewhere();
@@ -61,6 +61,7 @@ export function init() {
     "but3",
     "own_sud",
     "tools-btn",
+    "finish-input",
     "tools-restart",
     "digits",
     "lvl_list",

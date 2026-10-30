@@ -263,6 +263,12 @@ function updateOwnInputUi() {
     : "Input own sudoku";
   setActive("tools-btn", inputtingOwnSud);
   setEnabled("tools-restart", !inputtingOwnSud);
+  setEnabled("auto-fill-button", !inputtingOwnSud);
+  // The guess buttons make no sense while the digits are entered, the check
+  // mark finishes the input instead
+  getAssertedButton("but1").hidden = inputtingOwnSud;
+  getAssertedButton("but3").hidden = inputtingOwnSud;
+  getAssertedButton("finish-input").hidden = !inputtingOwnSud;
 }
 
 // Sets functionality to the buttons
@@ -317,8 +323,13 @@ function setButtons() {
     e.stopPropagation();
   });
 
-  // Autofill button
-  getAssertedButton("auto-fill-button").addEventListener("click", () =>
+  // Check mark: finishes the input of a custom sudoku
+  getAssertedButton("finish-input").addEventListener("click", () => {
+    if (inputtingOwnSud) inputCustomSudoku();
+  });
+  getAssertedButton("auto-fill-button").addEventListener("click", () => {
+    if (inputtingOwnSud) return;
+    closeDialog("tools");
     confirmAction(
       "Fill in pencil marks?",
       "Adds all digits that are still possible as pencil marks to every empty cell.",
@@ -326,8 +337,8 @@ function setButtons() {
         autoFillUsed = true;
         withUndo(fillSmallDigits);
       }
-    )
-  );
+    );
+  });
 
   // Custom sudoku import: only the first click (clearing the grid) needs
   // confirmation, the second click finishes the input.
