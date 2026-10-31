@@ -1,0 +1,41 @@
+name: Deploy a branch for testing
+
+# Every push to a branch other than main publishes that build under /dev/ of the
+# site (https://chrisbaumann.ch/serious-sudoku/dev/), overwriting the previous
+# one. The test build has its own stored data and caches (see
+# scripts/assemble-site.mjs), so it does not touch the data of the real app.
+on:
+  push:
+    branches-ignore: [main, gh-pages]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# One deployment at a time, they all push to the gh-pages branch
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run assemble
+        env:
+          DEV_BUILD: "1"
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: _site
+          publish_branch: gh-pages
+          destination_dir: dev
+          # Only dev/ is replaced, everything else on the branch stays
+          keep_files: true

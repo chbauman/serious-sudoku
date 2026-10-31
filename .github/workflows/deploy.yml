@@ -8,6 +8,11 @@ on:
 permissions:
   contents: write
 
+# One deployment at a time, they all push to the gh-pages branch
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,6 +25,12 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run assemble
+      # The test build of a branch (deploy-dev.yml) lives in dev/ of the branch
+      # and must survive the deployment of main
+      - name: Keep the test build
+        run: |
+          git fetch --depth=1 origin gh-pages || true
+          git checkout FETCH_HEAD -- dev 2>/dev/null && mv dev _site/dev || true
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
