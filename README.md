@@ -99,12 +99,13 @@ times if the setting says so (they are always stored). The win dialog congratula
 storage as the saved game, see below), there is no server; the last 500 solves
 are kept.
 
-Custom sudokus (Tools, "Input own sudoku"): finishing the input needs a sudoku
-with exactly one solution. `solveSudoku` (`src/sudoku.ts`, backtracking that
-fills the cell with the fewest candidates and stops after 2 solutions) finds it;
-a sudoku without a solution or with several ones is refused with a message and
-the input goes on. With the solution known, mistakes can be marked and the solver
-used, as for the other sudokus. They are not recorded in the history.
+Custom sudokus (Tools, "Input own sudoku"): any sudoku can be entered. It is only
+analysed when "Mark mistakes" or "Solve" is requested: `solveSudoku`
+(`src/sudoku.ts`, backtracking that fills the cell with the fewest candidates and
+stops after 2 solutions) solves its givens. With exactly one solution the tools
+work as for the other sudokus; a sudoku without a solution is reported, for one
+with several solutions a warning is shown first (the mistakes are marked against one
+of the solutions, "Solve" fills in one of them). Custom sudokus are not recorded in the history.
 
 ## Saved game
 
