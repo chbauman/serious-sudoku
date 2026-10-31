@@ -381,10 +381,9 @@ function setButtons() {
     if (action) action();
     e.stopPropagation();
   });
-  getAssertedButton("confirm-cancel").addEventListener("click", (e) => {
+  // Closed in any other way (X, outside, Escape): nothing is confirmed
+  getAssertedButton("confirm").addEventListener("close", () => {
     pendingConfirm = null;
-    closeDialog("confirm");
-    e.stopPropagation();
   });
 
   // Check mark: finishes the input of a custom sudoku

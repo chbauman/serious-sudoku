@@ -55,7 +55,7 @@ export function init() {
     "confirm-title",
     "confirm-desc",
     "confirm-yes",
-    "confirm-cancel",
+    "confirm",
     "restart_but",
     "auto-fill-button",
     "but1",
