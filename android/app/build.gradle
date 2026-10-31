@@ -9,10 +9,10 @@ def ciRun = System.getenv("GITHUB_RUN_NUMBER")
 def ciCommit = (System.getenv("GITHUB_SHA") ?: "").take(7)
 
 // The APK is named after the app and the version, e.g.
-// serious-sudoku-1.0-build57-1a2b3c4-debug.apk (serious-sudoku-1.0-local-debug.apk
+// serious-sudoku-1.1-build57-1a2b3c4-debug.apk (serious-sudoku-1.1-local-debug.apk
 // for a local build)
 base {
-    archivesName = "serious-sudoku-" + (ciRun ? "1.0-build${ciRun}-${ciCommit}" : "1.0-local")
+    archivesName = "serious-sudoku-" + (ciRun ? "1.1-build${ciRun}-${ciCommit}" : "1.1-local")
 }
 
 android {
@@ -25,7 +25,7 @@ android {
         // Play Store releases need an increasing versionCode: the release workflow
         // sets VERSION_CODE / VERSION_NAME (see .github/workflows/android-release.yml)
         versionCode(Integer.parseInt(System.getenv("VERSION_CODE") ?: (ciRun ?: "1")))
-        versionName(System.getenv("VERSION_NAME") ?: (ciRun ? "1.0 (build ${ciRun}, ${ciCommit})" : "1.0"))
+        versionName(System.getenv("VERSION_NAME") ?: (ciRun ? "1.1 (build ${ciRun}, ${ciCommit})" : "1.1"))
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

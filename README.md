@@ -173,14 +173,14 @@ maintain; the app works offline because all files are bundled.
 The workflow `.github/workflows/android.yml` builds a debug APK on every push
 to `main` and for pull requests that touch the app (Actions run -> Artifacts ->
 `serious-sudoku-debug-apk`). The APK is named after the app and the build, e.g.
-`serious-sudoku-1.0-build57-1a2b3c4-debug.apk`. To install it, copy it to the phone and open
+`serious-sudoku-1.1-build57-1a2b3c4-debug.apk`. To install it, copy it to the phone and open
 it (allow installing from unknown sources). To build locally you need Node 22,
 JDK 21 and the Android SDK:
 
 ```
 $ npm run assemble
 $ npx cap sync android
-$ cd android && ./gradlew assembleDebug   # android/app/build/outputs/apk/debug/serious-sudoku-1.0-local-debug.apk
+$ cd android && ./gradlew assembleDebug   # android/app/build/outputs/apk/debug/serious-sudoku-1.1-local-debug.apk
 ```
 
 All debug APKs (CI and local) are signed with the same debug key,
@@ -194,7 +194,7 @@ The data in the browser and in the app is stored under the keys `serious-sudoku:
 `serious-sudoku:history:v1` and `serious-sudoku:game:v1`.
 
 In CI the version code of the APK is the run number of the workflow and the
-version name shows it with the commit (`1.0 (build 57, 1a2b3c4)`, see the app
+version name shows it with the commit (`1.1 (build 57, 1a2b3c4)`, see the app
 info of the phone), so each CI build is newer than the one before. Local
 builds have the version code 1; installing one over a CI build is a downgrade
 and needs `adb install -r -d serious-sudoku-*-debug.apk`.
