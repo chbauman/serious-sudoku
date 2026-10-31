@@ -1,0 +1,311 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>Serious Sudoku (dev)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
+
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon/favicon.svg" />
+    <link rel="icon" href="./assets/favicon/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="./assets/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#16181d" media="(prefers-color-scheme: dark)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Serious Sudoku (dev)" />
+
+    <script type="module" src="./dist/main.js"></script>
+    <script type="module" src="./dist/sudoku.js"></script>
+    <script type="module" src="./dist/html_util.js"></script>
+
+    <script>
+      // Apply the chosen theme before the first paint (see src/settings.ts)
+      try {
+        var t = JSON.parse(localStorage.getItem("serious-sudoku-dev:settings:v1")).theme;
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <!-- Icons: Ionicons v5 (MIT, https://ionicons.com), inlined so the app works offline -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+    <symbol id="i-add-circle-outline" viewBox="0 0 512 512"><path d="M448,256c0-106-86-192-192-192S64,150,64,256s86,192,192,192S448,362,448,256Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><line x1="256" y1="176" x2="256" y2="336" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="336" y1="256" x2="176" y2="256" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    <symbol id="i-arrow-undo-outline" viewBox="0 0 512 512"><path d="M240,424V328c116.4,0,159.39,33.76,208,96,0-119.23-39.57-240-208-240V88L64,256Z" style="fill:none;stroke:currentColor;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    <symbol id="i-backspace-outline" viewBox="0 0 512 512"><path d="M135.19,390.14A28.79,28.79,0,0,0,156.87,400H403.13A29,29,0,0,0,432,371.13V140.87A29,29,0,0,0,403.13,112H156.87a28.84,28.84,0,0,0-21.67,9.84v0L46.33,256l88.86,134.11Z" style="fill:none;stroke:currentColor;stroke-linejoin:round;stroke-width:32px"/><line x1="336.67" y1="192.33" x2="206.66" y2="322.34" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="336.67" y1="322.34" x2="206.66" y2="192.33" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="336.67" y1="192.33" x2="206.66" y2="322.34" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="336.67" y1="322.34" x2="206.66" y2="192.33" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    <symbol id="i-close-circle-outline" viewBox="0 0 512 512"><path d="M448,256c0-106-86-192-192-192S64,150,64,256s86,192,192,192S448,362,448,256Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><line x1="320" y1="320" x2="192" y2="192" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="192" y1="320" x2="320" y2="192" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    <symbol id="i-color-wand-outline" viewBox="0 0 512 512"><rect x="280.48" y="122.9" width="63.03" height="378.2" rx="10" ry="10" transform="translate(-129.23 312) rotate(-45)" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><rect x="180.35" y="164.45" width="63.29" height="95.1" transform="translate(-87.81 212) rotate(-45)"/><line x1="48" y1="192" x2="96" y2="192" style="stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><line x1="90.18" y1="90.18" x2="124.12" y2="124.12" style="stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><line x1="192" y1="48" x2="192" y2="96" style="stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><line x1="293.82" y1="90.18" x2="259.88" y2="124.12" style="stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><line x1="124.12" y1="259.88" x2="90.18" y2="293.82" style="stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/></symbol>
+    <symbol id="i-create-outline" viewBox="0 0 512 512"><path d="M384,224V408a40,40,0,0,1-40,40H104a40,40,0,0,1-40-40V168a40,40,0,0,1,40-40H271.48" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><path d="M459.94,53.25a16.06,16.06,0,0,0-23.22-.56L424.35,65a8,8,0,0,0,0,11.31l11.34,11.32a8,8,0,0,0,11.34,0l12.06-12C465.19,69.54,465.76,59.62,459.94,53.25Z"/><path d="M399.34,90,218.82,270.2a9,9,0,0,0-2.31,3.93L208.16,299a3.91,3.91,0,0,0,4.86,4.86l24.85-8.35a9,9,0,0,0,3.93-2.31L422,112.66A9,9,0,0,0,422,100L412.05,90A9,9,0,0,0,399.34,90Z"/></symbol>
+    <symbol id="i-git-branch-outline" viewBox="0 0 512 512"><circle cx="160" cy="96" r="48" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><circle cx="160" cy="416" r="48" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="160" y1="368" x2="160" y2="144" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><circle cx="352" cy="160" r="48" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><path d="M352,208c0,128-192,48-192,160" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    <symbol id="i-pencil-outline" viewBox="0 0 512 512"><polygon points="364.13 125.25 87 403 64 448 108.99 425 386.75 147.87 364.13 125.25" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><path d="M420.69,68.69,398.07,91.31l22.62,22.63,22.62-22.63a16,16,0,0,0,0-22.62h0A16,16,0,0,0,420.69,68.69Z" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    <symbol id="i-refresh-outline" viewBox="0 0 512 512"><path d="M320,146s24.36-12-64-12A160,160,0,1,0,416,294" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><polyline points="256 58 336 138 256 218" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    <symbol id="i-menu-outline" viewBox="0 0 512 512"><line x1="80" y1="160" x2="432" y2="160" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><line x1="80" y1="256" x2="432" y2="256" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><line x1="80" y1="352" x2="432" y2="352" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/></symbol>
+    <symbol id="i-arrow-back-outline" viewBox="0 0 512 512"><polyline points="244 400 100 256 244 112" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/><line x1="120" y1="256" x2="412" y2="256" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></symbol>
+    <symbol id="i-ellipsis-circle-outline" viewBox="0 0 512 512"><path d="M448,256c0-106-86-192-192-192S64,150,64,256s86,192,192,192S448,362,448,256Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><circle cx="160" cy="256" r="26"/><circle cx="256" cy="256" r="26"/><circle cx="352" cy="256" r="26"/></symbol>
+    <symbol id="i-checkmark-circle-outline" viewBox="0 0 512 512"><path d="M448,256c0-106-86-192-192-192S64,150,64,256s86,192,192,192S448,362,448,256Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><polyline points="352 176 217.6 336 160 272" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    <symbol id="i-alert-circle-outline" viewBox="0 0 512 512"><path d="M448,256c0-106-86-192-192-192S64,150,64,256s86,192,192,192S448,362,448,256Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><line x1="256" y1="160" x2="256" y2="276" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><circle cx="256" cy="352" r="22"/></symbol>
+    <symbol id="i-close-outline" viewBox="0 0 512 512"><line x1="368" y1="368" x2="144" y2="144" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="368" y1="144" x2="144" y2="368" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    <symbol id="i-help-circle-outline" viewBox="0 0 512 512"><path d="M256,80A176,176,0,1,0,432,256,176,176,0,0,0,256,80Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><path d="M200,202.29s.84-17.5,19.57-32.57C230.68,160.77,244,158.18,256,158c10.93-.14,20.69,1.67,26.53,4.45,10,4.76,29.47,16.38,29.47,41.09,0,26-17,37.81-36.37,50.8S251,281.43,251,296" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:28px"/><circle cx="250" cy="348" r="20"/></symbol>
+    <symbol id="i-settings-outline" viewBox="0 0 512 512"><path d="M262.29,192.31a64,64,0,1,0,57.4,57.4A64.13,64.13,0,0,0,262.29,192.31ZM416.39,256a154.34,154.34,0,0,1-1.53,20.79l45.21,35.46A10.81,10.81,0,0,1,462.52,326l-42.77,74a10.81,10.81,0,0,1-13.14,4.59l-44.9-18.08a16.11,16.11,0,0,0-15.17,1.75A164.48,164.48,0,0,1,325,400.8a15.94,15.94,0,0,0-8.82,12.14l-6.73,47.89A11.08,11.08,0,0,1,298.77,470H213.23a11.11,11.11,0,0,1-10.69-8.87l-6.72-47.82a16.07,16.07,0,0,0-9-12.22,155.3,155.3,0,0,1-21.46-12.57,16,16,0,0,0-15.11-1.71l-44.89,18.07a10.81,10.81,0,0,1-13.14-4.58l-42.77-74a10.8,10.8,0,0,1,2.45-13.75l38.21-30a16.05,16.05,0,0,0,6-14.08c-.36-4.17-.58-8.33-.58-12.5s.21-8.27.58-12.35a16,16,0,0,0-6.07-13.94l-38.19-30A10.81,10.81,0,0,1,49.48,186l42.77-74a10.81,10.81,0,0,1,13.14-4.59l44.9,18.08a16.11,16.11,0,0,0,15.17-1.75A164.48,164.48,0,0,1,187,111.2a15.94,15.94,0,0,0,8.82-12.14l6.73-47.89A11.08,11.08,0,0,1,213.23,42h85.54a11.11,11.11,0,0,1,10.69,8.87l6.72,47.82a16.07,16.07,0,0,0,9,12.22,155.3,155.3,0,0,1,21.46,12.57,16,16,0,0,0,15.11,1.71l44.89-18.07a10.81,10.81,0,0,1,13.14,4.58l42.77,74a10.8,10.8,0,0,1-2.45,13.75l-38.21,30a16.05,16.05,0,0,0-6.05,14.08C416.17,247.67,416.39,251.83,416.39,256Z" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    <symbol id="i-information-circle-outline" viewBox="0 0 512 512"><path d="M248,64C146.39,64,64,146.39,64,248s82.39,184,184,184,184-82.39,184-184S349.61,64,248,64Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><polyline points="220 220 252 220 252 336" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="208" y1="340" x2="296" y2="340" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><path d="M248,130a26,26,0,1,0,26,26A26,26,0,0,0,248,130Z"/></symbol>
+    <symbol id="i-time-outline" viewBox="0 0 512 512"><path d="M256,64C150,64,64,150,64,256s86,192,192,192,192-86,192-192S362,64,256,64Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><polyline points="256 128 256 272 352 272" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
+    </svg>
+
+    <div id="home">
+      <header class="bar">
+        <button id="back-btn" class="icon-btn" title="Back" aria-label="Back" hidden>
+          <svg class="icon" aria-hidden="true"><use href="#i-arrow-back-outline" /></svg>
+        </button>
+        <h1 id="page-title">Serious Sudoku (dev)</h1>
+        <button id="menu-btn" class="icon-btn" title="Menu" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
+          <svg class="icon" aria-hidden="true"><use href="#i-menu-outline" /></svg>
+        </button>
+        <nav id="menu" hidden>
+          <a href="#help"><svg class="icon" aria-hidden="true"><use href="#i-help-circle-outline" /></svg>Help</a>
+          <a href="#settings"><svg class="icon" aria-hidden="true"><use href="#i-settings-outline" /></svg>Settings</a>
+          <a href="#history"><svg class="icon" aria-hidden="true"><use href="#i-time-outline" /></svg>History</a>
+          <a href="#about"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg>About</a>
+        </nav>
+      </header>
+
+      <main data-page="game">
+        <div class="table">
+          <table id="grid"></table>
+        </div>
+
+        <div class="table panel">
+          <table id="digits">
+            <tr>
+              <td id="digit-0" class="digit" title="Clear cell" aria-label="Clear cell">
+                <svg class="icon" aria-hidden="true"><use href="#i-backspace-outline" /></svg>
+              </td>
+              <td id="digit-1" class="digit"><span class="num">1</span><span class="count"></span></td>
+              <td id="digit-2" class="digit"><span class="num">2</span><span class="count"></span></td>
+              <td id="digit-3" class="digit"><span class="num">3</span><span class="count"></span></td>
+              <td id="digit-4" class="digit"><span class="num">4</span><span class="count"></span></td>
+              <td id="mode-but" class="digit" title="Pencil marks" aria-label="Pencil marks">
+                <svg class="icon" aria-hidden="true"><use href="#i-pencil-outline" /></svg>
+              </td>
+            </tr>
+
+            <tr>
+              <td id="digit-5" class="digit"><span class="num">5</span><span class="count"></span></td>
+              <td id="digit-6" class="digit"><span class="num">6</span><span class="count"></span></td>
+              <td id="digit-7" class="digit"><span class="num">7</span><span class="count"></span></td>
+              <td id="digit-8" class="digit"><span class="num">8</span><span class="count"></span></td>
+              <td id="digit-9" class="digit"><span class="num">9</span><span class="count"></span></td>
+              <td id="undo-but" class="digit" title="Undo (Ctrl+Z)" aria-label="Undo">
+                <svg class="icon" aria-hidden="true"><use href="#i-arrow-undo-outline" /></svg>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div>
+          <ul id="buttons2">
+            <li data-open="newGrid" title="New sudoku" aria-label="New sudoku">
+              <svg class="icon" aria-hidden="true"><use href="#i-add-circle-outline" /></svg>
+            </li>
+            <li id="but1" title="Make a hypothesis" aria-label="Make a hypothesis"><svg class="icon" aria-hidden="true"><use href="#i-git-branch-outline" /></svg></li>
+            <li id="but3" title="Reject hypothesis" aria-label="Reject hypothesis"><svg class="icon" aria-hidden="true"><use href="#i-close-circle-outline" /></svg></li>
+            <li id="finish-input" title="Finish input" aria-label="Finish input" hidden><svg class="icon" aria-hidden="true"><use href="#i-checkmark-circle-outline" /></svg></li>
+            <li id="tools-btn" data-open="tools" title="Tools: restart, own sudoku, mark mistakes, solve" aria-label="Tools"><svg class="icon" aria-hidden="true"><use href="#i-ellipsis-circle-outline" /></svg></li>
+          </ul>
+        </div>
+
+
+        <p id="timer" class="timer" title="Level and solving time"></p>
+      </main>
+
+      <section id="help" data-page="help" hidden>
+        <p>How to play</p>
+        <p class="help-text">
+          Tap a cell, then tap a digit to set it. Digits that would directly
+          conflict with the row, column or 3&times;3 block of the cell are greyed
+          out and cannot be set. Given digits are black, digits you set are blue.
+          Tap anywhere else to deselect the cell.
+        </p>
+        <p class="help-text">
+          Tapping a cell that contains a digit highlights its row, column and
+          block in light red, the same digit elsewhere in red, and the empty cells
+          that still have this digit as a pencil mark in green.
+        </p>
+
+        <p>Number pad</p>
+        <ul>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-backspace-outline" /></svg></li>
+          <li class="help">Clear the selected cell (digit and pencil marks).</li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-pencil-outline" /></svg></li>
+          <li class="help">Pencil mode: digits toggle small pencil marks instead of setting the cell. Marks that become impossible are removed automatically when you set digits in the same row, column or block.</li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-arrow-undo-outline" /></svg></li>
+          <li class="help">Undo the last digit, pencil mark, autofill or rejected hypothesis.</li>
+        </ul>
+
+        <p>Buttons below the sudoku</p>
+        <ul>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-add-circle-outline" /></svg></li>
+          <li class="help">Start a new sudoku and choose its level, from the easiest to the hardest. The level that is used at startup can be set in the settings.</li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-git-branch-outline" /></svg></li>
+          <li class="help">Make a hypothesis (a guess), see below.</li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-close-circle-outline" /></svg></li>
+          <li class="help">Reject the last hypothesis, see below.</li>
+          <li><svg class="icon" aria-hidden="true"><use href="#i-ellipsis-circle-outline" /></svg></li>
+          <li class="help">Tools: fill in the pencil marks (every empty cell gets all digits that are still possible); restart this sudoku (all progress, including all hypotheses, is lost); mark mistakes (marks digits that differ from the solution in red); solve the sudoku (using the solver does not count as a solved sudoku in the history); input your own sudoku (the grid is emptied, set the digits you want, then tap the check mark that replaces the guess buttons, or choose &ldquo;Finish input&rdquo; in the tools, any sudoku can be entered, it is only analysed when you mark mistakes or solve it: with exactly one solution this works as for the other sudokus, a sudoku without a solution is reported, and for one with several solutions a warning is shown, then the solver fills in one of them or the mistakes are marked against one of them. Custom sudokus are not recorded in the history).</li>
+        </ul>
+
+        <p>Guessing: hypotheses</p>
+        <p class="help-text">
+          For hard sudokus you sometimes have to guess. Tap the branch button and
+          then a digit: the digit is a guess and shown in green. All digits set so
+          far are fixed (black) and assumed to be correct, this is a save point.
+          If the guess leads to a contradiction, tap the cross button: everything
+          done since the last hypothesis is reverted. You can make another guess
+          inside a guess, so you can do a depth-first search for the solution by
+          hand. Rejecting hypotheses can be undone with the undo button.
+        </p>
+
+        <p>Time and history</p>
+        <p class="help-text">
+          The time below the buttons only runs while you are solving on this page.
+          When you finish a sudoku without the solver, its time is saved in the
+          history (menu), together with the level and the ID of the sudoku. The
+          current game is saved on your device, so you can close the app and
+          continue later.
+        </p>
+
+        <div id="keyboard-help" hidden>
+          <p>Keyboard shortcuts</p>
+          <dl class="shortcuts">
+            <dt><kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd></dt>
+            <dd>Move the selected cell</dd>
+            <dt><kbd>1</kbd> – <kbd>9</kbd></dt>
+            <dd>Enter a digit (pencil mark in pencil mode)</dd>
+            <dt><kbd>Del</kbd> <kbd>Backspace</kbd> <kbd>0</kbd></dt>
+            <dd>Clear the selected cell</dd>
+            <dt><kbd>Ctrl</kbd> + <kbd>Z</kbd></dt>
+            <dd>Undo</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section id="about" data-page="about" hidden>
+        <p>Serious Sudoku (dev)</p>
+        <p class="help-text">
+          A sudoku game for the hard puzzles, with guessing and backtracking.
+          Free, without ads, and it works offline.
+        </p>
+
+        <p>Open source</p>
+        <p class="help-text">
+          The <a href="https://github.com/chbauman/serious-sudoku" target="_blank" rel="noopener">sources are on GitHub</a>.
+          Based on <a href="https://github.com/baruchel/sudoku-js" target="_blank" rel="noopener">sudoku-js</a>
+          by Thomas Baruchel. Icons from
+          <a href="https://ionicons.com/" target="_blank" rel="noopener">Ionicons</a>.
+        </p>
+
+        <p>Author</p>
+        <p class="help-text">
+          Made by <a href="https://chrisbaumann.ch/" target="_blank" rel="noopener">chrisbaumann.ch</a>.
+        </p>
+
+        <p>Privacy</p>
+        <p class="help-text">
+          The app does not collect any data, your game, settings and solve times
+          stay on your device. Read the
+          <a href="https://chrisbaumann.ch/serious-sudoku/privacy.html" target="_blank" rel="noopener">privacy policy</a>.
+        </p>
+      </section>
+
+      <section id="history" data-page="history" hidden>
+        <p id="history-empty">No solved sudokus yet. Your solve times will show up here.</p>
+        <div id="history-content" hidden>
+          <p>Best times</p>
+          <table class="stats" id="history-levels"></table>
+          <p>Recent</p>
+          <table class="stats" id="history-recent"></table>
+          <p id="history-note" hidden>
+            <svg class="icon inline-icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg>
+            The pencil marks were filled in automatically. Such solves only count for the best and average times if this is turned on in the settings.
+          </p>
+        </div>
+      </section>
+
+      <section id="settings" data-page="settings" hidden>
+        <label class="setting">
+          <span>Default level</span>
+          <select id="setting-level"></select>
+        </label>
+        <label class="setting">
+          <span>Appearance</span>
+          <select id="setting-theme">
+            <option value="auto">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <label class="setting">
+          <span>Count solves with auto-filled pencil marks (<svg class="icon inline-icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg>) for the best times</span>
+          <input type="checkbox" id="setting-count-autofill" />
+        </label>
+      </section>
+
+      <dialog id="waiting" data-persistent>
+        <p>generating a new grid…</p>
+      </dialog>
+
+      <dialog id="newGrid">
+        <h2>Select level:</h2>
+        <ul id="lvl_list"></ul>
+        <button class="dialog-x" data-close title="Close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
+      </dialog>
+
+      <dialog id="restart">
+        <h2>Restart game?</h2>
+        <p class="dialog-text">Current progress will be lost.</p>
+        <ul>
+          <li id="restart_but">yes</li>
+        </ul>
+        <button class="dialog-x" data-close title="Close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
+      </dialog>
+
+      <dialog id="confirm">
+        <h2 id="confirm-title"></h2>
+        <p id="confirm-desc"></p>
+        <ul>
+          <li id="confirm-yes">yes</li>
+        </ul>
+        <button class="dialog-x" data-close title="Close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
+      </dialog>
+
+      <dialog id="info">
+        <h2 id="info-title"></h2>
+        <p id="info-desc"></p>
+        <button class="dialog-x" data-close title="Close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
+      </dialog>
+
+      <dialog id="tools">
+        <h2>Tools</h2>
+        <button id="auto-fill-button" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg><span>Fill in pencil marks</span></button>
+        <button id="tools-restart" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-refresh-outline" /></svg><span>Restart</span></button>
+        <button id="check" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-alert-circle-outline" /></svg><span>Mark mistakes</span></button>
+        <button id="solve" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-help-circle-outline" /></svg><span>Solve</span></button>
+        <button id="own_sud" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-create-outline" /></svg><span id="own-sud-text">Input own sudoku</span></button>
+        <button class="dialog-x" data-close title="Close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
+      </dialog>
+
+      <dialog id="win">
+        <svg class="win-icon" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="192" fill="none" stroke="currentColor" stroke-width="32"/><polyline points="176 262 232 318 340 200" fill="none" stroke="currentColor" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h2 id="solved-h">Solved!</h2>
+        <p id="solved-text"></p>
+        <p id="log-txt"></p>
+        <button class="dialog-x" data-close title="Close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
+      </dialog>
+
+
+    </div>
+  </body>
+</html>

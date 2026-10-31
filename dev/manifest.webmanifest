@@ -1,0 +1,24 @@
+{
+  "id": ".",
+  "name": "Serious Sudoku (dev)",
+  "short_name": "Serious Sudoku (dev)",
+  "description": "Solve sudokus by hand with nested guessing (depth-first search).",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "./assets/favicon/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/favicon/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

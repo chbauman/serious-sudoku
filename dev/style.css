@@ -1,0 +1,749 @@
+/* Theme: colors are CSS variables so JS and dark mode share one palette. */
+:root {
+    color-scheme: light dark;
+    --bg: #fff;
+    --fg: #000;
+    --grid-line: #000;
+    --grid-line-thin: #888;
+    --disabled: #b8b8b8;
+    --accent: #0a85ff;
+    --danger: #f00;
+    --hyp: #0c5;
+    --wrong: #f22;
+    --selected-bg: #bbb;
+    --pencil: #838383;
+    --small-dig-bg: #dfd;
+    --forbid-bg: #fee9e9;
+    --same-bg: #fbb;
+    --active-bg: rgba(10, 133, 255, 0.14);
+    --overlay: rgba(0, 0, 0, 0.5);
+
+    --page-width: 560px;
+    --side: 8px; /* minimum margin at the sides of the game page */
+    --cell: min(calc((100vw - 2 * var(--side)) / 9), 44px);
+    --digit-size: calc(var(--cell) * 0.7); /* grid digits and digit buttons */
+    --btn: min(10.5vw, 46px);
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Native controls (dropdowns, scrollbars) follow a forced theme */
+:root[data-theme="light"] {
+    color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+}
+
+/* Dark theme: automatic (system setting) unless the user picked a theme in the
+   settings (data-theme on <html>, see src/settings.ts). */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #16181d;
+        --fg: #e8e8ea;
+        --grid-line: #e8e8ea;
+        --grid-line-thin: #5a5d66;
+        --disabled: #5f636c;
+        --accent: #4aa3ff;
+        --danger: #ff5a5a;
+        --hyp: #2fd47a;
+        --wrong: #ff5a5a;
+        --selected-bg: #4a4e58;
+        --pencil: #7b7e87;
+        --small-dig-bg: #1e3a28;
+        --forbid-bg: #2a2125;
+        --same-bg: #6b2f33;
+        --active-bg: rgba(74, 163, 255, 0.22);
+        --overlay: rgba(0, 0, 0, 0.7);
+    }
+}
+
+:root[data-theme="dark"] {
+    --bg: #16181d;
+    --fg: #e8e8ea;
+    --grid-line: #e8e8ea;
+    --grid-line-thin: #5a5d66;
+    --disabled: #5f636c;
+    --accent: #4aa3ff;
+    --danger: #ff5a5a;
+    --hyp: #2fd47a;
+    --wrong: #ff5a5a;
+    --selected-bg: #4a4e58;
+    --pencil: #7b7e87;
+    --small-dig-bg: #1e3a28;
+    --forbid-bg: #2a2125;
+    --same-bg: #6b2f33;
+    --active-bg: rgba(74, 163, 255, 0.22);
+    --overlay: rgba(0, 0, 0, 0.7);
+}
+
+html,
+body {
+    background: var(--bg);
+    color: var(--fg);
+    /* No pull-to-refresh / overscroll glow (the page is installable as an app) */
+    overscroll-behavior: none;
+}
+
+body,
+button,
+input,
+dialog {
+    font-family: var(--font);
+}
+
+body {
+    margin: 0;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* Bootstrap-like container: content (and the header buttons) stay in a
+   centered column on wide screens and only touch the edges on narrow ones. */
+[data-page] {
+    padding: 0 16px 1em;
+    max-width: var(--page-width);
+    margin: 0 auto;
+}
+
+/* Dialogs share the page background. */
+dialog {
+    box-sizing: border-box;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--grid-line-thin);
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    padding: 0.8em 1.5em 1em;
+    max-width: min(92vw, 520px);
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+}
+
+dialog:focus,
+dialog:focus-visible {
+    outline: none;
+}
+
+dialog > :first-child {
+    margin-top: 0;
+}
+
+/* Every dialog is closed by the X in the top right corner (also by a tap
+   outside of it and Escape), there is no cancel / close text. */
+.dialog-x {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    border: none;
+    background: none;
+    color: var(--fg);
+    padding: 8px;
+    font-size: 24px;
+    line-height: 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.dialog-x .icon {
+    margin: 0;
+}
+
+.dialog-x:focus,
+.dialog-x:focus-visible {
+    outline: none;
+}
+
+dialog::backdrop {
+    background: var(--overlay);
+}
+
+a {
+    color: var(--accent);
+}
+
+/* Everything clickable gets the same cursor. */
+.gridCell,
+.digit,
+li,
+.tool-item {
+    cursor: pointer;
+}
+
+body {
+    text-align: center;
+}
+
+
+.panel {
+    margin: 0;
+    padding: 0;
+    font-size: 0;
+}
+
+.icon {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* An icon within a text line (the other icons are centred buttons) */
+.icon.inline-icon {
+    display: inline-block;
+    margin: 0;
+    vertical-align: -0.15em;
+}
+
+/* Title sits midway between the page top and the grid. */
+h1 {
+    text-align: center;
+    margin: 0;
+    padding: 0.75em 0 0.7em;
+    line-height: 1.2;
+}
+
+/* The game uses (almost) the full width on phones */
+[data-page="game"] {
+    padding-left: var(--side);
+    padding-right: var(--side);
+}
+
+/* Short landscape screens (phones turned sideways, small windows): the grid on
+   the left takes the whole height, the title with the menu, the digits and the
+   buttons are on the right. The other pages keep the usual header on top. */
+@media (orientation: landscape) and (max-height: 520px) {
+    :root {
+        --cell: min(calc((100vh - 24px) / 9), 44px);
+    }
+
+    #home:has(main[data-page="game"]:not([hidden])) {
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-template-rows: auto auto auto auto;
+        column-gap: 12px;
+        justify-content: center;
+        align-content: center;
+        min-height: 100vh;
+    }
+
+    #home:has(main[data-page="game"]:not([hidden])) > main[data-page="game"] {
+        display: contents;
+    }
+
+    #home:has(main[data-page="game"]:not([hidden])) .bar {
+        grid-column: 2;
+        grid-row: 1;
+        width: 100%;
+    }
+
+    #home:has(main[data-page="game"]:not([hidden])) .bar h1 {
+        font-size: 24px;
+        padding: 0.4em 0;
+    }
+
+    main[data-page="game"] > .table:first-child {
+        grid-column: 1;
+        grid-row: 1 / span 4;
+        align-self: center;
+    }
+
+    main[data-page="game"] > .table.panel {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    main[data-page="game"] > div:not(.table) {
+        grid-column: 2;
+        grid-row: 3;
+    }
+
+    main[data-page="game"] > .timer {
+        grid-column: 2;
+        grid-row: 4;
+        margin-top: 8px;
+    }
+}
+
+/* Page header: back button | title | menu button */
+.bar {
+    position: relative;
+    max-width: var(--page-width);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 56px 1fr 56px;
+    align-items: center;
+}
+
+.bar h1 {
+    grid-column: 2;
+}
+
+.icon-btn {
+    border: none;
+    background: none;
+    color: var(--fg);
+    font-size: 28px;
+    padding: 8px;
+    cursor: pointer;
+    justify-self: center;
+}
+
+#back-btn {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+#menu-btn {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+#menu {
+    position: absolute;
+    top: 100%;
+    right: 12px;
+    z-index: 5;
+    min-width: 180px;
+    background: var(--bg);
+    border: 1px solid var(--grid-line-thin);
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    padding: 6px 0;
+    text-align: left;
+}
+
+#menu a,
+#menu span {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    font-size: 18px;
+    color: var(--fg);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#menu .icon {
+    margin: 0;
+    font-size: 22px;
+    flex: none;
+}
+
+/* Settings */
+.setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 4px;
+    font-size: 18px;
+    border-bottom: 1px solid var(--grid-line-thin);
+}
+
+.setting select option {
+    background: var(--bg);
+    color: var(--fg);
+}
+
+.setting select {
+    font: inherit;
+    color: var(--fg);
+    background: var(--bg);
+    border: 2px solid var(--grid-line);
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+
+#help,
+#history,
+#settings,
+#about {
+    text-align: left;
+}
+
+#history > p,
+#history-content > p {
+    font-weight: bold;
+    font-size: 16px;
+    margin: 18px 0 8px;
+}
+
+#history-empty,
+#history-note {
+    font-weight: normal !important;
+}
+
+#history-note {
+    font-size: 15px;
+}
+
+.stats {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.stats th,
+.stats td {
+    text-align: left;
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--grid-line-thin);
+}
+
+.stats th {
+    font-weight: 600;
+}
+
+.stats .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+#help > p,
+#about > p {
+    font-weight: bold;
+    font-size: 16px;
+    margin: 18px 0 8px;
+}
+
+table {
+    display: inline-block;
+    font-size: 14px;
+}
+
+#grid {
+    table-layout: fixed;
+    margin-top: 0px;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* The 3x3 pencil marks of a cell: a grid with equal tracks, so a mark is at the
+   same place whichever other marks are present (table layout distributed the
+   space by content). */
+.innerTable {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.innerTable tbody,
+.innerTable tr {
+    display: contents;
+}
+
+.gridRow {
+    margin: 0;
+    padding: 0;
+}
+
+.gridCell {
+    width: var(--cell);
+    height: var(--cell);
+    text-align: center;
+    font-weight: 600;
+    font-size: var(--digit-size);
+    line-height: 1;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px dotted var(--grid-line-thin);
+    margin: 0;
+    padding: 0;
+}
+
+.subGridCell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    color: var(--pencil);
+    padding: 0;
+    box-sizing: border-box;
+    font-weight: 600;
+    font-size: calc(var(--cell) * 0.3);
+    line-height: 1;
+    margin: 0;
+}
+
+/* Uniform button states: toggles are .active while on, any button can be
+   .disabled. */
+.active {
+    color: var(--accent);
+    background: var(--active-bg);
+}
+
+.digit.active {
+    border-color: var(--accent);
+}
+
+.disabled {
+    color: var(--disabled);
+    background: none;
+    cursor: default;
+}
+
+.digit.disabled {
+    border-color: var(--disabled);
+}
+
+.topBorder {
+    border-top: 2px solid var(--grid-line);
+}
+
+.bottomBorder {
+    border-bottom: 2px solid var(--grid-line);
+}
+
+.leftBorder {
+    border-left: 2px solid var(--grid-line);
+}
+
+.rightBorder {
+    border-right: 2px solid var(--grid-line);
+}
+
+#digits {
+    margin: 18px 0 10px 4px;
+    border-spacing: 8px;
+}
+
+/* The click target of a button reaches into the gap to its neighbours (half the
+   border-spacing of #digits), so clicking between the buttons hits one of them. */
+.digit {
+    position: relative;
+    width: var(--btn);
+    height: var(--btn);
+    text-align: center;
+    /* same digit style as the grid cells; same outline as the block borders */
+    font-size: var(--digit-size);
+    font-weight: 600;
+    border: 2px solid var(--grid-line);
+    border-radius: 8px;
+    padding: 0px;
+    margin: 0;
+}
+
+.digit::after {
+    content: "";
+    position: absolute;
+    /* measured from inside the 2px border: 4px beyond the border box */
+    inset: -6px;
+}
+
+/* How many of the digit are set in the grid; all nine: the digit is crossed out */
+.digit .count {
+    position: absolute;
+    right: 5px;
+    bottom: 1px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.digit.done .num {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+}
+
+.digit.done {
+    opacity: 0.55;
+}
+
+
+ul {
+    margin: 0px auto;
+    padding-left: 5px;
+    max-width: 700px;
+    list-style: none;
+    text-align: left;
+    font-size: 1px;
+    display: inline-block;
+}
+
+li {
+    position: relative;
+    z-index: 0;
+    display: inline-block;
+    padding: 0 8px;
+    width: 42px;
+    list-style: none;
+    text-align: center;
+    font-weight: normal;
+    font-size: 32px;
+}
+
+#buttons2 {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+    max-width: 100%;
+}
+
+#buttons2 li {
+    width: calc(var(--btn) * 1.3);
+    padding: 4px 0;
+    border-radius: 10px;
+    font-size: calc(var(--btn) * 0.9);
+}
+
+#newGrid ul {
+    margin: 0 auto;
+}
+
+#newGrid li {
+    display: table;
+    margin: 0 auto;
+    text-align: center;
+    color: var(--accent);
+    font-size: 18px;
+    padding-bottom: 6px;
+    width: 200px;
+}
+
+#confirm p,
+#restart p {
+    max-width: 260px;
+    margin: 0 auto 1em;
+}
+
+#restart li,
+#confirm li,
+#tools li,
+#win li {
+    font-size: 24px;
+    width: auto;
+}
+
+/* Icon legend of the help page: icon column + text column */
+#help ul {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    align-items: center;
+    row-gap: 10px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+}
+
+#help li {
+    display: block;
+    width: auto;
+    padding: 0;
+    font-size: 28px;
+    cursor: default;
+}
+
+#help > p,
+#keyboard-help > p {
+    font-weight: bold;
+    font-size: 16px;
+    margin: 18px 0 8px;
+}
+
+#help > p.help-text,
+#about > p.help-text {
+    font-weight: normal;
+    font-size: 15px;
+    line-height: 1.45;
+    margin: 0 0 10px;
+}
+
+#help li.help {
+    font-size: 15px;
+    text-align: left;
+}
+
+/* Dialog sizes */
+#win {
+    width: min(460px, 92vw);
+}
+
+.win-icon {
+    display: block;
+    width: 72px;
+    height: 72px;
+    margin: 4px auto 8px;
+    color: var(--accent);
+}
+
+/* Tools dialog */
+.tool-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    width: 100%;
+    font: inherit;
+    font-size: 18px;
+    color: var(--accent);
+    background: none;
+    border: none;
+    padding: 10px 0;
+    cursor: pointer;
+}
+
+.tool-item .icon {
+    margin: 0;
+    flex: none;
+    font-size: 24px;
+}
+
+.tool-item:focus,
+.tool-item:focus-visible {
+    outline: none;
+}
+
+.tool-item.disabled {
+    color: var(--disabled);
+}
+
+/* Keyboard shortcuts in the help (shown by src/pages.ts when a keyboard is likely) */
+
+.shortcuts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px 16px;
+    margin: 0;
+    font-size: 15px;
+    align-items: center;
+}
+
+.shortcuts dt,
+.shortcuts dd {
+    margin: 0;
+}
+
+kbd {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 2px 6px;
+    font: inherit;
+    font-size: 13px;
+    text-align: center;
+    border: 1px solid var(--grid-line-thin);
+    border-bottom-width: 2px;
+    border-radius: 6px;
+}
+
+/* Solving time below the buttons (empty when no clock is running) */
+.timer {
+    min-height: 1.4em;
+    margin: 14px 0 0;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    color: var(--disabled);
+}
