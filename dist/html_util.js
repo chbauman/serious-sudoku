@@ -176,14 +176,49 @@ function confirmAction(title, description, action) {
     getAssertedButton("confirm-desc").textContent = description;
     openDialog("confirm");
 }
+let customSolution = null;
+function analyseCustomSudoku(forSolve) {
+    if (solAvailable)
+        return true;
+    if (!isCustomSudoku())
+        return false;
+    const { count, solution } = solveSudoku(Tinit);
+    if (count === 1 && solution !== null) {
+        copyTo2d(solution, Tsol);
+        solAvailable = true;
+        customSolution = null;
+        updateToolButtons();
+        saveGame();
+        return true;
+    }
+    if (count === 0) {
+        showInfo("No solution", "This sudoku cannot be solved. Check the digits you entered.");
+    }
+    else if (forSolve) {
+        customSolution = solution;
+        confirmAction("Not unique", "This sudoku has more than one solution. Fill in one of them?", () => solve(customSolution));
+    }
+    else {
+        customSolution = solution;
+        confirmAction("Not unique", "This sudoku has more than one solution. Mistakes are marked against one of them, so a marked digit may be right in another solution. Mark anyway?", () => {
+            check(customSolution);
+            reselect();
+        });
+    }
+    return false;
+}
 function showInfo(title, text) {
     getAssertedButton("info-title").textContent = title;
     getAssertedButton("info-desc").textContent = text;
     openDialog("info");
 }
+function isCustomSudoku() {
+    return puzzleId === null && !inputtingOwnSud && hasDigits(Tinit);
+}
 function updateToolButtons() {
-    setEnabled("check", solAvailable);
-    setEnabled("solve", solAvailable);
+    const available = solAvailable || isCustomSudoku();
+    setEnabled("check", available);
+    setEnabled("solve", available);
 }
 function updateOwnInputUi() {
     getAssertedButton("own-sud-text").textContent = inputtingOwnSud
@@ -262,7 +297,7 @@ function setButtons() {
             inputCustomSudoku();
         }
         else {
-            confirmAction("Empty grid?", "Add your own sudoku. Current game will be lost.", () => inputCustomSudoku());
+            confirmAction("Empty grid?", "Add your own sudoku. Current game will be lost.", inputCustomSudoku);
         }
     });
     enableHyp();
@@ -272,19 +307,19 @@ function setButtons() {
     getAssertedButton("digits").style.display = "inline-block";
     setLevelFun();
     getAssertedButton("check").addEventListener("click", () => {
-        if (!solAvailable)
-            return;
         closeDialog("tools");
+        if (!analyseCustomSudoku(false))
+            return;
         confirmAction("Mark mistakes?", "Marks every digit that differs from the solution.", () => {
             check();
             reselect();
         });
     });
     getAssertedButton("solve").addEventListener("click", () => {
-        if (!solAvailable)
-            return;
         closeDialog("tools");
-        confirmAction("Solve?", "Fills in the solution. The sudoku counts as solved with the solver.", solve);
+        if (!analyseCustomSudoku(true))
+            return;
+        confirmAction("Solve?", "Fills in the solution. The sudoku counts as solved with the solver.", () => solve());
     });
     updateToolButtons();
 }
@@ -448,13 +483,14 @@ function disableHypRejection() {
     setEnabled("but3", false);
     hypRejectionEnabled = false;
 }
-function check() {
-    if (solAvailable == false)
+function check(solution = null) {
+    const sol = solution ?? Tsol;
+    if (solution === null && solAvailable == false)
         return;
     console.log("Checking Sudoku: ");
     for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
-            if (T[i][j] != Tsol[i][j] && T[i][j] != 0) {
+            if (T[i][j] != sol[i][j] && T[i][j] != 0) {
                 console.log(`Cell (${i}, ${j}) is incorrect!`);
                 Tref[i][j].style.backgroundColor = wrongHypCol;
                 Marked[i][j] = 1;
@@ -934,7 +970,7 @@ function enableSmallDigs() {
     smallDigsEnabled = true;
     setEnabled("mode-but", true);
 }
-function inputCustomSudoku(force = false) {
+function inputCustomSudoku() {
     if (!inputtingOwnSud) {
         log("Own Input");
         puzzleId = null;
@@ -961,27 +997,13 @@ function inputCustomSudoku(force = false) {
         disableSmallDigs();
     }
     else {
-        const { count, solution } = solveSudoku(T);
-        if (!force && (count !== 1 || solution === null)) {
-            if (count === 0) {
-                showInfo("No solution", "This sudoku cannot be solved. Check the digits you entered.");
-            }
-            else {
-                showInfo("Not unique", "This sudoku has more than one solution. Add more digits.");
-            }
-            return;
-        }
         log("Done inputting own sudoku!");
         enableHyp();
         sudLvl = -1;
-        if (solution !== null && count === 1) {
-            copyTo2d(solution, Tsol);
-            solAvailable = true;
-        }
         inputtingOwnSud = false;
-        updateToolButtons();
         updateOwnInputUi();
         copyTo2d(T, Tinit);
+        updateToolButtons();
         setClickableTrefT();
         enableSmallDigs();
         saveGame();
@@ -989,7 +1011,7 @@ function inputCustomSudoku(force = false) {
 }
 function loadRandomSud(lvl = MAX_LEVEL) {
     if (inputtingOwnSud) {
-        inputCustomSudoku(true);
+        inputCustomSudoku();
     }
     sudLvl = lvl;
     readSudokuFromFile(setSudFromStr, lvl);
@@ -1000,8 +1022,9 @@ function setHypButtons() {
     setEnabled("but1", true);
     setEnabled("but3", false);
 }
-function solve() {
-    if (solAvailable == false)
+function solve(solution = null) {
+    const sol = solution ?? Tsol;
+    if (solution === null && solAvailable == false)
         return;
     sudLvl = -2;
     timing = false;
@@ -1009,12 +1032,12 @@ function solve() {
     for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
             if (T[i][j] == 0) {
-                T[i][j] = Tsol[i][j];
+                T[i][j] = sol[i][j];
                 setCell(i, j, T[i][j]);
                 Tref[i][j].style.color = "var(--disabled)";
             }
-            else if (T[i][j] != Tsol[i][j]) {
-                T[i][j] = Tsol[i][j];
+            else if (T[i][j] != sol[i][j]) {
+                T[i][j] = sol[i][j];
                 setCell(i, j, T[i][j]);
                 Tref[i][j].style.color = "var(--disabled)";
                 Tref[i][j].style.backgroundColor = "var(--same-bg)";
@@ -1037,7 +1060,7 @@ function clearHyps() {
 }
 function restart() {
     if (inputtingOwnSud) {
-        inputCustomSudoku(true);
+        inputCustomSudoku();
     }
     log("Restarting");
     elapsedMs = 0;
