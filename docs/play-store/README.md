@@ -41,7 +41,7 @@ What is automated and what has to be done by hand.
 ## Each release
 
 1. Run the workflow **Android release** (Actions -> Android release -> Run
-   workflow, or push a tag like `v1.0`). It runs the tests, builds the web app,
+   workflow, or push a tag like `v1.1`). It runs the tests, builds the web app,
    and produces the signed bundle `serious-sudoku-release-aab`. The version code is
    the run number, so it increases with every build.
 2. Download the artifact and upload the `.aab` file in the Play Console

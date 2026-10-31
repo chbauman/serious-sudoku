@@ -2,7 +2,7 @@ name: Android release (Play Store bundle)
 
 # Builds the signed release bundle (.aab) for the Play Store. Needs the upload
 # key as repository secrets, see docs/play-store/README.md. Started manually
-# (Actions -> Android release -> Run workflow) or by pushing a tag like v1.0.
+# (Actions -> Android release -> Run workflow) or by pushing a tag like v1.1.
 on:
   push:
     tags: ["v*"]
@@ -48,7 +48,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           # Must increase with every upload to the Play Store
           VERSION_CODE: ${{ github.run_number }}
-          VERSION_NAME: ${{ github.ref_type == 'tag' && github.ref_name || format('1.0.{0}', github.run_number) }}
+          VERSION_NAME: ${{ github.ref_type == 'tag' && github.ref_name || format('1.1.{0}', github.run_number) }}
         run: ./gradlew bundleRelease --no-daemon
       - uses: actions/upload-artifact@v7
         with:
