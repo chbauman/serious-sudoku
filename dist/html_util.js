@@ -273,10 +273,8 @@ function setButtons() {
             action();
         e.stopPropagation();
     });
-    getAssertedButton("confirm-cancel").addEventListener("click", (e) => {
+    getAssertedButton("confirm").addEventListener("close", () => {
         pendingConfirm = null;
-        closeDialog("confirm");
-        e.stopPropagation();
     });
     getAssertedButton("finish-input").addEventListener("click", () => {
         if (inputtingOwnSud)
