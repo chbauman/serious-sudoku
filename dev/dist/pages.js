@@ -79,16 +79,16 @@ function toggleMenu() {
 const SETTING_INFO = {
     practice: {
         title: "Practice mode",
-        text: "Practise without a clock. The time is neither shown nor measured, and solved " +
-            "sudokus are not recorded in the history, so they do not count for the best times. " +
-            "This also holds for a sudoku on which you turn the practice mode off again before " +
-            "you finish it: restart it (tools) for a timed attempt.",
+        text: "Practise without counting: solved sudokus are not recorded in the history, so " +
+            "they do not count for the best times. This also holds for a sudoku on which you " +
+            "turn the practice mode off again before you finish it: restart it (tools) for a " +
+            "normal attempt. Whether the time is shown is up to the setting Show time.",
     },
     "show-time": {
         title: "Show time",
-        text: "Shows the time below the buttons. When it is off, the solving is still timed and " +
-            "recorded as usual, and the time of a solved sudoku is shown when you finish it. " +
-            "Not available in the practice mode, where no time is shown.",
+        text: "Shows the time below the buttons, in the practice mode too. When it is off, " +
+            "the solving is still timed, a solved sudoku is recorded in the history as usual " +
+            "(unless in practice mode) and its time is shown when you finish it.",
     },
     "count-wand": {
         title: "Count wand solves",
@@ -112,14 +112,9 @@ function setupSettings() {
     const countAutoFill = byId("setting-count-autofill");
     const practice = byId("setting-practice");
     const showTime = byId("setting-show-time");
-    const updateShowTime = () => {
-        showTime.disabled = settings.practiceMode;
-        showTime.closest("label").classList.toggle("disabled", settings.practiceMode);
-    };
     loadSettings().then(() => {
         practice.checked = settings.practiceMode;
         showTime.checked = settings.showTime;
-        updateShowTime();
         level.value = String(settings.level);
         theme.value = settings.theme;
         countAutoFill.checked = settings.countAutoFill;
@@ -130,7 +125,6 @@ function setupSettings() {
     });
     practice.addEventListener("change", () => {
         settings.practiceMode = practice.checked;
-        updateShowTime();
         saveSettings();
     });
     showTime.addEventListener("change", () => {
