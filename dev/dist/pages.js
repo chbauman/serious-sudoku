@@ -9,8 +9,8 @@ const TITLES = {
     about: "About",
 };
 const RECENT_ENTRIES = 10;
-const WAND = ' <svg class="icon inline-icon" role="img" aria-label="Pencil marks filled in automatically">' +
-    '<use href="#i-color-wand-outline" /></svg>';
+const WAND = '<svg class="icon inline-icon" role="img" aria-label="Pencil marks filled in automatically">' +
+    '<use href="#i-color-wand-outline" /></svg> ';
 const PRACTICE = '<svg class="icon inline-icon" role="img" aria-label="Practice, no time">' +
     '<use href="#i-practice-outline" /></svg>';
 const byId = (id) => document.getElementById(id);
@@ -64,14 +64,14 @@ async function renderHistory() {
                 .map((e) => row([
                 new Date(e.date).toLocaleDateString(),
                 levelName(e.level),
-                (e.practice ? PRACTICE : formatTime(e.seconds)) + (e.autoFill ? WAND : ""),
+                (e.autoFill ? WAND : "") + (e.practice ? PRACTICE : formatTime(e.seconds)),
                 `#${e.id.split("-")[1]}`,
             ]))
                 .join("");
     byId("history-note").hidden = !recent.some((e) => e.autoFill);
     byId("history-note-practice").hidden = !recent.some((e) => e.practice);
 }
-function closeMenu() {
+export function closeMenu() {
     byId("menu").hidden = true;
     byId("menu-btn").setAttribute("aria-expanded", "false");
 }
@@ -93,7 +93,8 @@ const SETTING_INFO = {
     "count-wand": {
         title: "Count wand solves",
         text: "Solves with auto-filled pencil marks (the magic wand) only count for the best " +
-            "times if this is on. They are always listed in the history.",
+            "times if this is on, or as long as the level was never solved without help. " +
+            "They are always listed in the history.",
     },
 };
 function setupSettings() {

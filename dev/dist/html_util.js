@@ -22,6 +22,7 @@ let puzzleStr = null;
 let autoFillUsed = false;
 let timing = false;
 let elapsedMs = 0;
+let winShown = false;
 let lastTick = Date.now();
 let choosingHyp = false;
 let hypRejectionEnabled = false;
@@ -555,6 +556,9 @@ function checkSolvedSud() {
         return;
     }
     clearSavedGame();
+    if (winShown || sudLvl === -2)
+        return;
+    winShown = true;
     showSolveTime();
     const { title, text } = congratulation(sudLvl);
     getAssertedButton("solved-h").textContent = title;
@@ -653,6 +657,7 @@ function saveGame() {
             puzzle: puzzleStr,
             autoFill: autoFillUsed,
             elapsed: elapsedMs,
+            winShown,
         };
         storageSet(SAVE_KEY, JSON.stringify(game));
     }
@@ -693,6 +698,7 @@ async function loadGame() {
         puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
         autoFillUsed = g.autoFill === true;
         elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
+        winShown = g.winShown === true;
         timing = puzzleId !== null && sudLvl >= 0;
         updateTimer();
         updateToolButtons();
@@ -952,6 +958,8 @@ function setSudFromStr(retSud, index) {
     copyTo2d(sol, Tsol);
     puzzleStr = gridToString(sud);
     autoFillUsed = false;
+    winShown = false;
+    enlarge();
     permuteSuds(T, Tsol);
     copyTo2d(T, Tinit);
     puzzleId = `${sudLvl}-${index}`;
@@ -1008,6 +1016,7 @@ function inputCustomSudoku() {
         log("Done inputting own sudoku!");
         enableHyp();
         sudLvl = -1;
+        winShown = false;
         inputtingOwnSud = false;
         updateOwnInputUi();
         copyTo2d(T, Tinit);
@@ -1042,12 +1051,12 @@ function solve(solution = null) {
             if (T[i][j] == 0) {
                 T[i][j] = sol[i][j];
                 setCell(i, j, T[i][j]);
-                Tref[i][j].style.color = "var(--disabled)";
+                Tref[i][j].style.color = "var(--solved)";
             }
             else if (T[i][j] != sol[i][j]) {
                 T[i][j] = sol[i][j];
                 setCell(i, j, T[i][j]);
-                Tref[i][j].style.color = "var(--disabled)";
+                Tref[i][j].style.color = "var(--solved)";
                 Tref[i][j].style.backgroundColor = "var(--same-bg)";
             }
         }
@@ -1072,6 +1081,7 @@ function restart() {
     }
     log("Restarting");
     elapsedMs = 0;
+    winShown = false;
     autoFillUsed = false;
     timing = puzzleId !== null && sudLvl >= 0;
     updateTimer();

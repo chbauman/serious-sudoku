@@ -10,7 +10,8 @@
     --danger: #f00;
     --hyp: #0c5;
     --wrong: #f22;
-    --selected-bg: #bbb;
+    --selected-bg: #ddd;
+    --solved: #6e6e6e; /* digits filled in by the solver */
     --pencil: #838383;
     --small-dig-bg: #dfd;
     --forbid-bg: #fee9e9;
@@ -48,7 +49,8 @@
         --danger: #ff5a5a;
         --hyp: #2fd47a;
         --wrong: #ff5a5a;
-        --selected-bg: #4a4e58;
+        --selected-bg: #3a3e47;
+        --solved: #9a9ea8;
         --pencil: #7b7e87;
         --small-dig-bg: #1e3a28;
         --forbid-bg: #2a2125;
@@ -68,7 +70,8 @@
     --danger: #ff5a5a;
     --hyp: #2fd47a;
     --wrong: #ff5a5a;
-    --selected-bg: #4a4e58;
+    --selected-bg: #3a3e47;
+    --solved: #9a9ea8;
     --pencil: #7b7e87;
     --small-dig-bg: #1e3a28;
     --forbid-bg: #2a2125;
