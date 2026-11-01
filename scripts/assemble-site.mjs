@@ -24,6 +24,12 @@ for (const f of ["index.html", "manifest.webmanifest"]) {
 for (const f of ["main", "html_util", "sudoku", "storage", "settings", "pages", "history"]) {
   rewrite(`${out}/dist/${f}.js`, flatten);
 }
+// Version shown on the About page: from package.json and the commit
+const { version } = JSON.parse(readFileSync("package.json", "utf8"));
+rewrite(`${out}/index.html`, (s) =>
+  s.replaceAll("__VERSION__", `${version} (build ${build}${process.env.DEV_BUILD ? ", test build" : ""})`)
+);
+
 // New service worker cache per release
 rewrite(`${out}/sw.js`, (s) => s.replaceAll("__BUILD__", build));
 

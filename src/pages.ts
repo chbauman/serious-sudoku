@@ -31,8 +31,8 @@ const RECENT_ENTRIES = 10;
 
 /** Marks the solves with auto-filled pencil marks in the history */
 const WAND =
-  ' <svg class="icon inline-icon" role="img" aria-label="Pencil marks filled in automatically">' +
-  '<use href="#i-color-wand-outline" /></svg>';
+  '<svg class="icon inline-icon" role="img" aria-label="Pencil marks filled in automatically">' +
+  '<use href="#i-color-wand-outline" /></svg> ';
 
 /** Marks the solves in practice mode in the history (instead of the time) */
 const PRACTICE =
@@ -101,7 +101,7 @@ async function renderHistory() {
         row([
           new Date(e.date).toLocaleDateString(),
           levelName(e.level),
-          (e.practice ? PRACTICE : formatTime(e.seconds)) + (e.autoFill ? WAND : ""),
+          (e.autoFill ? WAND : "") + (e.practice ? PRACTICE : formatTime(e.seconds)),
           `#${e.id.split("-")[1]}`,
         ])
       )
@@ -110,7 +110,7 @@ async function renderHistory() {
   byId("history-note-practice").hidden = !recent.some((e) => e.practice);
 }
 
-function closeMenu() {
+export function closeMenu() {
   byId("menu").hidden = true;
   byId("menu-btn").setAttribute("aria-expanded", "false");
 }
@@ -137,7 +137,8 @@ const SETTING_INFO: { [key: string]: { title: string; text: string } } = {
     title: "Count wand solves",
     text:
       "Solves with auto-filled pencil marks (the magic wand) only count for the best " +
-      "times if this is on. They are always listed in the history.",
+      "times if this is on, or as long as the level was never solved without help. " +
+      "They are always listed in the history.",
   },
 };
 

@@ -11,7 +11,7 @@ import {
   elsewhere,
   clickCell,
 } from "./html_util.js";
-import { setupPages } from "./pages.js";
+import { setupPages, closeMenu } from "./pages.js";
 
 // State Variables
 let initialized = false;
@@ -93,6 +93,7 @@ export function init() {
     const cell = (e.target as Element).closest<HTMLTableCellElement>(".gridCell");
     if (cell) {
       clickCell(cell);
+      closeMenu();
       e.stopPropagation();
     }
   });
