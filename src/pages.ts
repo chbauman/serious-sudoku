@@ -127,8 +127,7 @@ const SETTING_INFO: { [key: string]: { title: string; text: string } } = {
     title: "Practice mode",
     text:
       "Solves are listed in the history with a practice icon instead of a time and " +
-      "do not count for the best times. A sudoku started in practice mode stays a " +
-      "practice solve, restart it for a normal attempt.",
+      "do not count for the best times.",
   },
   "show-time": {
     title: "Show time",
