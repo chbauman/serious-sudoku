@@ -113,7 +113,44 @@ function toggleMenu() {
   byId("menu-btn").setAttribute("aria-expanded", String(!menu.hidden));
 }
 
+// Longer explanations of the toggle settings, shown by their info buttons
+const SETTING_INFO: { [key: string]: { title: string; text: string } } = {
+  practice: {
+    title: "Practice mode",
+    text:
+      "Practise without a clock. The time is neither shown nor measured, and solved " +
+      "sudokus are not recorded in the history, so they do not count for the best times. " +
+      "This also holds for a sudoku on which you turn the practice mode off again before " +
+      "you finish it: restart it (tools) for a timed attempt.",
+  },
+  "show-time": {
+    title: "Show time",
+    text:
+      "Shows the time below the buttons. When it is off, the solving is still timed and " +
+      "recorded as usual, and the time of a solved sudoku is shown when you finish it. " +
+      "Not available in the practice mode, where no time is shown.",
+  },
+  "count-wand": {
+    title: "Count wand solves",
+    text:
+      "Solves with auto-filled pencil marks (the magic wand in the tools) only count for " +
+      "the best and average times if this is on. They are always recorded in the " +
+      "history, marked with the wand.",
+  },
+};
+
 function setupSettings() {
+  document.querySelectorAll<HTMLButtonElement>(".info-btn").forEach((btn) =>
+    btn.addEventListener("click", (e) => {
+      // The button is part of the label of the setting: do not toggle it
+      e.preventDefault();
+      e.stopPropagation();
+      const info = SETTING_INFO[btn.dataset.info!];
+      byId("info-title").textContent = info.title;
+      byId("info-desc").textContent = info.text;
+      byId<HTMLDialogElement>("info").showModal();
+    })
+  );
   const level = byId<HTMLSelectElement>("setting-level");
   LEVEL_NAMES.forEach((name, i) => level.add(new Option(name, String(i))));
   const theme = byId<HTMLSelectElement>("setting-theme");
