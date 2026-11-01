@@ -10,6 +10,13 @@ export interface Settings {
   theme: Theme;
   /** Solves with auto-filled pencil marks (the magic wand) count for the best times */
   countAutoFill: boolean;
+  /**
+   * Practice mode: the solved sudokus are not recorded in the history (so they do
+   * not count for the best times)
+   */
+  practiceMode: boolean;
+  /** Show the time below the buttons (independent of the practice mode) */
+  showTime: boolean;
 }
 
 const SETTINGS_KEY = "serious-sudoku:settings:v1";
@@ -18,6 +25,8 @@ export const settings: Settings = {
   level: 2,
   theme: "auto",
   countAutoFill: false,
+  practiceMode: false,
+  showTime: true,
 };
 
 // theme-color of the browser / app UI, matching the page background
@@ -59,6 +68,8 @@ async function readSettings() {
       }
       if (["auto", "light", "dark"].includes(s.theme)) settings.theme = s.theme;
       if (typeof s.countAutoFill === "boolean") settings.countAutoFill = s.countAutoFill;
+      if (typeof s.practiceMode === "boolean") settings.practiceMode = s.practiceMode;
+      if (typeof s.showTime === "boolean") settings.showTime = s.showTime;
     }
   } catch (e) {
     // keep the defaults

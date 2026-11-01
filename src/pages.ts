@@ -34,6 +34,11 @@ const WAND =
   ' <svg class="icon inline-icon" role="img" aria-label="Pencil marks filled in automatically">' +
   '<use href="#i-color-wand-outline" /></svg>';
 
+/** Marks the solves in practice mode in the history (instead of the time) */
+const PRACTICE =
+  '<svg class="icon inline-icon" role="img" aria-label="Practice, no time">' +
+  '<use href="#i-practice-outline" /></svg>';
+
 const byId = <T extends HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 
@@ -69,12 +74,14 @@ async function renderHistory() {
       .join("") +
     "</tr>";
 
-  const levels = [...new Set(entries.map((e) => e.level))].sort((a, b) => a - b);
+  // The practice solves are only listed in the recent solves
+  const timed = entries.filter((e) => !e.practice);
+  const levels = [...new Set(timed.map((e) => e.level))].sort((a, b) => a - b);
   byId("history-levels").innerHTML =
     row(["Level", "Solved", "Best", "Average"], "th") +
     levels
       .map((level) => {
-        const solved = entries.filter((e) => e.level === level).length;
+        const solved = timed.filter((e) => e.level === level).length;
         const best = bestTime(entries, level, count);
         const avg = averageTime(entries, level, count);
         return row([
@@ -94,12 +101,13 @@ async function renderHistory() {
         row([
           new Date(e.date).toLocaleDateString(),
           levelName(e.level),
-          formatTime(e.seconds) + (e.autoFill ? WAND : ""),
+          (e.practice ? PRACTICE : formatTime(e.seconds)) + (e.autoFill ? WAND : ""),
           `#${e.id.split("-")[1]}`,
         ])
       )
       .join("");
   byId("history-note").hidden = !recent.some((e) => e.autoFill);
+  byId("history-note-practice").hidden = !recent.some((e) => e.practice);
 }
 
 function closeMenu() {
@@ -113,18 +121,61 @@ function toggleMenu() {
   byId("menu-btn").setAttribute("aria-expanded", String(!menu.hidden));
 }
 
+// Longer explanations of the toggle settings, shown by their info buttons
+const SETTING_INFO: { [key: string]: { title: string; text: string } } = {
+  practice: {
+    title: "Practice mode",
+    text:
+      "Solves are listed in the history with a practice icon instead of a time and " +
+      "do not count for the best times.",
+  },
+  "show-time": {
+    title: "Show time",
+    text: "Shows the time below the buttons. The solving is timed either way.",
+  },
+  "count-wand": {
+    title: "Count wand solves",
+    text:
+      "Solves with auto-filled pencil marks (the magic wand) only count for the best " +
+      "times if this is on. They are always listed in the history.",
+  },
+};
+
 function setupSettings() {
+  document.querySelectorAll<HTMLButtonElement>(".info-btn").forEach((btn) =>
+    btn.addEventListener("click", (e) => {
+      // The button is part of the label of the setting: do not toggle it
+      e.preventDefault();
+      e.stopPropagation();
+      const info = SETTING_INFO[btn.dataset.info!];
+      byId("info-title").textContent = info.title;
+      byId("info-desc").textContent = info.text;
+      byId<HTMLDialogElement>("info").showModal();
+    })
+  );
   const level = byId<HTMLSelectElement>("setting-level");
   LEVEL_NAMES.forEach((name, i) => level.add(new Option(name, String(i))));
   const theme = byId<HTMLSelectElement>("setting-theme");
   const countAutoFill = byId<HTMLInputElement>("setting-count-autofill");
+  const practice = byId<HTMLInputElement>("setting-practice");
+  const showTime = byId<HTMLInputElement>("setting-show-time");
   loadSettings().then(() => {
+    practice.checked = settings.practiceMode;
+    showTime.checked = settings.showTime;
     level.value = String(settings.level);
     theme.value = settings.theme;
     countAutoFill.checked = settings.countAutoFill;
   });
   level.addEventListener("change", () => {
     settings.level = Number(level.value);
+    saveSettings();
+  });
+  practice.addEventListener("change", () => {
+    settings.practiceMode = practice.checked;
+    saveSettings();
+  });
+  showTime.addEventListener("change", () => {
+    settings.showTime = showTime.checked;
     saveSettings();
   });
   countAutoFill.addEventListener("change", () => {

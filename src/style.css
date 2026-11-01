@@ -347,6 +347,44 @@ h1 {
     border-bottom: 1px solid var(--grid-line-thin);
 }
 
+.setting-name {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Info button next to a short label: opens the explanation in a dialog */
+.info-btn {
+    border: none;
+    background: none;
+    color: var(--disabled);
+    padding: 8px;
+    margin: -10px 0;
+    font-size: 28px;
+    line-height: 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Larger checkboxes of the toggle settings */
+.setting input[type="checkbox"] {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.info-btn .icon {
+    margin: 0;
+}
+
+.info-btn:focus,
+.info-btn:focus-visible {
+    outline: none;
+}
+
 .setting select option {
     background: var(--bg);
     color: var(--fg);
@@ -376,11 +414,13 @@ h1 {
 }
 
 #history-empty,
-#history-note {
+#history-note,
+#history-note-practice {
     font-weight: normal !important;
 }
 
-#history-note {
+#history-note,
+#history-note-practice {
     font-size: 15px;
 }
 

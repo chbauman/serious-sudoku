@@ -661,8 +661,9 @@ function check(solution: number[][] | null = null) {
   saveGame();
 }
 
-// Records the solve time (not for custom sudokus and when the solver was used)
-// and shows it in the win dialog
+// Records the solve (not for custom sudokus and when the solver was used) and
+// shows the time in the win dialog; a solve in practice mode is recorded
+// without time (practice icon in the history)
 function showSolveTime() {
   const text = getAssertedButton("log-txt");
   text.textContent = "";
@@ -670,16 +671,25 @@ function showSolveTime() {
   timing = false;
   updateTimer();
   const seconds = elapsedMs / 1000;
+  const practice = settings.practiceMode;
   const entry: HistoryEntry = {
     id: puzzleId,
     level: sudLvl,
     ...(puzzleStr ? { puzzle: puzzleStr } : {}),
     ...(autoFillUsed ? { autoFill: true } : {}),
+    ...(practice ? { practice: true } : {}),
     seconds,
     date: new Date().toISOString(),
   };
   recordSolve(entry, settings.countAutoFill).then(
     ({ previousBest, isBest, counted }) => {
+      if (practice) {
+        // In the history with a practice icon instead of the time
+        text.textContent =
+          (settings.showTime ? `Time: ${formatTime(seconds)} - ` : "") +
+          "practice, no time in the history";
+        return;
+      }
       text.textContent =
         `Time: ${formatTime(seconds)}` +
         (!counted
@@ -696,9 +706,11 @@ function showSolveTime() {
 // Shows the level of the sudoku and the running time below the buttons,
 // nothing when no clock is running
 function updateTimer() {
-  getAssertedButton("timer").textContent = timing
+  getAssertedButton("timer").textContent = !timing
+    ? ""
+    : settings.showTime
     ? `${levelName(sudLvl)} · ${formatTime(elapsedMs / 1000)}`
-    : "";
+    : levelName(sudLvl);
 }
 
 // Counts the playing time: only while the game page is visible
