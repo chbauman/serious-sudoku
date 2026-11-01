@@ -359,10 +359,20 @@ h1 {
     background: none;
     color: var(--disabled);
     padding: 8px;
-    margin: -8px 0;
-    font-size: 22px;
+    margin: -10px 0;
+    font-size: 28px;
     line-height: 0;
     border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Larger checkboxes of the toggle settings */
+.setting input[type="checkbox"] {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    accent-color: var(--accent);
     cursor: pointer;
 }
 
