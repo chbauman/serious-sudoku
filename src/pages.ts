@@ -118,9 +118,17 @@ function setupSettings() {
   LEVEL_NAMES.forEach((name, i) => level.add(new Option(name, String(i))));
   const theme = byId<HTMLSelectElement>("setting-theme");
   const countAutoFill = byId<HTMLInputElement>("setting-count-autofill");
-  const timeSolving = byId<HTMLInputElement>("setting-time-solving");
+  const practice = byId<HTMLInputElement>("setting-practice");
+  const showTime = byId<HTMLInputElement>("setting-show-time");
+  // The time is never shown in the practice mode
+  const updateShowTime = () => {
+    showTime.disabled = settings.practiceMode;
+    showTime.closest("label")!.classList.toggle("disabled", settings.practiceMode);
+  };
   loadSettings().then(() => {
-    timeSolving.checked = settings.timeSolving;
+    practice.checked = settings.practiceMode;
+    showTime.checked = settings.showTime;
+    updateShowTime();
     level.value = String(settings.level);
     theme.value = settings.theme;
     countAutoFill.checked = settings.countAutoFill;
@@ -129,8 +137,13 @@ function setupSettings() {
     settings.level = Number(level.value);
     saveSettings();
   });
-  timeSolving.addEventListener("change", () => {
-    settings.timeSolving = timeSolving.checked;
+  practice.addEventListener("change", () => {
+    settings.practiceMode = practice.checked;
+    updateShowTime();
+    saveSettings();
+  });
+  showTime.addEventListener("change", () => {
+    settings.showTime = showTime.checked;
     saveSettings();
   });
   countAutoFill.addEventListener("change", () => {

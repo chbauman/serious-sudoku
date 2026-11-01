@@ -64,9 +64,10 @@ The hamburger menu in the header opens the Help, Settings, History and About pag
 Android back buttons work and the game state is kept while a page is open.
 Settings (stored like the saved game, see `src/settings.ts`): the level that is
 loaded when there is no saved game, the appearance (system / light / dark),
-whether the solving is timed (on by default; off for practising: no clock, no
-history entry, also not for a sudoku on which the clock was off for a while,
-until it is restarted) and whether solves with auto-filled pencil marks (the
+the practice mode (off by default: no time, no history entry, also not for a
+sudoku on which the practice mode was on for a while, until it is restarted),
+whether the time is shown below the buttons (on by default; the solve is timed and
+recorded anyway, not available in the practice mode) and whether solves with auto-filled pencil marks (the
 magic wand) count for the best times (off by default).
 
 The app works in portrait and landscape and on large screens (tablets, foldables, resizable windows): on short landscape screens the grid is on the left and takes the whole height, the title with the menu, the digits and the buttons are on the right (`src/style.css`). The Android app draws behind the system bars (edge-to-edge, `MainActivity`), the Capacitor SystemBars plugin pads the web view by the insets.
