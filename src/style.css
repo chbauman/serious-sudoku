@@ -414,11 +414,13 @@ h1 {
 }
 
 #history-empty,
-#history-note {
+#history-note,
+#history-note-practice {
     font-weight: normal !important;
 }
 
-#history-note {
+#history-note,
+#history-note-practice {
     font-size: 15px;
 }
 

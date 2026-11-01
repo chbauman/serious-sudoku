@@ -13,6 +13,8 @@ export interface HistoryEntry {
   puzzle?: string;
   /** The pencil marks were filled in automatically (the magic wand) */
   autoFill?: boolean;
+  /** Solved in practice mode: shown in the history, but without time for the leaderboard */
+  practice?: boolean;
   seconds: number;
   /** ISO date of the solve */
   date: string;
@@ -28,6 +30,7 @@ const isEntry = (e: any): e is HistoryEntry =>
   Number.isInteger(e.level) &&
   (e.puzzle === undefined || typeof e.puzzle === "string") &&
   (e.autoFill === undefined || typeof e.autoFill === "boolean") &&
+  (e.practice === undefined || typeof e.practice === "boolean") &&
   typeof e.seconds === "number" &&
   typeof e.date === "string";
 
@@ -44,9 +47,9 @@ export function loadHistory(): Promise<HistoryEntry[]> {
   })());
 }
 
-/** Whether a solve counts for the best and average times */
+/** Whether a solve counts for the best and average times (never in practice mode) */
 export function isCounted(e: HistoryEntry, countAutoFill: boolean): boolean {
-  return countAutoFill || !e.autoFill;
+  return !e.practice && (countAutoFill || !e.autoFill);
 }
 
 /** Best time of a level, only of the solves that count (null if there is none) */
@@ -76,7 +79,7 @@ export function averageTime(
 /**
  * Stores a finished sudoku, returns the previous best time of its level.
  * isBest is false for a solve that does not count (auto-filled pencil marks
- * with countAutoFill off), it is still stored.
+ * with countAutoFill off, or practice mode), it is still stored.
  */
 export async function recordSolve(
   entry: HistoryEntry,

@@ -64,8 +64,10 @@ The hamburger menu in the header opens the Help, Settings, History and About pag
 Android back buttons work and the game state is kept while a page is open.
 Settings (stored like the saved game, see `src/settings.ts`): the level that is
 loaded when there is no saved game, the appearance (system / light / dark),
-the practice mode (off by default: no history entry, also not for a sudoku on
-which the practice mode was on for a while, until it is restarted), independent of
+the practice mode (off by default: the solves are listed in the history with a
+practice icon instead of a time and do not count for the best and average times, also
+not for a sudoku on which the practice mode was on for a while, until it is
+restarted), independent of
 it whether the time is shown below the buttons (on by default; the solving is
 timed anyway) and whether solves with auto-filled pencil marks (the
 magic wand) count for the best times (off by default).
