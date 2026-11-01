@@ -52,6 +52,7 @@
     <symbol id="i-help-circle-outline" viewBox="0 0 512 512"><path d="M256,80A176,176,0,1,0,432,256,176,176,0,0,0,256,80Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><path d="M200,202.29s.84-17.5,19.57-32.57C230.68,160.77,244,158.18,256,158c10.93-.14,20.69,1.67,26.53,4.45,10,4.76,29.47,16.38,29.47,41.09,0,26-17,37.81-36.37,50.8S251,281.43,251,296" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:28px"/><circle cx="250" cy="348" r="20"/></symbol>
     <symbol id="i-settings-outline" viewBox="0 0 512 512"><path d="M262.29,192.31a64,64,0,1,0,57.4,57.4A64.13,64.13,0,0,0,262.29,192.31ZM416.39,256a154.34,154.34,0,0,1-1.53,20.79l45.21,35.46A10.81,10.81,0,0,1,462.52,326l-42.77,74a10.81,10.81,0,0,1-13.14,4.59l-44.9-18.08a16.11,16.11,0,0,0-15.17,1.75A164.48,164.48,0,0,1,325,400.8a15.94,15.94,0,0,0-8.82,12.14l-6.73,47.89A11.08,11.08,0,0,1,298.77,470H213.23a11.11,11.11,0,0,1-10.69-8.87l-6.72-47.82a16.07,16.07,0,0,0-9-12.22,155.3,155.3,0,0,1-21.46-12.57,16,16,0,0,0-15.11-1.71l-44.89,18.07a10.81,10.81,0,0,1-13.14-4.58l-42.77-74a10.8,10.8,0,0,1,2.45-13.75l38.21-30a16.05,16.05,0,0,0,6-14.08c-.36-4.17-.58-8.33-.58-12.5s.21-8.27.58-12.35a16,16,0,0,0-6.07-13.94l-38.19-30A10.81,10.81,0,0,1,49.48,186l42.77-74a10.81,10.81,0,0,1,13.14-4.59l44.9,18.08a16.11,16.11,0,0,0,15.17-1.75A164.48,164.48,0,0,1,187,111.2a15.94,15.94,0,0,0,8.82-12.14l6.73-47.89A11.08,11.08,0,0,1,213.23,42h85.54a11.11,11.11,0,0,1,10.69,8.87l6.72,47.82a16.07,16.07,0,0,0,9,12.22,155.3,155.3,0,0,1,21.46,12.57,16,16,0,0,0,15.11,1.71l44.89-18.07a10.81,10.81,0,0,1,13.14,4.58l42.77,74a10.8,10.8,0,0,1-2.45,13.75l-38.21,30a16.05,16.05,0,0,0-6.05,14.08C416.17,247.67,416.39,251.83,416.39,256Z" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
     <symbol id="i-information-circle-outline" viewBox="0 0 512 512"><path d="M248,64C146.39,64,64,146.39,64,248s82.39,184,184,184,184-82.39,184-184S349.61,64,248,64Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><polyline points="220 220 252 220 252 336" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="208" y1="340" x2="296" y2="340" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><path d="M248,130a26,26,0,1,0,26,26A26,26,0,0,0,248,130Z"/></symbol>
+    <symbol id="i-practice-outline" viewBox="0 0 512 512"><path d="M256,64C150,64,64,150,64,256s86,192,192,192,192-86,192-192S362,64,256,64Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><polyline points="256 128 256 272 352 272" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="96" y1="416" x2="416" y2="96" style="stroke:currentColor;stroke-linecap:round;stroke-width:40px"/></symbol>
     <symbol id="i-time-outline" viewBox="0 0 512 512"><path d="M256,64C150,64,64,150,64,256s86,192,192,192,192-86,192-192S362,64,256,64Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><polyline points="256 128 256 272 352 272" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
     </svg>
 
@@ -174,7 +175,12 @@
           When you finish a sudoku without the solver, its time is saved in the
           history (menu), together with the level and the ID of the sudoku. The
           current game is saved on your device, so you can close the app and
-          continue later.
+          continue later. The settings have a practice mode: the solved
+          sudokus are listed in the history with a practice icon instead of a time
+          and do not count for the best and average times. You can switch it at any
+          time, what counts is the mode when you finish the sudoku. Independent of
+          it, the time below the buttons can be hidden (&ldquo;Show time&rdquo;);
+          the solving is timed anyway.
         </p>
 
         <div id="keyboard-help" hidden>
@@ -231,6 +237,10 @@
             <svg class="icon inline-icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg>
             The pencil marks were filled in automatically. Such solves only count for the best and average times if this is turned on in the settings.
           </p>
+          <p id="history-note-practice" hidden>
+            <svg class="icon inline-icon" aria-hidden="true"><use href="#i-practice-outline" /></svg>
+            Solved in practice mode, without a time. Practice solves do not count for the best and average times.
+          </p>
         </div>
       </section>
 
@@ -247,8 +257,16 @@
             <option value="dark">Dark</option>
           </select>
         </label>
-        <label class="setting">
-          <span>Count solves with auto-filled pencil marks (<svg class="icon inline-icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg>) for the best times</span>
+        <label class="setting" for="setting-practice">
+          <span class="setting-name">Practice mode <button type="button" class="info-btn" data-info="practice" title="More about: Practice mode" aria-label="More about: Practice mode"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg></button></span>
+          <input type="checkbox" id="setting-practice" />
+        </label>
+        <label class="setting" for="setting-show-time">
+          <span class="setting-name">Show time <button type="button" class="info-btn" data-info="show-time" title="More about: Show time" aria-label="More about: Show time"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg></button></span>
+          <input type="checkbox" id="setting-show-time" />
+        </label>
+        <label class="setting" for="setting-count-autofill">
+          <span class="setting-name">Count wand solves <button type="button" class="info-btn" data-info="count-wand" title="More about: Count wand solves" aria-label="More about: Count wand solves"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg></button></span>
           <input type="checkbox" id="setting-count-autofill" />
         </label>
       </section>

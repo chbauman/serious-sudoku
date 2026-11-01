@@ -505,15 +505,23 @@ function showSolveTime() {
     timing = false;
     updateTimer();
     const seconds = elapsedMs / 1000;
+    const practice = settings.practiceMode;
     const entry = {
         id: puzzleId,
         level: sudLvl,
         ...(puzzleStr ? { puzzle: puzzleStr } : {}),
         ...(autoFillUsed ? { autoFill: true } : {}),
+        ...(practice ? { practice: true } : {}),
         seconds,
         date: new Date().toISOString(),
     };
     recordSolve(entry, settings.countAutoFill).then(({ previousBest, isBest, counted }) => {
+        if (practice) {
+            text.textContent =
+                (settings.showTime ? `Time: ${formatTime(seconds)} - ` : "") +
+                    "practice, no time in the history";
+            return;
+        }
         text.textContent =
             `Time: ${formatTime(seconds)}` +
                 (!counted
@@ -526,9 +534,11 @@ function showSolveTime() {
     });
 }
 function updateTimer() {
-    getAssertedButton("timer").textContent = timing
-        ? `${levelName(sudLvl)} · ${formatTime(elapsedMs / 1000)}`
-        : "";
+    getAssertedButton("timer").textContent = !timing
+        ? ""
+        : settings.showTime
+            ? `${levelName(sudLvl)} · ${formatTime(elapsedMs / 1000)}`
+            : levelName(sudLvl);
 }
 function tick() {
     const now = Date.now();
