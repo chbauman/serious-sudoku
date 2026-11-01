@@ -118,13 +118,19 @@ function setupSettings() {
   LEVEL_NAMES.forEach((name, i) => level.add(new Option(name, String(i))));
   const theme = byId<HTMLSelectElement>("setting-theme");
   const countAutoFill = byId<HTMLInputElement>("setting-count-autofill");
+  const timeSolving = byId<HTMLInputElement>("setting-time-solving");
   loadSettings().then(() => {
+    timeSolving.checked = settings.timeSolving;
     level.value = String(settings.level);
     theme.value = settings.theme;
     countAutoFill.checked = settings.countAutoFill;
   });
   level.addEventListener("change", () => {
     settings.level = Number(level.value);
+    saveSettings();
+  });
+  timeSolving.addEventListener("change", () => {
+    settings.timeSolving = timeSolving.checked;
     saveSettings();
   });
   countAutoFill.addEventListener("change", () => {

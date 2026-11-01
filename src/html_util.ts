@@ -51,6 +51,9 @@ let puzzleStr: string | null = null;
 let autoFillUsed = false;
 let timing = false;
 let elapsedMs = 0;
+// Time passed without timing (setting "Time my solving" off): the sudoku is not
+// recorded in the history, a partial time would be misleading
+let untimed = false;
 let lastTick = Date.now();
 let choosingHyp = false;
 let hypRejectionEnabled = false;
@@ -669,6 +672,7 @@ function showSolveTime() {
   if (!timing || puzzleId === null || sudLvl < 0) return;
   timing = false;
   updateTimer();
+  if (!settings.timeSolving || untimed) return;
   const seconds = elapsedMs / 1000;
   const entry: HistoryEntry = {
     id: puzzleId,
@@ -696,9 +700,11 @@ function showSolveTime() {
 // Shows the level of the sudoku and the running time below the buttons,
 // nothing when no clock is running
 function updateTimer() {
-  getAssertedButton("timer").textContent = timing
+  getAssertedButton("timer").textContent = !timing
+    ? ""
+    : settings.timeSolving
     ? `${levelName(sudLvl)} · ${formatTime(elapsedMs / 1000)}`
-    : "";
+    : levelName(sudLvl);
 }
 
 // Counts the playing time: only while the game page is visible
@@ -707,7 +713,8 @@ function tick() {
   const delta = Math.min(now - lastTick, 2000);
   lastTick = now;
   if (timing && document.visibilityState === "visible" && currentPage() === "game") {
-    elapsedMs += delta;
+    if (settings.timeSolving) elapsedMs += delta;
+    else untimed = true;
   }
   updateTimer();
 }
@@ -830,6 +837,7 @@ interface SavedGame extends Snapshot {
   puzzle?: string | null;
   autoFill?: boolean;
   elapsed: number;
+  untimed?: boolean;
 }
 
 // Whether a grid has any digit (a sudoku that is loaded has givens)
@@ -850,6 +858,7 @@ function saveGame() {
       puzzle: puzzleStr,
       autoFill: autoFillUsed,
       elapsed: elapsedMs,
+      untimed,
     };
     storageSet(SAVE_KEY, JSON.stringify(game));
   } catch (e) {
@@ -893,6 +902,7 @@ async function loadGame(): Promise<boolean> {
     puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
     autoFillUsed = g.autoFill === true;
     elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
+    untimed = g.untimed === true || !settings.timeSolving;
     timing = puzzleId !== null && sudLvl >= 0;
     updateTimer();
     updateToolButtons();
@@ -1171,6 +1181,7 @@ function setSudFromStr(retSud: string, index: number) {
   copyTo2d(T, Tinit);
   puzzleId = `${sudLvl}-${index}`;
   elapsedMs = 0;
+  untimed = !settings.timeSolving;
   timing = true;
   updateTimer();
   elsewhere();
@@ -1306,6 +1317,7 @@ function restart() {
   }
   log("Restarting");
   elapsedMs = 0;
+  untimed = !settings.timeSolving;
   autoFillUsed = false;
   timing = puzzleId !== null && sudLvl >= 0;
   updateTimer();
