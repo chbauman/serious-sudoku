@@ -11,6 +11,8 @@ const TITLES = {
 const RECENT_ENTRIES = 10;
 const WAND = ' <svg class="icon inline-icon" role="img" aria-label="Pencil marks filled in automatically">' +
     '<use href="#i-color-wand-outline" /></svg>';
+const PRACTICE = '<svg class="icon inline-icon" role="img" aria-label="Practice, no time">' +
+    '<use href="#i-practice-outline" /></svg>';
 const byId = (id) => document.getElementById(id);
 export function currentPage() {
     const page = location.hash.slice(1);
@@ -38,12 +40,13 @@ async function renderHistory() {
             .map((c, i) => `<${tag}${i > 0 ? ' class="num"' : ""}>${c}</${tag}>`)
             .join("") +
         "</tr>";
-    const levels = [...new Set(entries.map((e) => e.level))].sort((a, b) => a - b);
+    const timed = entries.filter((e) => !e.practice);
+    const levels = [...new Set(timed.map((e) => e.level))].sort((a, b) => a - b);
     byId("history-levels").innerHTML =
         row(["Level", "Solved", "Best", "Average"], "th") +
             levels
                 .map((level) => {
-                const solved = entries.filter((e) => e.level === level).length;
+                const solved = timed.filter((e) => e.level === level).length;
                 const best = bestTime(entries, level, count);
                 const avg = averageTime(entries, level, count);
                 return row([
@@ -61,11 +64,12 @@ async function renderHistory() {
                 .map((e) => row([
                 new Date(e.date).toLocaleDateString(),
                 levelName(e.level),
-                formatTime(e.seconds) + (e.autoFill ? WAND : ""),
+                (e.practice ? PRACTICE : formatTime(e.seconds)) + (e.autoFill ? WAND : ""),
                 `#${e.id.split("-")[1]}`,
             ]))
                 .join("");
     byId("history-note").hidden = !recent.some((e) => e.autoFill);
+    byId("history-note-practice").hidden = !recent.some((e) => e.practice);
 }
 function closeMenu() {
     byId("menu").hidden = true;
@@ -79,10 +83,11 @@ function toggleMenu() {
 const SETTING_INFO = {
     practice: {
         title: "Practice mode",
-        text: "Practise without counting: solved sudokus are not recorded in the history, so " +
-            "they do not count for the best times. This also holds for a sudoku on which you " +
-            "turn the practice mode off again before you finish it: restart it (tools) for a " +
-            "normal attempt. Whether the time is shown is up to the setting Show time.",
+        text: "Practise without counting: solved sudokus appear in the history with a practice " +
+            "icon instead of a time and do not count for the best and average times. This " +
+            "also holds for a sudoku on which you turn the practice mode off again before you " +
+            "finish it: restart it (tools) for a normal attempt. Whether the time is shown " +
+            "while you play is up to the setting Show time.",
     },
     "show-time": {
         title: "Show time",

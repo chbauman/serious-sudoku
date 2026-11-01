@@ -6,6 +6,7 @@ const isEntry = (e) => typeof e?.id === "string" &&
     Number.isInteger(e.level) &&
     (e.puzzle === undefined || typeof e.puzzle === "string") &&
     (e.autoFill === undefined || typeof e.autoFill === "boolean") &&
+    (e.practice === undefined || typeof e.practice === "boolean") &&
     typeof e.seconds === "number" &&
     typeof e.date === "string";
 export function loadHistory() {
@@ -21,7 +22,7 @@ export function loadHistory() {
     })()));
 }
 export function isCounted(e, countAutoFill) {
-    return countAutoFill || !e.autoFill;
+    return !e.practice && (countAutoFill || !e.autoFill);
 }
 export function bestTime(entries, level, countAutoFill = true) {
     const times = entries

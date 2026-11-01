@@ -505,22 +505,24 @@ function showSolveTime() {
         return;
     timing = false;
     updateTimer();
-    if (settings.practiceMode || practiced) {
-        text.textContent =
-            (settings.showTime ? `Time: ${formatTime(elapsedMs / 1000)} - ` : "") +
-                "practice, not recorded";
-        return;
-    }
     const seconds = elapsedMs / 1000;
+    const practice = settings.practiceMode || practiced;
     const entry = {
         id: puzzleId,
         level: sudLvl,
         ...(puzzleStr ? { puzzle: puzzleStr } : {}),
         ...(autoFillUsed ? { autoFill: true } : {}),
+        ...(practice ? { practice: true } : {}),
         seconds,
         date: new Date().toISOString(),
     };
     recordSolve(entry, settings.countAutoFill).then(({ previousBest, isBest, counted }) => {
+        if (practice) {
+            text.textContent =
+                (settings.showTime ? `Time: ${formatTime(seconds)} - ` : "") +
+                    "practice, no time in the history";
+            return;
+        }
         text.textContent =
             `Time: ${formatTime(seconds)}` +
                 (!counted
