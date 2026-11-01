@@ -153,6 +153,18 @@ In the repository settings, set Pages to deploy from the `gh-pages` branch
 <https://chrisbaumann.ch/serious-sudoku/>. All paths are relative, so it works
 under the `/serious-sudoku/` sub-path.
 
+### Test build of a branch
+
+Every push to a branch other than `main` triggers `.github/workflows/deploy-dev.yml`,
+which runs the tests and publishes that build under `dev/` of the site,
+<https://chrisbaumann.ch/serious-sudoku/dev/> (it overwrites the build of the
+previous push, so it always shows the branch that was pushed last). The test
+build is served from the same origin as the real app, so `npm run assemble` with
+`DEV_BUILD=1` gives it its own stored data (`serious-sudoku-dev:` keys), its own
+service worker caches (`dev-sudoku-...`) and the name "Serious Sudoku (dev)".
+The deployment of `main` keeps the `dev/` folder, and the two workflows wait for
+each other (they push to the same `gh-pages` branch).
+
 ## Installable / offline (PWA)
 
 The deployed page is an installable web app (`src/manifest.webmanifest`) and

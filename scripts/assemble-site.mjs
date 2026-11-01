@@ -26,4 +26,20 @@ for (const f of ["main", "html_util", "sudoku", "storage", "settings", "pages", 
 }
 // New service worker cache per release
 rewrite(`${out}/sw.js`, (s) => s.replaceAll("__BUILD__", build));
-console.log(`Assembled ${out}/ (build ${build})`);
+
+// Test build of a branch (DEV_BUILD=1, see .github/workflows/deploy-dev.yml): it
+// is served from the same origin as the real app, so it gets its own stored data
+// (the keys of the settings, the history and the saved game), its own service
+// worker caches, and says "(dev)" in its names.
+if (process.env.DEV_BUILD) {
+  const dev = (s) =>
+    s
+      .replaceAll("serious-sudoku:", "serious-sudoku-dev:")
+      .replaceAll("Serious Sudoku", "Serious Sudoku (dev)");
+  for (const f of ["index.html", "manifest.webmanifest"]) rewrite(`${out}/${f}`, dev);
+  for (const f of ["main", "html_util", "storage", "settings", "pages", "history"]) {
+    rewrite(`${out}/dist/${f}.js`, dev);
+  }
+  rewrite(`${out}/sw.js`, (s) => s.replace('"sudoku-', '"dev-sudoku-'));
+}
+console.log(`Assembled ${out}/ (build ${build}${process.env.DEV_BUILD ? ", dev" : ""})`);

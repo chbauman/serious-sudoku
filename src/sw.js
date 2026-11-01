@@ -3,6 +3,10 @@
 // index.html, dist/ and assets/ are siblings of this file. __BUILD__ is
 // replaced with the commit hash on deploy, so every release gets a new cache.
 const CACHE = "sudoku-__BUILD__";
+// Only the caches of this kind of build are deleted: the test builds (see
+// scripts/assemble-site.mjs) are served from the same origin and have their own
+// ones ("dev-sudoku-...").
+const CACHE_PREFIX = CACHE.slice(0, CACHE.lastIndexOf("-") + 1);
 
 const PRECACHE = [
   "./",
@@ -40,7 +44,11 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+        Promise.all(
+          keys
+            .filter((k) => k.startsWith(CACHE_PREFIX) && k !== CACHE)
+            .map((k) => caches.delete(k))
+        )
       )
       .then(() => self.clients.claim())
   );
