@@ -22,7 +22,6 @@ let puzzleStr = null;
 let autoFillUsed = false;
 let timing = false;
 let elapsedMs = 0;
-let practiced = false;
 let lastTick = Date.now();
 let choosingHyp = false;
 let hypRejectionEnabled = false;
@@ -506,7 +505,7 @@ function showSolveTime() {
     timing = false;
     updateTimer();
     const seconds = elapsedMs / 1000;
-    const practice = settings.practiceMode || practiced;
+    const practice = settings.practiceMode;
     const entry = {
         id: puzzleId,
         level: sudLvl,
@@ -547,8 +546,6 @@ function tick() {
     lastTick = now;
     if (timing && document.visibilityState === "visible" && currentPage() === "game") {
         elapsedMs += delta;
-        if (settings.practiceMode)
-            practiced = true;
     }
     updateTimer();
 }
@@ -656,7 +653,6 @@ function saveGame() {
             puzzle: puzzleStr,
             autoFill: autoFillUsed,
             elapsed: elapsedMs,
-            practiced,
         };
         storageSet(SAVE_KEY, JSON.stringify(game));
     }
@@ -697,7 +693,6 @@ async function loadGame() {
         puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
         autoFillUsed = g.autoFill === true;
         elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
-        practiced = g.practiced === true || settings.practiceMode;
         timing = puzzleId !== null && sudLvl >= 0;
         updateTimer();
         updateToolButtons();
@@ -961,7 +956,6 @@ function setSudFromStr(retSud, index) {
     copyTo2d(T, Tinit);
     puzzleId = `${sudLvl}-${index}`;
     elapsedMs = 0;
-    practiced = settings.practiceMode;
     timing = true;
     updateTimer();
     elsewhere();
@@ -1078,7 +1072,6 @@ function restart() {
     }
     log("Restarting");
     elapsedMs = 0;
-    practiced = settings.practiceMode;
     autoFillUsed = false;
     timing = puzzleId !== null && sudLvl >= 0;
     updateTimer();
