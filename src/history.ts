@@ -67,6 +67,20 @@ function countedSolves(
   return counted.length > 0 ? counted : ofLevel.filter((e) => !e.practice);
 }
 
+/**
+ * Whether the best and average time of a level only come from solves with the
+ * magic wand (the only solves of the level, or the setting counts them and
+ * there is nothing else)
+ */
+export function onlyWandSolves(
+  entries: HistoryEntry[],
+  level: number,
+  countAutoFill = true
+): boolean {
+  const pool = countedSolves(entries, level, countAutoFill);
+  return pool.length > 0 && pool.every((e) => e.autoFill === true);
+}
+
 /** Best time of a level, only of the solves that count (null if there is none) */
 export function bestTime(
   entries: HistoryEntry[],

@@ -6,6 +6,7 @@ import {
   loadHistory,
   bestTime,
   averageTime,
+  onlyWandSolves,
   formatTime,
   HistoryEntry,
 } from "./history.js";
@@ -84,11 +85,13 @@ async function renderHistory() {
         const solved = timed.filter((e) => e.level === level).length;
         const best = bestTime(entries, level, count);
         const avg = averageTime(entries, level, count);
+        // The wand in front of the times if they only come from wand solves
+        const wand = onlyWandSolves(entries, level, count) ? WAND : "";
         return row([
           levelName(level),
           String(solved),
-          best === null ? "-" : formatTime(best),
-          avg === null ? "-" : formatTime(avg),
+          best === null ? "-" : wand + formatTime(best),
+          avg === null ? "-" : wand + formatTime(avg),
         ]);
       })
       .join("");
