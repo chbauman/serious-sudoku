@@ -83,23 +83,18 @@ function toggleMenu() {
 const SETTING_INFO = {
     practice: {
         title: "Practice mode",
-        text: "Practise without counting: solved sudokus appear in the history with a practice " +
-            "icon instead of a time and do not count for the best and average times. This " +
-            "also holds for a sudoku on which you turn the practice mode off again before you " +
-            "finish it: restart it (tools) for a normal attempt. Whether the time is shown " +
-            "while you play is up to the setting Show time.",
+        text: "Solves are listed in the history with a practice icon instead of a time and " +
+            "do not count for the best times. A sudoku started in practice mode stays a " +
+            "practice solve, restart it for a normal attempt.",
     },
     "show-time": {
         title: "Show time",
-        text: "Shows the time below the buttons, in the practice mode too. When it is off, " +
-            "the solving is still timed, a solved sudoku is recorded in the history as usual " +
-            "(unless in practice mode) and its time is shown when you finish it.",
+        text: "Shows the time below the buttons. The solving is timed either way.",
     },
     "count-wand": {
         title: "Count wand solves",
-        text: "Solves with auto-filled pencil marks (the magic wand in the tools) only count for " +
-            "the best and average times if this is on. They are always recorded in the " +
-            "history, marked with the wand.",
+        text: "Solves with auto-filled pencil marks (the magic wand) only count for the best " +
+            "times if this is on. They are always listed in the history.",
     },
 };
 function setupSettings() {
