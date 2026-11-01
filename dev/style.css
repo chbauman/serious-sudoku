@@ -347,6 +347,34 @@ h1 {
     border-bottom: 1px solid var(--grid-line-thin);
 }
 
+.setting-name {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Info button next to a short label: opens the explanation in a dialog */
+.info-btn {
+    border: none;
+    background: none;
+    color: var(--disabled);
+    padding: 8px;
+    margin: -8px 0;
+    font-size: 22px;
+    line-height: 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.info-btn .icon {
+    margin: 0;
+}
+
+.info-btn:focus,
+.info-btn:focus-visible {
+    outline: none;
+}
+
 .setting select option {
     background: var(--bg);
     color: var(--fg);
