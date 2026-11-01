@@ -51,9 +51,10 @@ let puzzleStr: string | null = null;
 let autoFillUsed = false;
 let timing = false;
 let elapsedMs = 0;
-// Time passed in practice mode: the sudoku is not recorded in the history, a
-// partial time would be misleading
-let untimed = false;
+// The practice mode was on while this sudoku was played: it is not recorded in
+// the history, also not when the practice mode is turned off again (a partial
+// time would be misleading), restarting it starts a normal attempt
+let practiced = false;
 let lastTick = Date.now();
 let choosingHyp = false;
 let hypRejectionEnabled = false;
@@ -672,7 +673,12 @@ function showSolveTime() {
   if (!timing || puzzleId === null || sudLvl < 0) return;
   timing = false;
   updateTimer();
-  if (settings.practiceMode || untimed) return;
+  if (settings.practiceMode || practiced) {
+    text.textContent =
+      (settings.showTime ? `Time: ${formatTime(elapsedMs / 1000)} - ` : "") +
+      "practice, not recorded";
+    return;
+  }
   const seconds = elapsedMs / 1000;
   const entry: HistoryEntry = {
     id: puzzleId,
@@ -702,7 +708,7 @@ function showSolveTime() {
 function updateTimer() {
   getAssertedButton("timer").textContent = !timing
     ? ""
-    : settings.showTime && !settings.practiceMode
+    : settings.showTime
     ? `${levelName(sudLvl)} · ${formatTime(elapsedMs / 1000)}`
     : levelName(sudLvl);
 }
@@ -713,8 +719,8 @@ function tick() {
   const delta = Math.min(now - lastTick, 2000);
   lastTick = now;
   if (timing && document.visibilityState === "visible" && currentPage() === "game") {
-    if (settings.practiceMode) untimed = true;
-    else elapsedMs += delta;
+    elapsedMs += delta;
+    if (settings.practiceMode) practiced = true;
   }
   updateTimer();
 }
@@ -837,7 +843,7 @@ interface SavedGame extends Snapshot {
   puzzle?: string | null;
   autoFill?: boolean;
   elapsed: number;
-  untimed?: boolean;
+  practiced?: boolean;
 }
 
 // Whether a grid has any digit (a sudoku that is loaded has givens)
@@ -858,7 +864,7 @@ function saveGame() {
       puzzle: puzzleStr,
       autoFill: autoFillUsed,
       elapsed: elapsedMs,
-      untimed,
+      practiced,
     };
     storageSet(SAVE_KEY, JSON.stringify(game));
   } catch (e) {
@@ -902,7 +908,7 @@ async function loadGame(): Promise<boolean> {
     puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
     autoFillUsed = g.autoFill === true;
     elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
-    untimed = g.untimed === true || settings.practiceMode;
+    practiced = g.practiced === true || settings.practiceMode;
     timing = puzzleId !== null && sudLvl >= 0;
     updateTimer();
     updateToolButtons();
@@ -1181,7 +1187,7 @@ function setSudFromStr(retSud: string, index: number) {
   copyTo2d(T, Tinit);
   puzzleId = `${sudLvl}-${index}`;
   elapsedMs = 0;
-  untimed = settings.practiceMode;
+  practiced = settings.practiceMode;
   timing = true;
   updateTimer();
   elsewhere();
@@ -1317,7 +1323,7 @@ function restart() {
   }
   log("Restarting");
   elapsedMs = 0;
-  untimed = settings.practiceMode;
+  practiced = settings.practiceMode;
   autoFillUsed = false;
   timing = puzzleId !== null && sudLvl >= 0;
   updateTimer();

@@ -11,11 +11,11 @@ export interface Settings {
   /** Solves with auto-filled pencil marks (the magic wand) count for the best times */
   countAutoFill: boolean;
   /**
-   * Practice mode: the time is neither shown nor measured and the solved
-   * sudokus are not recorded in the history (so they do not count for the best times)
+   * Practice mode: the solved sudokus are not recorded in the history (so they do
+   * not count for the best times)
    */
   practiceMode: boolean;
-  /** Show the time below the buttons (it is measured and recorded anyway), not in practice mode */
+  /** Show the time below the buttons (independent of the practice mode) */
   showTime: boolean;
 }
 
