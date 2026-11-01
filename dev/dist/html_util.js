@@ -22,6 +22,7 @@ let puzzleStr = null;
 let autoFillUsed = false;
 let timing = false;
 let elapsedMs = 0;
+let untimed = false;
 let lastTick = Date.now();
 let choosingHyp = false;
 let hypRejectionEnabled = false;
@@ -504,6 +505,8 @@ function showSolveTime() {
         return;
     timing = false;
     updateTimer();
+    if (!settings.timeSolving || untimed)
+        return;
     const seconds = elapsedMs / 1000;
     const entry = {
         id: puzzleId,
@@ -526,16 +529,21 @@ function showSolveTime() {
     });
 }
 function updateTimer() {
-    getAssertedButton("timer").textContent = timing
-        ? `${levelName(sudLvl)} · ${formatTime(elapsedMs / 1000)}`
-        : "";
+    getAssertedButton("timer").textContent = !timing
+        ? ""
+        : settings.timeSolving
+            ? `${levelName(sudLvl)} · ${formatTime(elapsedMs / 1000)}`
+            : levelName(sudLvl);
 }
 function tick() {
     const now = Date.now();
     const delta = Math.min(now - lastTick, 2000);
     lastTick = now;
     if (timing && document.visibilityState === "visible" && currentPage() === "game") {
-        elapsedMs += delta;
+        if (settings.timeSolving)
+            elapsedMs += delta;
+        else
+            untimed = true;
     }
     updateTimer();
 }
@@ -643,6 +651,7 @@ function saveGame() {
             puzzle: puzzleStr,
             autoFill: autoFillUsed,
             elapsed: elapsedMs,
+            untimed,
         };
         storageSet(SAVE_KEY, JSON.stringify(game));
     }
@@ -683,6 +692,7 @@ async function loadGame() {
         puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
         autoFillUsed = g.autoFill === true;
         elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
+        untimed = g.untimed === true || !settings.timeSolving;
         timing = puzzleId !== null && sudLvl >= 0;
         updateTimer();
         updateToolButtons();
@@ -946,6 +956,7 @@ function setSudFromStr(retSud, index) {
     copyTo2d(T, Tinit);
     puzzleId = `${sudLvl}-${index}`;
     elapsedMs = 0;
+    untimed = !settings.timeSolving;
     timing = true;
     updateTimer();
     elsewhere();
@@ -1062,6 +1073,7 @@ function restart() {
     }
     log("Restarting");
     elapsedMs = 0;
+    untimed = !settings.timeSolving;
     autoFillUsed = false;
     timing = puzzleId !== null && sudLvl >= 0;
     updateTimer();

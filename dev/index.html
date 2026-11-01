@@ -174,7 +174,10 @@
           When you finish a sudoku without the solver, its time is saved in the
           history (menu), together with the level and the ID of the sudoku. The
           current game is saved on your device, so you can close the app and
-          continue later.
+          continue later. To practise without a clock, turn off &ldquo;Time my
+          solving&rdquo; in the settings: the time is not shown and the sudoku
+          is not recorded in the history (also not when it is turned on again
+          before you finish it, restart the sudoku for a timed attempt).
         </p>
 
         <div id="keyboard-help" hidden>
@@ -246,6 +249,10 @@
             <option value="light">Light</option>
             <option value="dark">Dark</option>
           </select>
+        </label>
+        <label class="setting">
+          <span>Time my solving: clock and history (turn off to practise)</span>
+          <input type="checkbox" id="setting-time-solving" />
         </label>
         <label class="setting">
           <span>Count solves with auto-filled pencil marks (<svg class="icon inline-icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg>) for the best times</span>

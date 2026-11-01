@@ -5,6 +5,7 @@ export const settings = {
     level: 2,
     theme: "auto",
     countAutoFill: false,
+    timeSolving: true,
 };
 const THEME_COLORS = { light: "#ffffff", dark: "#16181d" };
 export function applyTheme(theme) {
@@ -38,6 +39,8 @@ async function readSettings() {
                 settings.theme = s.theme;
             if (typeof s.countAutoFill === "boolean")
                 settings.countAutoFill = s.countAutoFill;
+            if (typeof s.timeSolving === "boolean")
+                settings.timeSolving = s.timeSolving;
         }
     }
     catch (e) {
