@@ -29,6 +29,10 @@ function countedSolves(entries, level, countAutoFill) {
     const counted = ofLevel.filter((e) => isCounted(e, countAutoFill));
     return counted.length > 0 ? counted : ofLevel.filter((e) => !e.practice);
 }
+export function onlyWandSolves(entries, level, countAutoFill = true) {
+    const pool = countedSolves(entries, level, countAutoFill);
+    return pool.length > 0 && pool.every((e) => e.autoFill === true);
+}
 export function bestTime(entries, level, countAutoFill = true) {
     const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
     return times.length ? Math.min(...times) : null;

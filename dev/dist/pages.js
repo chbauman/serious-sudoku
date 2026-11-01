@@ -1,4 +1,4 @@
-import { loadHistory, bestTime, averageTime, formatTime, } from "./history.js";
+import { loadHistory, bestTime, averageTime, onlyWandSolves, formatTime, } from "./history.js";
 import { LEVEL_NAMES, levelName } from "./sudoku.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
 const TITLES = {
@@ -49,11 +49,12 @@ async function renderHistory() {
                 const solved = timed.filter((e) => e.level === level).length;
                 const best = bestTime(entries, level, count);
                 const avg = averageTime(entries, level, count);
+                const wand = onlyWandSolves(entries, level, count) ? WAND : "";
                 return row([
                     levelName(level),
                     String(solved),
-                    best === null ? "-" : formatTime(best),
-                    avg === null ? "-" : formatTime(avg),
+                    best === null ? "-" : wand + formatTime(best),
+                    avg === null ? "-" : wand + formatTime(avg),
                 ]);
             })
                 .join("");
