@@ -447,15 +447,20 @@ h1 {
 
 /* Button that opens the details of a level or a solve (history) */
 .more-btn {
+    display: inline-flex;
+    vertical-align: middle;
     border: none;
     background: none;
     color: var(--accent);
     padding: 4px;
-    margin: -6px 0;
     font-size: 26px;
     line-height: 0;
     border-radius: 8px;
     cursor: pointer;
+}
+
+.stats td {
+    vertical-align: middle;
 }
 
 .more-btn .icon {
@@ -513,13 +518,6 @@ h1 {
     border-radius: 10px;
     padding: 10px 24px;
     cursor: pointer;
-}
-
-.info-note {
-    text-align: center;
-    font-size: 13px;
-    color: var(--disabled);
-    margin: 4px 0 0;
 }
 
 .stats .num {

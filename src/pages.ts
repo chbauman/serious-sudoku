@@ -82,12 +82,8 @@ const timeCell = (e: HistoryEntry) =>
 
 const infoRow = (name: string, value: string) => `<tr><th>${name}</th><td>${value}</td></tr>`;
 
-/** Replay button, only if the sudoku of the solve is stored */
 function replayButton(index: number): string {
-  const e = shownEntries[index];
-  return e.puzzle
-    ? `<button type="button" class="action-btn" data-replay="${index}">Replay</button>`
-    : '<p class="info-note">The sudoku of this solve is not stored, no replay possible.</p>';
+  return `<button type="button" class="action-btn" data-replay="${index}">Replay</button>`;
 }
 
 /** Details of a solve: level, date, time and the replay button */
@@ -97,8 +93,16 @@ function solveDetails(index: number): string {
     '<table class="info-table">' +
     infoRow("Level", levelName(e.level)) +
     infoRow("Date", new Date(e.date).toLocaleString()) +
-    infoRow("Time", formatTime(e.seconds) + (e.practice ? " (practice)" : "")) +
-    (e.autoFill ? infoRow("Pencil marks", WAND + "filled in automatically") : "") +
+    infoRow(
+      "Time",
+      (e.autoFill ? WAND : "") +
+        formatTime(e.seconds) +
+        (e.autoFill || e.practice
+          ? ` (${[e.autoFill ? "using help" : "", e.practice ? "practice" : ""]
+              .filter((t) => t)
+              .join(", ")})`
+          : "")
+    ) +
     "</table>" +
     replayButton(index)
   );
@@ -224,10 +228,16 @@ function setupHistory() {
         return;
       }
       const replay = target.closest<HTMLElement>("[data-replay]");
-      if (replay && replayHandler(shownEntries[Number(replay.dataset.replay)])) {
+      if (!replay) return;
+      if (replayHandler(shownEntries[Number(replay.dataset.replay)])) {
         byId<HTMLDialogElement>("solve-info").close();
         byId<HTMLDialogElement>("level-info").close();
         byId("back-btn").click(); // back to the game
+      } else {
+        // The sudoku is not stored (or not valid)
+        byId("info-title").textContent = "Replay not possible";
+        byId("info-desc").textContent = "The sudoku of this solve was not stored.";
+        openDialogById("info");
       }
     });
   }
