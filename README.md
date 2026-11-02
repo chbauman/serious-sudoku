@@ -102,8 +102,8 @@ any, the average time, and all solves of the level) and the 10 most recent solve
 (level, date, time, ID). Solves with the magic wand are marked (left of the time)
 and only count for the best time if the setting says so, or as long as the level was
 never solved without help (then the wand is shown in front of the best time).
-Practice solves never count. A solve can be played again from its details ("Play
-again": the same sudoku, shuffled differently), if its sudoku is stored. The win dialog congratulates
+Practice solves never count. A solve can be replayed from its details ("Replay":
+the same sudoku, shuffled like every sudoku), if its sudoku is stored. The win dialog congratulates
 (a short message, the next level to try) and shows the time and whether it is a new best;
 it is shown once per sudoku (not again after taking back a digit, and not after using
 the solver). A new sudoku starts in the digit mode (not the pencil marks). The version

@@ -1207,7 +1207,7 @@ function setSudFromStr(retSud: string, index: number) {
   saveGame();
 }
 
-// Plays the sudoku of a solve of the history again, shuffled differently (the
+// Replays the sudoku of a solve of the history (shuffled like every sudoku, the
 // same as a new sudoku of its level, but this sudoku). False if it is not
 // stored, or not a sudoku with one solution.
 export function replaySudoku(entry: HistoryEntry): boolean {

@@ -82,16 +82,15 @@ const timeCell = (e: HistoryEntry) =>
 
 const infoRow = (name: string, value: string) => `<tr><th>${name}</th><td>${value}</td></tr>`;
 
-/** Button to play a solve again, only if its sudoku is stored */
+/** Replay button, only if the sudoku of the solve is stored */
 function replayButton(index: number): string {
   const e = shownEntries[index];
   return e.puzzle
-    ? `<button type="button" class="action-btn" data-replay="${index}">Play again</button>` +
-        '<p class="info-note">The sudoku is shuffled differently.</p>'
-    : '<p class="info-note">The sudoku of this solve is not stored, it cannot be played again.</p>';
+    ? `<button type="button" class="action-btn" data-replay="${index}">Replay</button>`
+    : '<p class="info-note">The sudoku of this solve is not stored, no replay possible.</p>';
 }
 
-/** Details of a solve: level, date, time, ID and the button to play it again */
+/** Details of a solve: level, date, time, ID and the replay button */
 function solveDetails(index: number): string {
   const e = shownEntries[index];
   return (
@@ -215,7 +214,7 @@ function setupHistory() {
     if (btn.dataset.level !== undefined) showLevel(Number(btn.dataset.level));
     else if (btn.dataset.solve !== undefined) showSolve(Number(btn.dataset.solve));
   });
-  // Inside the dialogs: the details of a solve of the list of a level, play again
+  // Inside the dialogs: the details of a solve of the list of a level, replay
   for (const id of ["level-info", "solve-info"]) {
     byId(id).addEventListener("click", (e) => {
       const target = e.target as Element;
@@ -348,7 +347,7 @@ function setupAndroidBack() {
 }
 
 /**
- * @param replay Plays the sudoku of a solve again (shuffled differently),
+ * @param replay Replays the sudoku of a solve,
  *   returns whether it was started
  */
 export function setupPages(replay: (entry: HistoryEntry) => boolean) {
