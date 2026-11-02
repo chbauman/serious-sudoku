@@ -1,4 +1,4 @@
-import { LEVEL_NAMES, MAX_LEVEL, levelName, congratulation, T, DEBUG, Marked, readSudokuFromFile, Tsol, Tinit, permuteSuds, parseSudokuLine, gridToString, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy2D, deepCopy3D, } from "./sudoku.js";
+import { LEVEL_NAMES, MAX_LEVEL, levelName, congratulation, T, DEBUG, Marked, readSudokuFromFile, Tsol, Tinit, permuteSuds, parseSudokuLine, puzzleToLine, gridToString, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy2D, deepCopy3D, } from "./sudoku.js";
 import { storageGet, storageSet, storageRemove } from "./storage.js";
 import { settings, loadSettings } from "./settings.js";
 import { currentPage } from "./pages.js";
@@ -975,6 +975,19 @@ function setSudFromStr(retSud, index) {
     clearHyps();
     closeDialog("waiting");
     saveGame();
+}
+export function replaySudoku(entry) {
+    if (!entry.puzzle)
+        return false;
+    const line = puzzleToLine(entry.puzzle);
+    if (line === null)
+        return false;
+    if (inputtingOwnSud)
+        inputCustomSudoku();
+    sudLvl = entry.level;
+    const index = Number(entry.id.split("-")[1]);
+    setSudFromStr(line, Number.isFinite(index) ? index : 0);
+    return true;
 }
 function disableSmallDigs() {
     log("Disabled pencil mark toggle");

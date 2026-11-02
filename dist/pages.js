@@ -1,4 +1,4 @@
-import { loadHistory, bestTime, averageTime, onlyWandSolves, formatTime, } from "./history.js";
+import { loadHistory, bestEntry, onlyWandSolves, solveStats, formatTime, } from "./history.js";
 import { LEVEL_NAMES, levelName } from "./sudoku.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
 const TITLES = {
@@ -30,8 +30,75 @@ function showPage() {
     if (page === "history")
         renderHistory();
 }
+let shownEntries = [];
+let replayHandler = () => false;
+const MORE_ICON = '<svg class="icon" aria-hidden="true"><use href="#i-ellipsis-circle-outline" /></svg>';
+const moreButton = (attr, label) => `<button type="button" class="more-btn" ${attr} title="${label}" aria-label="${label}">${MORE_ICON}</button>`;
+const shortDate = (iso) => new Date(iso).toLocaleDateString(undefined, { year: "2-digit", month: "numeric", day: "numeric" });
+const timeCell = (e) => (e.autoFill ? WAND : "") + (e.practice ? PRACTICE : formatTime(e.seconds));
+const infoRow = (name, value) => `<tr><th>${name}</th><td>${value}</td></tr>`;
+function replayButton(index) {
+    return `<button type="button" class="action-btn" data-replay="${index}">Replay</button>`;
+}
+function solveDetails(index) {
+    const e = shownEntries[index];
+    return ('<table class="info-table">' +
+        infoRow("Level", levelName(e.level)) +
+        infoRow("Date", new Date(e.date).toLocaleString()) +
+        infoRow("Time", (e.autoFill ? WAND : "") +
+            formatTime(e.seconds) +
+            (e.autoFill || e.practice
+                ? ` (${[e.autoFill ? "using help" : "", e.practice ? "practice" : ""]
+                    .filter((t) => t)
+                    .join(", ")})`
+                : "")) +
+        "</table>" +
+        replayButton(index));
+}
+function openDialogById(id) {
+    const dlg = byId(id);
+    if (!dlg.open)
+        dlg.showModal();
+}
+function showSolve(index) {
+    const e = shownEntries[index];
+    byId("solve-info-title").textContent = `${levelName(e.level)} sudoku`;
+    byId("solve-info-body").innerHTML = solveDetails(index);
+    openDialogById("solve-info");
+}
+function showLevel(level) {
+    const count = settings.countAutoFill;
+    const best = bestEntry(shownEntries, level, count);
+    const stats = solveStats(shownEntries, level);
+    const statsRow = (name, s) => `<tr><td>${name}</td><td class="num">${s.count}</td><td class="num">${s.average === null ? "-" : formatTime(s.average)}</td></tr>`;
+    const indexes = shownEntries
+        .map((e, i) => i)
+        .filter((i) => shownEntries[i].level === level)
+        .reverse();
+    byId("level-info-title").textContent = levelName(level);
+    byId("level-info-body").innerHTML =
+        "<h3>Best solve</h3>" +
+            (best ? solveDetails(shownEntries.indexOf(best)) : "<p>None yet.</p>") +
+            "<h3>Solves</h3>" +
+            '<table class="stats">' +
+            "<tr><th></th><th class=\"num\">Solved</th><th class=\"num\">Average</th></tr>" +
+            statsRow("Without help", stats.unassisted) +
+            (stats.assisted.count > 0 ? statsRow("Using help", stats.assisted) : "") +
+            (stats.assisted.count > 0 && stats.unassisted.count > 0
+                ? statsRow("All", stats.all)
+                : "") +
+            "</table>" +
+            "<h3>All solves</h3>" +
+            '<table class="stats">' +
+            indexes
+                .map((i) => `<tr><td>${shortDate(shownEntries[i].date)}</td><td class="num">${timeCell(shownEntries[i])}</td><td class="num">${moreButton(`data-solve="${i}"`, "Details of this solve")}</td></tr>`)
+                .join("") +
+            "</table>";
+    openDialogById("level-info");
+}
 async function renderHistory() {
     const [entries] = await Promise.all([loadHistory(), loadSettings()]);
+    shownEntries = entries;
     const count = settings.countAutoFill;
     byId("history-empty").hidden = entries.length > 0;
     byId("history-content").hidden = entries.length === 0;
@@ -43,34 +110,67 @@ async function renderHistory() {
     const timed = entries.filter((e) => !e.practice);
     const levels = [...new Set(timed.map((e) => e.level))].sort((a, b) => a - b);
     byId("history-levels").innerHTML =
-        row(["Level", "Solved", "Best", "Average"], "th") +
+        row(["Level", "Best", "Date", ""], "th") +
             levels
                 .map((level) => {
-                const solved = timed.filter((e) => e.level === level).length;
-                const best = bestTime(entries, level, count);
+                const best = bestEntry(entries, level, count);
                 const wandOnly = onlyWandSolves(entries, level, count);
-                const avg = wandOnly ? null : averageTime(entries, level, count);
                 return row([
                     levelName(level),
-                    String(solved),
-                    best === null ? "-" : (wandOnly ? WAND : "") + formatTime(best),
-                    avg === null ? "-" : formatTime(avg),
+                    best === null ? "-" : (wandOnly ? WAND : "") + formatTime(best.seconds),
+                    best === null ? "-" : shortDate(best.date),
+                    moreButton(`data-level="${level}"`, `Details of ${levelName(level)}`),
                 ]);
             })
                 .join("");
-    const recent = entries.slice(-RECENT_ENTRIES).reverse();
+    const firstRecent = Math.max(0, entries.length - RECENT_ENTRIES);
+    const recent = entries.map((e, i) => i).slice(firstRecent).reverse();
     byId("history-recent").innerHTML =
-        row(["Date", "Level", "Time", "ID"], "th") +
+        row(["Date", "Level", "Time", ""], "th") +
             recent
-                .map((e) => row([
-                new Date(e.date).toLocaleDateString(),
-                levelName(e.level),
-                (e.autoFill ? WAND : "") + (e.practice ? PRACTICE : formatTime(e.seconds)),
-                `#${e.id.split("-")[1]}`,
+                .map((i) => row([
+                shortDate(entries[i].date),
+                levelName(entries[i].level),
+                timeCell(entries[i]),
+                moreButton(`data-solve="${i}"`, "Details of this solve"),
             ]))
                 .join("");
-    byId("history-note").hidden = !recent.some((e) => e.autoFill);
-    byId("history-note-practice").hidden = !recent.some((e) => e.practice);
+    byId("history-note").hidden = !recent.some((i) => entries[i].autoFill);
+    byId("history-note-practice").hidden = !recent.some((i) => entries[i].practice);
+}
+function setupHistory() {
+    byId("history").addEventListener("click", (e) => {
+        const btn = e.target.closest(".more-btn");
+        if (!btn)
+            return;
+        if (btn.dataset.level !== undefined)
+            showLevel(Number(btn.dataset.level));
+        else if (btn.dataset.solve !== undefined)
+            showSolve(Number(btn.dataset.solve));
+    });
+    for (const id of ["level-info", "solve-info"]) {
+        byId(id).addEventListener("click", (e) => {
+            const target = e.target;
+            const more = target.closest(".more-btn[data-solve]");
+            if (more) {
+                showSolve(Number(more.dataset.solve));
+                return;
+            }
+            const replay = target.closest("[data-replay]");
+            if (!replay)
+                return;
+            if (replayHandler(shownEntries[Number(replay.dataset.replay)])) {
+                byId("solve-info").close();
+                byId("level-info").close();
+                byId("back-btn").click();
+            }
+            else {
+                byId("info-title").textContent = "Replay not possible";
+                byId("info-desc").textContent = "The sudoku of this solve was not stored.";
+                openDialogById("info");
+            }
+        });
+    }
 }
 export function closeMenu() {
     byId("menu").hidden = true;
@@ -167,7 +267,8 @@ function setupAndroidBack() {
         }
     });
 }
-export function setupPages() {
+export function setupPages(replay) {
+    replayHandler = replay;
     byId("keyboard-help").hidden = !keyboardLikely();
     let prev = currentPage();
     let cameFromGame = false;
@@ -204,6 +305,7 @@ export function setupPages() {
     });
     setupAndroidBack();
     setupSettings();
+    setupHistory();
     showPage();
 }
 //# sourceMappingURL=pages.js.map

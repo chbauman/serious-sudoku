@@ -108,6 +108,15 @@ function parseSudokuLine(line) {
     };
     return { sud: toGrid(parts[1]), sol: toGrid(parts[2]) };
 }
+function puzzleToLine(puzzle) {
+    if (!/^[0-9]{81}$/.test(puzzle))
+        return null;
+    const digits = puzzle.split("").map(Number);
+    const { count, solution } = solveSudoku(range(9).map((i) => digits.slice(9 * i, 9 * i + 9)));
+    if (count !== 1 || solution === null)
+        return null;
+    return "0;" + digits.join(" ") + ";" + solution.flat().join(" ");
+}
 function allowed(A, y, x, ignoreSet = false) {
     const res = [];
     const arr = new Array(10).fill(true);
@@ -221,5 +230,5 @@ function permuteSuds(s, sudokuSol) {
         }
     }
 }
-export { LEVEL_NAMES, MAX_LEVEL, levelName, congratulation, T, Tsol, Tinit, DEBUG, Marked, range, shuffle, deepCopy2D, readSudokuFromFile, parseSudokuLine, gridToString, permuteSuds, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy3D, };
+export { LEVEL_NAMES, MAX_LEVEL, levelName, congratulation, T, Tsol, Tinit, DEBUG, Marked, range, shuffle, deepCopy2D, readSudokuFromFile, parseSudokuLine, puzzleToLine, gridToString, permuteSuds, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy3D, };
 //# sourceMappingURL=sudoku.js.map
