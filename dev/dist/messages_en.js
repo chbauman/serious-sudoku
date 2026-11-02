@@ -113,7 +113,6 @@ export const en = {
     "win.time": "Time: {time}",
     "win.practice": "practice, no time in the history",
     "win.help": " (solved with help)",
-    "win.not-counted": ", not counted for the best time",
     "win.new-best": " - new best!",
     "win.best": " (best: {time})",
     "custom.none.title": "No solution",
