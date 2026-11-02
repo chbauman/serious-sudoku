@@ -177,7 +177,7 @@
           current game is saved on your device, so you can close the app and
           continue later. The settings have a practice mode: the solved
           sudokus are listed in the history with a practice icon instead of a time
-          and do not count for the best and average times. You can switch it at any
+          and do not count for the best times. You can switch it at any
           time, what counts is the mode when you finish the sudoku. Independent of
           it, the time below the buttons can be hidden (&ldquo;Show time&rdquo;);
           the solving is timed anyway.
@@ -214,7 +214,7 @@
         </p>
 
         <p>Version</p>
-        <p class="help-text">1.1.0 (build 7ff0728f15, test build)</p>
+        <p class="help-text">1.1.0 (build 6ec8d026ae, test build)</p>
 
         <p>Author</p>
         <p class="help-text">
@@ -232,17 +232,17 @@
       <section id="history" data-page="history" hidden>
         <p id="history-empty">No solved sudokus yet. Your solve times will show up here.</p>
         <div id="history-content" hidden>
-          <p>Best times</p>
+          <p>Best solves</p>
           <table class="stats" id="history-levels"></table>
           <p>Recent</p>
           <table class="stats" id="history-recent"></table>
           <p id="history-note" hidden>
             <svg class="icon inline-icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg>
-            The pencil marks were filled in automatically. Such solves only count for the best and average times if this is turned on in the settings, or as long as the level was never solved without help.
+            The pencil marks were filled in automatically. Such solves only count for the best times if this is turned on in the settings, or as long as the level was never solved without help.
           </p>
           <p id="history-note-practice" hidden>
             <svg class="icon inline-icon" aria-hidden="true"><use href="#i-practice-outline" /></svg>
-            Solved in practice mode, without a time. Practice solves do not count for the best and average times.
+            Solved in practice mode, without a time. Practice solves do not count for the best times.
           </p>
         </div>
       </section>
@@ -305,6 +305,18 @@
       <dialog id="info">
         <h2 id="info-title"></h2>
         <p id="info-desc"></p>
+        <button class="dialog-x" data-close title="Close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
+      </dialog>
+
+      <dialog id="solve-info">
+        <h2 id="solve-info-title"></h2>
+        <div id="solve-info-body"></div>
+        <button class="dialog-x" data-close title="Close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
+      </dialog>
+
+      <dialog id="level-info">
+        <h2 id="level-info-title"></h2>
+        <div id="level-info-body"></div>
         <button class="dialog-x" data-close title="Close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
       </dialog>
 

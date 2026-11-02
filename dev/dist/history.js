@@ -33,13 +33,16 @@ export function onlyWandSolves(entries, level, countAutoFill = true) {
     const pool = countedSolves(entries, level, countAutoFill);
     return pool.length > 0 && pool.every((e) => e.autoFill === true);
 }
-export function bestTime(entries, level, countAutoFill = true) {
-    const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
-    return times.length ? Math.min(...times) : null;
+export function bestEntry(entries, level, countAutoFill = true) {
+    const pool = countedSolves(entries, level, countAutoFill);
+    return pool.reduce((best, e) => (best === null || e.seconds < best.seconds ? e : best), null);
 }
-export function averageTime(entries, level, countAutoFill = true) {
-    const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
-    return times.length ? times.reduce((a, b) => a + b, 0) / times.length : null;
+export function bestTime(entries, level, countAutoFill = true) {
+    return bestEntry(entries, level, countAutoFill)?.seconds ?? null;
+}
+export function solveCounts(entries, level) {
+    const solved = entries.filter((e) => e.level === level && !e.practice);
+    return { unassisted: solved.filter((e) => !e.autoFill).length, all: solved.length };
 }
 export async function recordSolve(entry, countAutoFill = true) {
     const entries = await loadHistory();

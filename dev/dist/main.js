@@ -1,4 +1,4 @@
-import { initGrid, setButtons, htmlButtonDict, digits, log, elsewhere, clickCell, } from "./html_util.js";
+import { initGrid, setButtons, htmlButtonDict, digits, log, elsewhere, clickCell, replaySudoku, } from "./html_util.js";
 import { setupPages, closeMenu } from "./pages.js";
 let initialized = false;
 const getDocEl = (id) => {
@@ -52,7 +52,7 @@ export function init() {
         htmlButtonDict.set(bId, getDocEl(bId));
     }
     setButtons();
-    setupPages();
+    setupPages(replaySudoku);
     for (let i = 0; i < 10; i++)
         digits[i] = getDocEl("digit-" + String(i));
     const tbl = getDocEl("grid");

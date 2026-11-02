@@ -445,6 +445,83 @@ h1 {
     font-weight: 600;
 }
 
+/* Button that opens the details of a level or a solve (history) */
+.more-btn {
+    border: none;
+    background: none;
+    color: var(--accent);
+    padding: 4px;
+    margin: -6px 0;
+    font-size: 26px;
+    line-height: 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.more-btn .icon {
+    margin: 0;
+}
+
+.more-btn:focus,
+.more-btn:focus-visible {
+    outline: none;
+}
+
+/* Details of a level or a solve (dialogs of the history) */
+#solve-info,
+#level-info {
+    width: min(92vw, 420px);
+}
+
+#solve-info-body,
+#level-info-body {
+    text-align: left;
+}
+
+#level-info h3 {
+    font-size: 16px;
+    margin: 16px 0 6px;
+}
+
+.info-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 15px;
+}
+
+.info-table th {
+    text-align: left;
+    font-weight: normal;
+    color: var(--disabled);
+    padding: 4px 8px 4px 0;
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+.info-table td {
+    padding: 4px 0;
+}
+
+.action-btn {
+    display: block;
+    margin: 12px auto 4px;
+    font: inherit;
+    font-size: 18px;
+    color: var(--bg);
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 24px;
+    cursor: pointer;
+}
+
+.info-note {
+    text-align: center;
+    font-size: 13px;
+    color: var(--disabled);
+    margin: 4px 0 0;
+}
+
 .stats .num {
     text-align: right;
     font-variant-numeric: tabular-nums;
