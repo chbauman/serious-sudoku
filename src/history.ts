@@ -13,6 +13,8 @@ export interface HistoryEntry {
   puzzle?: string;
   /** The pencil marks were filled in automatically (the magic wand) */
   autoFill?: boolean;
+  /** "Find mistakes" was used (marks the digits that differ from the solution) */
+  mistakes?: boolean;
   /** Solved in practice mode: shown in the history, but without time for the leaderboard */
   practice?: boolean;
   seconds: number;
@@ -30,6 +32,7 @@ const isEntry = (e: any): e is HistoryEntry =>
   Number.isInteger(e.level) &&
   (e.puzzle === undefined || typeof e.puzzle === "string") &&
   (e.autoFill === undefined || typeof e.autoFill === "boolean") &&
+  (e.mistakes === undefined || typeof e.mistakes === "boolean") &&
   (e.practice === undefined || typeof e.practice === "boolean") &&
   typeof e.seconds === "number" &&
   typeof e.date === "string";
@@ -47,15 +50,18 @@ export function loadHistory(): Promise<HistoryEntry[]> {
   })());
 }
 
+/** Whether help was used for a solve: the pencil marks were filled in or the mistakes were found */
+export const usedHelp = (e: HistoryEntry): boolean => e.autoFill === true || e.mistakes === true;
+
 /** Whether a solve counts for the best and average times (never in practice mode) */
 export function isCounted(e: HistoryEntry, countAutoFill: boolean): boolean {
-  return !e.practice && (countAutoFill || !e.autoFill);
+  return !e.practice && (countAutoFill || !usedHelp(e));
 }
 
 /**
  * The solves of a level that count for the best and average times: the ones
  * that count (see isCounted), or all but the practice solves as long as the
- * level was never solved without help (the magic wand).
+ * level was never solved without help.
  */
 function countedSolves(
   entries: HistoryEntry[],
@@ -68,17 +74,17 @@ function countedSolves(
 }
 
 /**
- * Whether the best and average time of a level only come from solves with the
- * magic wand (the only solves of the level, or the setting counts them and
- * there is nothing else)
+ * Whether the best and average time of a level only come from solves with
+ * help (the only solves of the level, or the setting counts them and there is
+ * nothing else)
  */
-export function onlyWandSolves(
+export function onlyHelpedSolves(
   entries: HistoryEntry[],
   level: number,
   countAutoFill = true
 ): boolean {
   const pool = countedSolves(entries, level, countAutoFill);
-  return pool.length > 0 && pool.every((e) => e.autoFill === true);
+  return pool.length > 0 && pool.every(usedHelp);
 }
 
 /** The solve with the best time of a level, among the solves that count (null if there is none) */
@@ -116,7 +122,7 @@ const statsOf = (solves: HistoryEntry[]): SolveStats => ({
 
 /**
  * The solves of a level (without the practice solves): the ones without help,
- * the ones with the magic wand and all of them, each with the number and the
+ * the ones with help and all of them, each with the number and the
  * average time
  */
 export function solveStats(
@@ -125,17 +131,17 @@ export function solveStats(
 ): { unassisted: SolveStats; assisted: SolveStats; all: SolveStats } {
   const solved = entries.filter((e) => e.level === level && !e.practice);
   return {
-    unassisted: statsOf(solved.filter((e) => !e.autoFill)),
-    assisted: statsOf(solved.filter((e) => e.autoFill)),
+    unassisted: statsOf(solved.filter((e) => !usedHelp(e))),
+    assisted: statsOf(solved.filter(usedHelp)),
     all: statsOf(solved),
   };
 }
 
 /**
  * Stores a finished sudoku, returns the previous best time of its level.
- * isBest is false for a solve that does not count (auto-filled pencil marks
- * with countAutoFill off, or practice mode), it is still stored. Solves with
- * auto-filled pencil marks count anyway as long as the level was never solved
+ * isBest is false for a solve that does not count (help used with
+ * countAutoFill off, or practice mode), it is still stored. Solves with
+ * help count anyway as long as the level was never solved
  * without help.
  */
 export async function recordSolve(

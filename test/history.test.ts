@@ -4,7 +4,8 @@ import {
   bestTime,
   solveStats,
   isCounted,
-  onlyWandSolves,
+  onlyHelpedSolves,
+  usedHelp,
   recordSolve,
 } from "../src/history";
 
@@ -96,15 +97,15 @@ test("the best time only comes from wand solves when that is all there is", () =
   const wand = entry(1, 90, true);
   const clean = entry(1, 120);
   // the only solves of the level are with the wand
-  expect(onlyWandSolves([wand], 1, false)).toBe(true);
-  expect(onlyWandSolves([wand, entry(1, 80, true)], 1, true)).toBe(true);
+  expect(onlyHelpedSolves([wand], 1, false)).toBe(true);
+  expect(onlyHelpedSolves([wand, entry(1, 80, true)], 1, true)).toBe(true);
   // a solve without help: the best time is not from the wand
-  expect(onlyWandSolves([wand, clean], 1, false)).toBe(false);
+  expect(onlyHelpedSolves([wand, clean], 1, false)).toBe(false);
   // with the setting on, the wand solves count, a clean one next to them too
-  expect(onlyWandSolves([wand, clean], 1, true)).toBe(false);
+  expect(onlyHelpedSolves([wand, clean], 1, true)).toBe(false);
   // no solve (or only practice) of the level
-  expect(onlyWandSolves([wand], 2, false)).toBe(false);
-  expect(onlyWandSolves([entry(1, 50, true, true)], 1, false)).toBe(false);
+  expect(onlyHelpedSolves([wand], 2, false)).toBe(false);
+  expect(onlyHelpedSolves([entry(1, 50, true, true)], 1, false)).toBe(false);
 });
 
 test("best entry and the numbers of solves of a level", () => {
@@ -131,4 +132,17 @@ test("best entry and the numbers of solves of a level", () => {
   });
   // only wand solves of the level: its best solve is a wand solve
   expect(bestEntry([wand], 4, false)).toBe(wand);
+});
+
+test("finding the mistakes counts as help like the filled-in pencil marks", () => {
+  const found = { ...entry(1, 50), mistakes: true };
+  const clean = entry(1, 100);
+  expect(usedHelp(found)).toBe(true);
+  expect(usedHelp(clean)).toBe(false);
+  // does not count for the best time unless wanted
+  expect(bestEntry([clean, found], 1, false)).toBe(clean);
+  expect(bestEntry([clean, found], 1, true)).toBe(found);
+  // the only solve of the level: counts anyway, with its help shown
+  expect(onlyHelpedSolves([found], 1, false)).toBe(true);
+  expect(solveStats([clean, found], 1).assisted.count).toBe(1);
 });

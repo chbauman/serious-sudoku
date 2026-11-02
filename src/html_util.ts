@@ -51,6 +51,8 @@ let puzzleId: string | null = null; // null for custom sudokus
 let puzzleStr: string | null = null;
 // The pencil marks were filled in automatically (the magic wand) in this game
 let autoFillUsed = false;
+// "Find mistakes" was used in this game
+let mistakesUsed = false;
 let timing = false;
 let elapsedMs = 0;
 // The solved dialog was shown for this sudoku (it is shown once, also when a
@@ -258,10 +260,10 @@ function confirmAction(
 // unknown, see analyseCustomSudoku
 let customSolution: number[][] | null = null;
 
-// Solves the custom sudoku (its givens), when "Mark mistakes" or "Solve" is
+// Solves the custom sudoku (its givens), when "Find mistakes" or "Solve" is
 // requested. Exactly one solution: it is stored (solAvailable), the tools work
 // as for the other sudokus. Otherwise a message is shown: no solution, or
-// several (then one of them is kept for "Solve" and "Mark mistakes", after a
+// several (then one of them is kept for "Solve" and "Find mistakes", after a
 // warning).
 // Returns whether the solution is known.
 function analyseCustomSudoku(forSolve: boolean): boolean {
@@ -304,7 +306,7 @@ function isCustomSudoku(): boolean {
   return puzzleId === null && !inputtingOwnSud && hasDigits(Tinit);
 }
 
-// "Mark mistakes" and "Solve" need the solution. The sudokus of the level files
+// "Find mistakes" and "Solve" need the solution. The sudokus of the level files
 // have it, a custom sudoku is solved when one of them is requested.
 function updateToolButtons() {
   const available = solAvailable || isCustomSudoku();
@@ -628,6 +630,7 @@ function disableHypRejection() {
 function check(solution: number[][] | null = null) {
   const sol = solution ?? Tsol;
   if (solution === null && solAvailable == false) return;
+  mistakesUsed = true;
   console.log("Checking Sudoku: ");
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
@@ -657,6 +660,7 @@ function showSolveTime() {
     level: sudLvl,
     ...(puzzleStr ? { puzzle: puzzleStr } : {}),
     ...(autoFillUsed ? { autoFill: true } : {}),
+    ...(mistakesUsed ? { mistakes: true } : {}),
     ...(practice ? { practice: true } : {}),
     seconds,
     date: new Date().toISOString(),
@@ -738,6 +742,10 @@ interface Snapshot {
 }
 const MAX_UNDO = 200;
 const undoStack: Snapshot[] = [];
+// Number of undo steps from before the own sudoku was finished: they are the
+// steps of the input. Undoing past them has to be confirmed (it returns to the
+// input of the own sudoku). 0: no such steps.
+let inputUndoSteps = 0;
 
 function captureState(): Snapshot {
   const cellProp = (f: (c: HTMLTableCellElement) => string) =>
@@ -762,7 +770,10 @@ function withUndo(action: () => void) {
     JSON.stringify([s.T, s.mini, s.marked, s.clickable, s.color, s.hyps.length]);
   if (key(before) !== key(captureState())) {
     undoStack.push(before);
-    if (undoStack.length > MAX_UNDO) undoStack.shift();
+    if (undoStack.length > MAX_UNDO) {
+      undoStack.shift();
+      if (inputUndoSteps > 0) inputUndoSteps--;
+    }
     updateUndoButton();
     saveGame();
   }
@@ -803,6 +814,11 @@ function applySnapshot(s: Snapshot) {
 }
 
 function undo() {
+  // The next step would be inside the input of the own sudoku
+  if (inputUndoSteps > 0 && undoStack.length === inputUndoSteps) {
+    confirmAction(t("confirm.edit.title"), t("confirm.edit.text"), editOwnSudoku);
+    return;
+  }
   const s = undoStack.pop();
   updateUndoButton();
   if (!s) return;
@@ -824,6 +840,7 @@ interface SavedGame extends Snapshot {
   puzzleId: string | null;
   puzzle?: string | null;
   autoFill?: boolean;
+  mistakes?: boolean;
   elapsed: number;
   winShown?: boolean;
 }
@@ -845,6 +862,7 @@ function saveGame() {
       puzzleId,
       puzzle: puzzleStr,
       autoFill: autoFillUsed,
+      mistakes: mistakesUsed,
       elapsed: elapsedMs,
       winShown,
     };
@@ -889,6 +907,7 @@ async function loadGame(): Promise<boolean> {
     puzzleId = typeof g.puzzleId === "string" ? g.puzzleId : null;
     puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
     autoFillUsed = g.autoFill === true;
+    mistakesUsed = g.mistakes === true;
     elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
     winShown = g.winShown === true;
     timing = puzzleId !== null && sudLvl >= 0;
@@ -1163,6 +1182,7 @@ function setSudFromStr(retSud: string, index: number) {
   copyTo2d(sol, Tsol);
   puzzleStr = gridToString(sud);
   autoFillUsed = false;
+  mistakesUsed = false;
   winShown = false;
   enlarge(); // digits, not pencil marks, in a new sudoku
 
@@ -1211,8 +1231,8 @@ function enableSmallDigs() {
 }
 
 // Lets the user input a custom sudoku (any sudoku, it is only analysed when
-// "Mark mistakes" or "Solve" is requested, see customSolution).
-function inputCustomSudoku() {
+// "Find mistakes" or "Solve" is requested, see customSolution).
+function inputCustomSudoku(keepGrid = false) {
   if (!inputtingOwnSud) {
     log("Own Input");
     puzzleId = null;
@@ -1220,7 +1240,8 @@ function inputCustomSudoku() {
     timing = false;
     updateTimer();
     elsewhere();
-    clearHyps();
+    // The input that is edited again keeps its undo steps (no hypotheses yet)
+    if (!keepGrid) clearHyps();
     disableHyp();
 
     // Toggle State and Button color
@@ -1229,11 +1250,13 @@ function inputCustomSudoku() {
     updateToolButtons();
     updateOwnInputUi();
 
-    // Remove current sudoku
+    // Remove current sudoku (not when the input is edited again)
     for (let i = 0; i < 9; i++) {
       for (let j = 0; j < 9; j++) {
-        T[i][j] = 0;
-        setCell(i, j, 0, true, false);
+        if (!keepGrid) {
+          T[i][j] = 0;
+          setCell(i, j, 0, true, false);
+        }
         Tref[i][j].style.color = "";
         Tref[i][j].style.backgroundColor = "";
         Tref[i][j].setAttribute("clickable", "1");
@@ -1243,6 +1266,7 @@ function inputCustomSudoku() {
     disableSmallDigs();
   } else {
     log("Done inputting own sudoku!");
+    inputUndoSteps = undoStack.length;
     enableHyp();
     sudLvl = -1;
     winShown = false;
@@ -1258,6 +1282,15 @@ function inputCustomSudoku() {
     enableSmallDigs();
     saveGame();
   }
+}
+
+// Undo reached the start of the own sudoku: goes back to its input, with the
+// digits as they are now
+function editOwnSudoku() {
+  inputUndoSteps = 0;
+  finishedHypChoosing();
+  inputCustomSudoku(true);
+  updateDigitCounts();
 }
 
 // Reads a random sudoku from the file and loads it.
@@ -1307,6 +1340,7 @@ function solve(solution: number[][] | null = null) {
 function clearHyps() {
   log("Clearing hypotheses");
   undoStack.length = 0;
+  inputUndoSteps = 0;
   updateUndoButton();
   hyps = [];
   // Choosing the digit of a hypothesis ends here: the pencil mark button was
@@ -1326,6 +1360,7 @@ function restart() {
   elapsedMs = 0;
   winShown = false;
   autoFillUsed = false;
+  mistakesUsed = false;
   timing = puzzleId !== null && sudLvl >= 0;
   updateTimer();
   elsewhere();
