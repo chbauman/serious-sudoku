@@ -103,27 +103,30 @@ export function bestTime(
   return bestEntry(entries, level, countAutoFill)?.seconds ?? null;
 }
 
-/**
- * Number of the solves of a level (without the practice solves): the ones
- * without help and the ones with the magic wand
- */
-export function solveCounts(
-  entries: HistoryEntry[],
-  level: number
-): { unassisted: number; assisted: number } {
-  const solved = entries.filter((e) => e.level === level && !e.practice);
-  const assisted = solved.filter((e) => e.autoFill).length;
-  return { unassisted: solved.length - assisted, assisted };
+/** Number and average time of a group of solves (average null if there is none) */
+export interface SolveStats {
+  count: number;
+  average: number | null;
 }
 
-/** Average time of a level, only of the solves that count (null if there is none) */
-export function averageTime(
+const statsOf = (solves: HistoryEntry[]): SolveStats => ({
+  count: solves.length,
+  average: solves.length ? solves.reduce((a, e) => a + e.seconds, 0) / solves.length : null,
+});
+
+/**
+ * The solves of a level (without the practice solves): the ones without help and
+ * the ones with the magic wand, each with the number and the average time
+ */
+export function solveStats(
   entries: HistoryEntry[],
-  level: number,
-  countAutoFill = true
-): number | null {
-  const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
-  return times.length ? times.reduce((a, b) => a + b, 0) / times.length : null;
+  level: number
+): { unassisted: SolveStats; assisted: SolveStats } {
+  const solved = entries.filter((e) => e.level === level && !e.practice);
+  return {
+    unassisted: statsOf(solved.filter((e) => !e.autoFill)),
+    assisted: statsOf(solved.filter((e) => e.autoFill)),
+  };
 }
 
 /**
