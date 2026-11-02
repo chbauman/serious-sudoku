@@ -1309,7 +1309,10 @@ function clearHyps() {
   undoStack.length = 0;
   updateUndoButton();
   hyps = [];
-  choosingHyp = false;
+  // Choosing the digit of a hypothesis ends here: the pencil mark button was
+  // disabled for it and has to be enabled again (it stayed disabled when a new
+  // sudoku was started, or the sudoku restarted or solved, in that state)
+  finishedHypChoosing();
   setActive("but1", false);
   disableHypRejection();
 }
