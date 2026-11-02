@@ -6,6 +6,7 @@ const isEntry = (e) => typeof e?.id === "string" &&
     Number.isInteger(e.level) &&
     (e.puzzle === undefined || typeof e.puzzle === "string") &&
     (e.autoFill === undefined || typeof e.autoFill === "boolean") &&
+    (e.mistakes === undefined || typeof e.mistakes === "boolean") &&
     (e.practice === undefined || typeof e.practice === "boolean") &&
     typeof e.seconds === "number" &&
     typeof e.date === "string";
@@ -21,17 +22,18 @@ export function loadHistory() {
         }
     })()));
 }
+export const usedHelp = (e) => e.autoFill === true || e.mistakes === true;
 export function isCounted(e, countAutoFill) {
-    return !e.practice && (countAutoFill || !e.autoFill);
+    return !e.practice && (countAutoFill || !usedHelp(e));
 }
 function countedSolves(entries, level, countAutoFill) {
     const ofLevel = entries.filter((e) => e.level === level);
     const counted = ofLevel.filter((e) => isCounted(e, countAutoFill));
     return counted.length > 0 ? counted : ofLevel.filter((e) => !e.practice);
 }
-export function onlyWandSolves(entries, level, countAutoFill = true) {
+export function onlyHelpedSolves(entries, level, countAutoFill = true) {
     const pool = countedSolves(entries, level, countAutoFill);
-    return pool.length > 0 && pool.every((e) => e.autoFill === true);
+    return pool.length > 0 && pool.every(usedHelp);
 }
 export function bestEntry(entries, level, countAutoFill = true) {
     const pool = countedSolves(entries, level, countAutoFill);
@@ -47,8 +49,8 @@ const statsOf = (solves) => ({
 export function solveStats(entries, level) {
     const solved = entries.filter((e) => e.level === level && !e.practice);
     return {
-        unassisted: statsOf(solved.filter((e) => !e.autoFill)),
-        assisted: statsOf(solved.filter((e) => e.autoFill)),
+        unassisted: statsOf(solved.filter((e) => !usedHelp(e))),
+        assisted: statsOf(solved.filter(usedHelp)),
         all: statsOf(solved),
     };
 }

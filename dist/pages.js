@@ -1,4 +1,4 @@
-import { loadHistory, bestEntry, onlyWandSolves, solveStats, formatTime, } from "./history.js";
+import { loadHistory, bestEntry, onlyHelpedSolves, usedHelp, solveStats, formatTime, } from "./history.js";
 import { levelName, levelNames } from "./sudoku.js";
 import { t } from "./i18n.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
@@ -12,6 +12,9 @@ const TITLES = {
 const RECENT_ENTRIES = 10;
 const wandIcon = () => `<svg class="icon inline-icon" role="img" aria-label="${t("aria.wand")}">` +
     '<use href="#i-color-wand-outline" /></svg> ';
+const mistakesIcon = () => `<svg class="icon inline-icon" role="img" aria-label="${t("aria.mistakes")}">` +
+    '<use href="#i-search-outline" /></svg> ';
+const helpIcons = (e) => (e.autoFill ? wandIcon() : "") + (e.mistakes ? mistakesIcon() : "");
 const practiceIcon = () => `<svg class="icon inline-icon" role="img" aria-label="${t("aria.practice")}">` +
     '<use href="#i-practice-outline" /></svg>';
 const byId = (id) => document.getElementById(id);
@@ -36,7 +39,7 @@ let replayHandler = () => false;
 const MORE_ICON = '<svg class="icon" aria-hidden="true"><use href="#i-ellipsis-circle-outline" /></svg>';
 const moreButton = (attr, label) => `<button type="button" class="more-btn" ${attr} title="${label}" aria-label="${label}">${MORE_ICON}</button>`;
 const shortDate = (iso) => new Date(iso).toLocaleDateString(undefined, { year: "2-digit", month: "numeric", day: "numeric" });
-const timeCell = (e) => (e.autoFill ? wandIcon() : "") + (e.practice ? practiceIcon() : formatTime(e.seconds));
+const timeCell = (e) => helpIcons(e) + (e.practice ? practiceIcon() : formatTime(e.seconds));
 const infoRow = (name, value) => `<tr><th>${name}</th><td>${value}</td></tr>`;
 function replayButton(index) {
     return `<button type="button" class="action-btn" data-replay="${index}">${t("history.replay")}</button>`;
@@ -46,11 +49,11 @@ function solveDetails(index) {
     return ('<table class="info-table">' +
         infoRow(t("history.d.level"), levelName(e.level)) +
         infoRow(t("history.d.date"), new Date(e.date).toLocaleString()) +
-        infoRow(t("history.d.time"), (e.autoFill ? wandIcon() : "") +
+        infoRow(t("history.d.time"), helpIcons(e) +
             formatTime(e.seconds) +
-            (e.autoFill || e.practice
+            (usedHelp(e) || e.practice
                 ? ` (${[
-                    e.autoFill ? t("history.d.help") : "",
+                    usedHelp(e) ? t("history.d.help") : "",
                     e.practice ? t("history.d.practice") : "",
                 ]
                     .filter((text) => text)
@@ -120,10 +123,10 @@ async function renderHistory() {
             levels
                 .map((level) => {
                 const best = bestEntry(entries, level, count);
-                const wandOnly = onlyWandSolves(entries, level, count);
+                const helpOnly = onlyHelpedSolves(entries, level, count);
                 return row([
                     levelName(level),
-                    best === null ? "-" : (wandOnly ? wandIcon() : "") + formatTime(best.seconds),
+                    best === null ? "-" : (helpOnly ? helpIcons(best) : "") + formatTime(best.seconds),
                     best === null ? "-" : shortDate(best.date),
                     moreButton(`data-level="${level}"`, t("history.more.level", { level: levelName(level) })),
                 ]);
@@ -142,6 +145,7 @@ async function renderHistory() {
             ]))
                 .join("");
     byId("history-note").hidden = !recent.some((i) => entries[i].autoFill);
+    byId("history-note-mistakes").hidden = !recent.some((i) => entries[i].mistakes);
     byId("history-note-practice").hidden = !recent.some((i) => entries[i].practice);
 }
 function setupHistory() {
