@@ -4,11 +4,12 @@
 // button) return to the game.
 import {
   loadHistory,
-  bestTime,
-  averageTime,
+  bestEntry,
   onlyWandSolves,
+  solveStats,
   formatTime,
   HistoryEntry,
+  SolveStats,
 } from "./history.js";
 import { LEVEL_NAMES, levelName } from "./sudoku.js";
 import {
@@ -61,9 +62,110 @@ function showPage() {
   if (page === "history") renderHistory();
 }
 
-// Personal leaderboard: best time per level and the most recent solves
+// The solves that the "more" buttons refer to (indexes of the last rendering)
+let shownEntries: HistoryEntry[] = [];
+let replayHandler: (entry: HistoryEntry) => boolean = () => false;
+
+const MORE_ICON =
+  '<svg class="icon" aria-hidden="true"><use href="#i-ellipsis-circle-outline" /></svg>';
+
+/** Button that opens the details of a level or of a solve */
+const moreButton = (attr: string, label: string) =>
+  `<button type="button" class="more-btn" ${attr} title="${label}" aria-label="${label}">${MORE_ICON}</button>`;
+
+const shortDate = (iso: string) =>
+  new Date(iso).toLocaleDateString(undefined, { year: "2-digit", month: "numeric", day: "numeric" });
+
+/** The time of a solve for the lists: the wand in front, an icon instead of the time for practice */
+const timeCell = (e: HistoryEntry) =>
+  (e.autoFill ? WAND : "") + (e.practice ? PRACTICE : formatTime(e.seconds));
+
+const infoRow = (name: string, value: string) => `<tr><th>${name}</th><td>${value}</td></tr>`;
+
+function replayButton(index: number): string {
+  return `<button type="button" class="action-btn" data-replay="${index}">Replay</button>`;
+}
+
+/** Details of a solve: level, date, time and the replay button */
+function solveDetails(index: number): string {
+  const e = shownEntries[index];
+  return (
+    '<table class="info-table">' +
+    infoRow("Level", levelName(e.level)) +
+    infoRow("Date", new Date(e.date).toLocaleString()) +
+    infoRow(
+      "Time",
+      (e.autoFill ? WAND : "") +
+        formatTime(e.seconds) +
+        (e.autoFill || e.practice
+          ? ` (${[e.autoFill ? "using help" : "", e.practice ? "practice" : ""]
+              .filter((t) => t)
+              .join(", ")})`
+          : "")
+    ) +
+    "</table>" +
+    replayButton(index)
+  );
+}
+
+function openDialogById(id: string) {
+  const dlg = byId<HTMLDialogElement>(id);
+  if (!dlg.open) dlg.showModal();
+}
+
+function showSolve(index: number) {
+  const e = shownEntries[index];
+  byId("solve-info-title").textContent = `${levelName(e.level)} sudoku`;
+  byId("solve-info-body").innerHTML = solveDetails(index);
+  openDialogById("solve-info");
+}
+
+/** Details of a level: the best solve, the numbers of solves and all solves */
+function showLevel(level: number) {
+  const count = settings.countAutoFill;
+  const best = bestEntry(shownEntries, level, count);
+  const stats = solveStats(shownEntries, level);
+  const statsRow = (name: string, s: SolveStats) =>
+    `<tr><td>${name}</td><td class="num">${s.count}</td><td class="num">${
+      s.average === null ? "-" : formatTime(s.average)
+    }</td></tr>`;
+  const indexes = shownEntries
+    .map((e, i) => i)
+    .filter((i) => shownEntries[i].level === level)
+    .reverse();
+  byId("level-info-title").textContent = levelName(level);
+  byId("level-info-body").innerHTML =
+    "<h3>Best solve</h3>" +
+    (best ? solveDetails(shownEntries.indexOf(best)) : "<p>None yet.</p>") +
+    "<h3>Solves</h3>" +
+    '<table class="stats">' +
+    "<tr><th></th><th class=\"num\">Solved</th><th class=\"num\">Average</th></tr>" +
+    statsRow("Without help", stats.unassisted) +
+    // The solves with the magic wand only if there are any
+    (stats.assisted.count > 0 ? statsRow("Using help", stats.assisted) : "") +
+    // All of them, if both kinds exist (otherwise it is the same as a row above)
+    (stats.assisted.count > 0 && stats.unassisted.count > 0
+      ? statsRow("All", stats.all)
+      : "") +
+    "</table>" +
+    "<h3>All solves</h3>" +
+    '<table class="stats">' +
+    indexes
+      .map(
+        (i) =>
+          `<tr><td>${shortDate(shownEntries[i].date)}</td><td class="num">${timeCell(
+            shownEntries[i]
+          )}</td><td class="num">${moreButton(`data-solve="${i}"`, "Details of this solve")}</td></tr>`
+      )
+      .join("") +
+    "</table>";
+  openDialogById("level-info");
+}
+
+// Personal leaderboard: best solve per level and the most recent solves
 async function renderHistory() {
   const [entries] = await Promise.all([loadHistory(), loadSettings()]);
+  shownEntries = entries;
   const count = settings.countAutoFill;
   byId("history-empty").hidden = entries.length > 0;
   byId("history-content").hidden = entries.length === 0;
@@ -79,39 +181,70 @@ async function renderHistory() {
   const timed = entries.filter((e) => !e.practice);
   const levels = [...new Set(timed.map((e) => e.level))].sort((a, b) => a - b);
   byId("history-levels").innerHTML =
-    row(["Level", "Solved", "Best", "Average"], "th") +
+    row(["Level", "Best", "Date", ""], "th") +
     levels
       .map((level) => {
-        const solved = timed.filter((e) => e.level === level).length;
-        const best = bestTime(entries, level, count);
-        // If there are only wand solves, the best time gets the wand and there
-        // is no average
+        const best = bestEntry(entries, level, count);
+        // With only wand solves the best time gets the wand
         const wandOnly = onlyWandSolves(entries, level, count);
-        const avg = wandOnly ? null : averageTime(entries, level, count);
         return row([
           levelName(level),
-          String(solved),
-          best === null ? "-" : (wandOnly ? WAND : "") + formatTime(best),
-          avg === null ? "-" : formatTime(avg),
+          best === null ? "-" : (wandOnly ? WAND : "") + formatTime(best.seconds),
+          best === null ? "-" : shortDate(best.date),
+          moreButton(`data-level="${level}"`, `Details of ${levelName(level)}`),
         ]);
       })
       .join("");
 
-  const recent: HistoryEntry[] = entries.slice(-RECENT_ENTRIES).reverse();
+  const firstRecent = Math.max(0, entries.length - RECENT_ENTRIES);
+  const recent = entries.map((e, i) => i).slice(firstRecent).reverse();
   byId("history-recent").innerHTML =
-    row(["Date", "Level", "Time", "ID"], "th") +
+    row(["Date", "Level", "Time", ""], "th") +
     recent
-      .map((e) =>
+      .map((i) =>
         row([
-          new Date(e.date).toLocaleDateString(),
-          levelName(e.level),
-          (e.autoFill ? WAND : "") + (e.practice ? PRACTICE : formatTime(e.seconds)),
-          `#${e.id.split("-")[1]}`,
+          shortDate(entries[i].date),
+          levelName(entries[i].level),
+          timeCell(entries[i]),
+          moreButton(`data-solve="${i}"`, "Details of this solve"),
         ])
       )
       .join("");
-  byId("history-note").hidden = !recent.some((e) => e.autoFill);
-  byId("history-note-practice").hidden = !recent.some((e) => e.practice);
+  byId("history-note").hidden = !recent.some((i) => entries[i].autoFill);
+  byId("history-note-practice").hidden = !recent.some((i) => entries[i].practice);
+}
+
+/** The buttons of the history: details of a level or a solve, play a solve again */
+function setupHistory() {
+  byId("history").addEventListener("click", (e) => {
+    const btn = (e.target as Element).closest<HTMLElement>(".more-btn");
+    if (!btn) return;
+    if (btn.dataset.level !== undefined) showLevel(Number(btn.dataset.level));
+    else if (btn.dataset.solve !== undefined) showSolve(Number(btn.dataset.solve));
+  });
+  // Inside the dialogs: the details of a solve of the list of a level, replay
+  for (const id of ["level-info", "solve-info"]) {
+    byId(id).addEventListener("click", (e) => {
+      const target = e.target as Element;
+      const more = target.closest<HTMLElement>(".more-btn[data-solve]");
+      if (more) {
+        showSolve(Number(more.dataset.solve));
+        return;
+      }
+      const replay = target.closest<HTMLElement>("[data-replay]");
+      if (!replay) return;
+      if (replayHandler(shownEntries[Number(replay.dataset.replay)])) {
+        byId<HTMLDialogElement>("solve-info").close();
+        byId<HTMLDialogElement>("level-info").close();
+        byId("back-btn").click(); // back to the game
+      } else {
+        // The sudoku is not stored (or not valid)
+        byId("info-title").textContent = "Replay not possible";
+        byId("info-desc").textContent = "The sudoku of this solve was not stored.";
+        openDialogById("info");
+      }
+    });
+  }
 }
 
 export function closeMenu() {
@@ -227,7 +360,12 @@ function setupAndroidBack() {
   });
 }
 
-export function setupPages() {
+/**
+ * @param replay Replays the sudoku of a solve,
+ *   returns whether it was started
+ */
+export function setupPages(replay: (entry: HistoryEntry) => boolean) {
+  replayHandler = replay;
   byId("keyboard-help").hidden = !keyboardLikely();
 
   // History is [game, subpage] at most: opening a subpage from another one
@@ -266,5 +404,6 @@ export function setupPages() {
 
   setupAndroidBack();
   setupSettings();
+  setupHistory();
   showPage();
 }

@@ -13,6 +13,7 @@ import {
   MAX_LEVEL,
   congratulation,
   solveSudoku,
+  puzzleToLine,
   levelName,
   copyTo2d,
   allowed,
@@ -330,4 +331,21 @@ describe("solver for custom sudokus", () => {
     stuck[1][8] = 9;
     expect(solveSudoku(stuck)).toEqual({ count: 0, solution: null });
   });
+});
+
+test("a stored puzzle gives the line to play it again", () => {
+  const dir = path.join(__dirname, "..", "assets", "data");
+  for (const level of [0, MAX_LEVEL]) {
+    const line = fs
+      .readFileSync(path.join(dir, `ext_lvl_${level}.txt`), "utf8")
+      .split("\n")[5];
+    const { sud, sol } = parseSudokuLine(line);
+    const again = puzzleToLine(gridToString(sud));
+    expect(again).not.toBeNull();
+    expect(parseSudokuLine(again!)).toEqual({ sud, sol });
+  }
+  // not a valid, unique sudoku
+  expect(puzzleToLine("0".repeat(81))).toBeNull();
+  expect(puzzleToLine("123")).toBeNull();
+  expect(puzzleToLine("x".repeat(81))).toBeNull();
 });

@@ -81,24 +81,54 @@ export function onlyWandSolves(
   return pool.length > 0 && pool.every((e) => e.autoFill === true);
 }
 
+/** The solve with the best time of a level, among the solves that count (null if there is none) */
+export function bestEntry(
+  entries: HistoryEntry[],
+  level: number,
+  countAutoFill = true
+): HistoryEntry | null {
+  const pool = countedSolves(entries, level, countAutoFill);
+  return pool.reduce<HistoryEntry | null>(
+    (best, e) => (best === null || e.seconds < best.seconds ? e : best),
+    null
+  );
+}
+
 /** Best time of a level, only of the solves that count (null if there is none) */
 export function bestTime(
   entries: HistoryEntry[],
   level: number,
   countAutoFill = true
 ): number | null {
-  const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
-  return times.length ? Math.min(...times) : null;
+  return bestEntry(entries, level, countAutoFill)?.seconds ?? null;
 }
 
-/** Average time of a level, only of the solves that count (null if there is none) */
-export function averageTime(
+/** Number and average time of a group of solves (average null if there is none) */
+export interface SolveStats {
+  count: number;
+  average: number | null;
+}
+
+const statsOf = (solves: HistoryEntry[]): SolveStats => ({
+  count: solves.length,
+  average: solves.length ? solves.reduce((a, e) => a + e.seconds, 0) / solves.length : null,
+});
+
+/**
+ * The solves of a level (without the practice solves): the ones without help,
+ * the ones with the magic wand and all of them, each with the number and the
+ * average time
+ */
+export function solveStats(
   entries: HistoryEntry[],
-  level: number,
-  countAutoFill = true
-): number | null {
-  const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
-  return times.length ? times.reduce((a, b) => a + b, 0) / times.length : null;
+  level: number
+): { unassisted: SolveStats; assisted: SolveStats; all: SolveStats } {
+  const solved = entries.filter((e) => e.level === level && !e.practice);
+  return {
+    unassisted: statsOf(solved.filter((e) => !e.autoFill)),
+    assisted: statsOf(solved.filter((e) => e.autoFill)),
+    all: statsOf(solved),
+  };
 }
 
 /**
