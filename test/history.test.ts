@@ -1,7 +1,8 @@
 import {
   HistoryEntry,
-  averageTime,
+  bestEntry,
   bestTime,
+  solveCounts,
   isCounted,
   onlyWandSolves,
   recordSolve,
@@ -30,12 +31,9 @@ test("solves with auto-filled pencil marks only count if wanted", () => {
   expect(bestTime(e, 1, true)).toBe(50);
   expect(bestTime(e, 1, false)).toBe(100);
   expect(bestTime(e, 1)).toBe(50); // everything counts by default
-  expect(averageTime(e, 1, true)).toBeCloseTo(350 / 3);
-  expect(averageTime(e, 1, false)).toBe(150);
 
   // a level that was only solved with the wand: these solves count anyway
   expect(bestTime(e, 2, false)).toBe(30);
-  expect(averageTime(e, 2, false)).toBe(30);
   // a level that was never solved has no time
   expect(bestTime(e, 3, false)).toBeNull();
 });
@@ -59,7 +57,6 @@ test("practice solves never count for the best and average times", () => {
   expect(isCounted(e[1], true)).toBe(false);
   expect(isCounted(e[2], true)).toBe(false);
   expect(bestTime(e, 1, true)).toBe(100);
-  expect(averageTime(e, 1, true)).toBe(100);
   // a level with only practice solves has no time
   expect(bestTime([entry(2, 10, false, true)], 2)).toBeNull();
 });
@@ -108,4 +105,22 @@ test("the best time only comes from wand solves when that is all there is", () =
   // no solve (or only practice) of the level
   expect(onlyWandSolves([wand], 2, false)).toBe(false);
   expect(onlyWandSolves([entry(1, 50, true, true)], 1, false)).toBe(false);
+});
+
+test("best entry and the numbers of solves of a level", () => {
+  const a = { ...entry(4, 300), date: "2026-01-01T00:00:00.000Z" };
+  const b = { ...entry(4, 200), date: "2026-02-01T00:00:00.000Z" };
+  const wand = { ...entry(4, 100, true), date: "2026-03-01T00:00:00.000Z" };
+  const practice = entry(4, 50, false, true);
+  const all = [a, wand, b, practice];
+  // the wand solve is faster but does not count, the practice solve never
+  expect(bestEntry(all, 4, false)).toBe(b);
+  expect(bestEntry(all, 4, true)).toBe(wand);
+  expect(bestEntry(all, 5, true)).toBeNull();
+  expect(bestTime(all, 4, false)).toBe(200);
+  // without practice solves: 2 without the wand, 3 including it
+  expect(solveCounts(all, 4)).toEqual({ unassisted: 2, all: 3 });
+  expect(solveCounts(all, 5)).toEqual({ unassisted: 0, all: 0 });
+  // only wand solves of the level: its best solve is a wand solve
+  expect(bestEntry([wand], 4, false)).toBe(wand);
 });

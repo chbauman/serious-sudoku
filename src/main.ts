@@ -10,6 +10,7 @@ import {
   log,
   elsewhere,
   clickCell,
+  replaySudoku,
 } from "./html_util.js";
 import { setupPages, closeMenu } from "./pages.js";
 
@@ -78,7 +79,7 @@ export function init() {
     htmlButtonDict.set(bId, getDocEl(bId));
   }
   setButtons();
-  setupPages();
+  setupPages(replaySudoku);
 
   // Set digits
   for (let i = 0; i < 10; i++) digits[i] = getDocEl("digit-" + String(i));

@@ -65,7 +65,7 @@ Android back buttons work and the game state is kept while a page is open.
 Settings (stored like the saved game, see `src/settings.ts`): the level that is
 loaded when there is no saved game, the appearance (system / light / dark),
 the practice mode (off by default: the solves are listed in the history with a
-practice icon instead of a time and do not count for the best and average times; it
+practice icon instead of a time and do not count for the best times; it
 can be switched at any time, the mode when the sudoku is finished counts), independent of
 it whether the time is shown below the buttons (on by default; the solving is
 timed anyway) and whether solves with auto-filled pencil marks (the
@@ -96,11 +96,14 @@ empty, before it is shuffled, so that the solves can be rated again if the
 levels change) and whether the pencil marks
 were filled in automatically (the magic wand) are stored when you finish a
 sudoku without the solver; custom sudokus are not recorded. The History page
-shows the best and average time per level and the 10 most recent solves; solves
-with the magic wand are marked there (left of the time) and only count for the best
-and average times if the setting says so, or as long as the level was never solved
-without help, then the wand is shown in front of the best time and there is no average
-(they are always stored). The win dialog congratulates
+has the leaderboard (per level: the best time, its date and a button for more:
+the best solve, the number of solves without and including the wand, and all solves
+of the level) and the 10 most recent solves, each with a button for its details
+(level, date, time, ID). Solves with the magic wand are marked (left of the time)
+and only count for the best time if the setting says so, or as long as the level was
+never solved without help (then the wand is shown in front of the best time).
+Practice solves never count. A solve can be played again from its details ("Play
+again": the same sudoku, shuffled differently), if its sudoku is stored. The win dialog congratulates
 (a short message, the next level to try) and shows the time and whether it is a new best;
 it is shown once per sudoku (not again after taking back a digit, and not after using
 the solver). A new sudoku starts in the digit mode (not the pencil marks). The version

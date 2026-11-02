@@ -12,6 +12,7 @@ import {
   Tinit,
   permuteSuds,
   parseSudokuLine,
+  puzzleToLine,
   gridToString,
   copyTo2d,
   allowed,
@@ -1204,6 +1205,20 @@ function setSudFromStr(retSud: string, index: number) {
   clearHyps();
   closeDialog("waiting");
   saveGame();
+}
+
+// Plays the sudoku of a solve of the history again, shuffled differently (the
+// same as a new sudoku of its level, but this sudoku). False if it is not
+// stored, or not a sudoku with one solution.
+export function replaySudoku(entry: HistoryEntry): boolean {
+  if (!entry.puzzle) return false;
+  const line = puzzleToLine(entry.puzzle);
+  if (line === null) return false;
+  if (inputtingOwnSud) inputCustomSudoku();
+  sudLvl = entry.level;
+  const index = Number(entry.id.split("-")[1]);
+  setSudFromStr(line, Number.isFinite(index) ? index : 0);
+  return true;
 }
 
 // Disables the pencil mark toggle (forces large digit mode)

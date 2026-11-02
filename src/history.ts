@@ -81,24 +81,38 @@ export function onlyWandSolves(
   return pool.length > 0 && pool.every((e) => e.autoFill === true);
 }
 
+/** The solve with the best time of a level, among the solves that count (null if there is none) */
+export function bestEntry(
+  entries: HistoryEntry[],
+  level: number,
+  countAutoFill = true
+): HistoryEntry | null {
+  const pool = countedSolves(entries, level, countAutoFill);
+  return pool.reduce<HistoryEntry | null>(
+    (best, e) => (best === null || e.seconds < best.seconds ? e : best),
+    null
+  );
+}
+
 /** Best time of a level, only of the solves that count (null if there is none) */
 export function bestTime(
   entries: HistoryEntry[],
   level: number,
   countAutoFill = true
 ): number | null {
-  const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
-  return times.length ? Math.min(...times) : null;
+  return bestEntry(entries, level, countAutoFill)?.seconds ?? null;
 }
 
-/** Average time of a level, only of the solves that count (null if there is none) */
-export function averageTime(
+/**
+ * Number of the solves of a level without practice solves: without the magic
+ * wand, and all of them (including the wand)
+ */
+export function solveCounts(
   entries: HistoryEntry[],
-  level: number,
-  countAutoFill = true
-): number | null {
-  const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
-  return times.length ? times.reduce((a, b) => a + b, 0) / times.length : null;
+  level: number
+): { unassisted: number; all: number } {
+  const solved = entries.filter((e) => e.level === level && !e.practice);
+  return { unassisted: solved.filter((e) => !e.autoFill).length, all: solved.length };
 }
 
 /**

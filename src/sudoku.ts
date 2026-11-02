@@ -148,6 +148,17 @@ function parseSudokuLine(line: string): { sud: number[][]; sol: number[][] } {
   return { sud: toGrid(parts[1]), sol: toGrid(parts[2]) };
 }
 
+// The line of a level file for a puzzle stored in the history (81 digits, see
+// gridToString), to play it again: the solution is found by the solver. null if
+// it is not a sudoku with exactly one solution.
+function puzzleToLine(puzzle: string): string | null {
+  if (!/^[0-9]{81}$/.test(puzzle)) return null;
+  const digits = puzzle.split("").map(Number);
+  const { count, solution } = solveSudoku(range(9).map((i) => digits.slice(9 * i, 9 * i + 9)));
+  if (count !== 1 || solution === null) return null;
+  return "0;" + digits.join(" ") + ";" + solution.flat().join(" ");
+}
+
 // Finds all numbers that can be set in cell (x, y)
 function allowed(A: number[][], y: number, x: number, ignoreSet = false) {
   const res: number[] = [];
@@ -289,6 +300,7 @@ export {
   deepCopy2D,
   readSudokuFromFile,
   parseSudokuLine,
+  puzzleToLine,
   gridToString,
   permuteSuds,
   copyTo2d,
