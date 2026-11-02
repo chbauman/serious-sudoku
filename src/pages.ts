@@ -4,6 +4,7 @@
 // button) return to the game.
 import {
   loadHistory,
+  averageTime,
   bestEntry,
   onlyWandSolves,
   solveCounts,
@@ -122,6 +123,9 @@ function showLevel(level: number) {
   const count = settings.countAutoFill;
   const best = bestEntry(shownEntries, level, count);
   const counts = solveCounts(shownEntries, level);
+  const average = onlyWandSolves(shownEntries, level, count)
+    ? null
+    : averageTime(shownEntries, level, count);
   const indexes = shownEntries
     .map((e, i) => i)
     .filter((i) => shownEntries[i].level === level)
@@ -132,8 +136,10 @@ function showLevel(level: number) {
     (best ? solveDetails(shownEntries.indexOf(best)) : "<p>None yet.</p>") +
     "<h3>Solves</h3>" +
     '<table class="info-table">' +
-    infoRow("Without the wand", String(counts.unassisted)) +
-    infoRow("Including the wand", String(counts.all)) +
+    infoRow("Solved", String(counts.unassisted)) +
+    (counts.assisted > 0 ? infoRow("Solved using help", String(counts.assisted)) : "") +
+    // The average of the solves that count, not if there are only wand solves
+    (average === null ? "" : infoRow("Average time", formatTime(average))) +
     "</table>" +
     "<h3>All solves</h3>" +
     '<table class="stats">' +

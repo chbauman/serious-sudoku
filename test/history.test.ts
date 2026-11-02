@@ -1,6 +1,7 @@
 import {
   HistoryEntry,
   bestEntry,
+  averageTime,
   bestTime,
   solveCounts,
   isCounted,
@@ -118,9 +119,13 @@ test("best entry and the numbers of solves of a level", () => {
   expect(bestEntry(all, 4, true)).toBe(wand);
   expect(bestEntry(all, 5, true)).toBeNull();
   expect(bestTime(all, 4, false)).toBe(200);
-  // without practice solves: 2 without the wand, 3 including it
-  expect(solveCounts(all, 4)).toEqual({ unassisted: 2, all: 3 });
-  expect(solveCounts(all, 5)).toEqual({ unassisted: 0, all: 0 });
+  // without practice solves: 2 without help, 1 with the wand
+  expect(solveCounts(all, 4)).toEqual({ unassisted: 2, assisted: 1 });
+  expect(solveCounts(all, 5)).toEqual({ unassisted: 0, assisted: 0 });
+  // the average of the solves that count: 300 and 200 (not the wand solve)
+  expect(averageTime(all, 4, false)).toBe(250);
+  expect(averageTime(all, 4, true)).toBe(200);
+  expect(averageTime(all, 5, true)).toBeNull();
   // only wand solves of the level: its best solve is a wand solve
   expect(bestEntry([wand], 4, false)).toBe(wand);
 });

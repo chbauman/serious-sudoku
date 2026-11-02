@@ -104,15 +104,26 @@ export function bestTime(
 }
 
 /**
- * Number of the solves of a level without practice solves: without the magic
- * wand, and all of them (including the wand)
+ * Number of the solves of a level (without the practice solves): the ones
+ * without help and the ones with the magic wand
  */
 export function solveCounts(
   entries: HistoryEntry[],
   level: number
-): { unassisted: number; all: number } {
+): { unassisted: number; assisted: number } {
   const solved = entries.filter((e) => e.level === level && !e.practice);
-  return { unassisted: solved.filter((e) => !e.autoFill).length, all: solved.length };
+  const assisted = solved.filter((e) => e.autoFill).length;
+  return { unassisted: solved.length - assisted, assisted };
+}
+
+/** Average time of a level, only of the solves that count (null if there is none) */
+export function averageTime(
+  entries: HistoryEntry[],
+  level: number,
+  countAutoFill = true
+): number | null {
+  const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
+  return times.length ? times.reduce((a, b) => a + b, 0) / times.length : null;
 }
 
 /**
