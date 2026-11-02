@@ -38,6 +38,14 @@ What is automated and what has to be done by hand.
    Fill in the content rating, data safety and target audience forms
    (the app collects no data).
 
+   The screenshots (here and in the README) are generated with example data:
+   `npm run assemble`, `npm install --no-save playwright`, then
+   `node scripts/screenshots.mjs`. To update them in the store: Play Console,
+   the app, **Grow users > Store presence > Main store listing**, section
+   *Phone screenshots*: remove the old ones, upload the four files of
+   `screenshots/` (in the order of their number), **Save**, then
+   **Publish changes** (send for review) in the *Publishing overview*.
+
 ## Each release
 
 1. Run the workflow **Android release** (Actions -> Android release -> Run
