@@ -1,33 +1,28 @@
+import { t } from "./i18n.js";
 const DEBUG = false;
-const LEVEL_NAMES = [
-    "Beginner",
-    "Easy",
-    "Medium",
-    "Hard",
-    "Expert",
-    "Master",
-    "Grandmaster",
-];
-const MAX_LEVEL = LEVEL_NAMES.length - 1;
+const LEVEL_COUNT = 7;
+const MAX_LEVEL = LEVEL_COUNT - 1;
 function levelName(level) {
-    return LEVEL_NAMES[level] ?? `Level ${level}`;
+    return level >= 0 && level < LEVEL_COUNT
+        ? t(`level.${level}`)
+        : t("level.other", { n: level });
+}
+function levelNames() {
+    return range(LEVEL_COUNT).map(levelName);
 }
 function congratulation(level) {
     if (level === -2) {
-        return { title: "Solved with the solver", text: "Try the next one without it." };
+        return { title: t("cong.solver.title"), text: t("cong.solver.text") };
     }
     if (level === -1) {
-        return { title: "Your sudoku is solved", text: "Well done." };
+        return { title: t("cong.own.title"), text: t("cong.own.text") };
     }
     if (level >= MAX_LEVEL) {
-        return {
-            title: "Solved!",
-            text: `${levelName(level)} is the hardest level. There is nothing left to beat.`,
-        };
+        return { title: t("cong.title"), text: t("cong.top", { level: levelName(level) }) };
     }
     return {
-        title: "Solved!",
-        text: `${levelName(level)} done. Ready for ${levelName(level + 1)}?`,
+        title: t("cong.title"),
+        text: t("cong.next", { level: levelName(level), next: levelName(level + 1) }),
     };
 }
 const T = Array.from(new Array(9), () => new Array(9).fill(0));
@@ -230,5 +225,5 @@ function permuteSuds(s, sudokuSol) {
         }
     }
 }
-export { LEVEL_NAMES, MAX_LEVEL, levelName, congratulation, T, Tsol, Tinit, DEBUG, Marked, range, shuffle, deepCopy2D, readSudokuFromFile, parseSudokuLine, puzzleToLine, gridToString, permuteSuds, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy3D, };
+export { LEVEL_COUNT, MAX_LEVEL, levelName, levelNames, congratulation, T, Tsol, Tinit, DEBUG, Marked, range, shuffle, deepCopy2D, readSudokuFromFile, parseSudokuLine, puzzleToLine, gridToString, permuteSuds, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy3D, };
 //# sourceMappingURL=sudoku.js.map

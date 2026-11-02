@@ -1,7 +1,8 @@
-import { LEVEL_NAMES, MAX_LEVEL, levelName, congratulation, T, DEBUG, Marked, readSudokuFromFile, Tsol, Tinit, permuteSuds, parseSudokuLine, puzzleToLine, gridToString, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy2D, deepCopy3D, } from "./sudoku.js";
+import { levelNames, MAX_LEVEL, levelName, congratulation, T, DEBUG, Marked, readSudokuFromFile, Tsol, Tinit, permuteSuds, parseSudokuLine, puzzleToLine, gridToString, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy2D, deepCopy3D, } from "./sudoku.js";
 import { storageGet, storageSet, storageRemove } from "./storage.js";
 import { settings, loadSettings } from "./settings.js";
 import { currentPage } from "./pages.js";
+import { t } from "./i18n.js";
 import { recordSolve, formatTime } from "./history.js";
 const col1 = "var(--accent)";
 const smallDigCol = "var(--small-dig-bg)";
@@ -159,7 +160,7 @@ function initGrid(tbl) {
 }
 function setLevelFun() {
     const ulEl = getAssertedButton("lvl_list");
-    LEVEL_NAMES.forEach((name, level) => {
+    levelNames().forEach((name, level) => {
         const li = document.createElement("li");
         li.textContent = name;
         li.addEventListener("click", () => loadRandomSud(level));
@@ -193,15 +194,15 @@ function analyseCustomSudoku(forSolve) {
         return true;
     }
     if (count === 0) {
-        showInfo("No solution", "This sudoku cannot be solved. Check the digits you entered.");
+        showInfo(t("custom.none.title"), t("custom.none.text"));
     }
     else if (forSolve) {
         customSolution = solution;
-        confirmAction("Not unique", "This sudoku has more than one solution. Fill in one of them?", () => solve(customSolution));
+        confirmAction(t("custom.several.title"), t("custom.several.solve"), () => solve(customSolution));
     }
     else {
         customSolution = solution;
-        confirmAction("Not unique", "This sudoku has more than one solution. Mistakes are marked against one of them, so a marked digit may be right in another solution. Mark anyway?", () => {
+        confirmAction(t("custom.several.title"), t("custom.several.check"), () => {
             check(customSolution);
             reselect();
         });
@@ -223,8 +224,8 @@ function updateToolButtons() {
 }
 function updateOwnInputUi() {
     getAssertedButton("own-sud-text").textContent = inputtingOwnSud
-        ? "Finish input"
-        : "Input own sudoku";
+        ? t("tools.finish")
+        : t("tools.own");
     getAssertedButton("own_sud")
         .querySelector("use")
         .setAttribute("href", inputtingOwnSud ? "#i-checkmark-circle-outline" : "#i-create-outline");
@@ -285,7 +286,7 @@ function setButtons() {
         if (inputtingOwnSud)
             return;
         closeDialog("tools");
-        confirmAction("Fill in pencil marks?", "Adds all digits that are still possible as pencil marks to every empty cell.", () => {
+        confirmAction(t("confirm.fill.title"), t("confirm.fill.text"), () => {
             autoFillUsed = true;
             withUndo(fillSmallDigits);
         });
@@ -296,7 +297,7 @@ function setButtons() {
             inputCustomSudoku();
         }
         else {
-            confirmAction("Empty grid?", "Add your own sudoku. Current game will be lost.", inputCustomSudoku);
+            confirmAction(t("confirm.own.title"), t("confirm.own.text"), inputCustomSudoku);
         }
     });
     enableHyp();
@@ -309,7 +310,7 @@ function setButtons() {
         closeDialog("tools");
         if (!analyseCustomSudoku(false))
             return;
-        confirmAction("Mark mistakes?", "Marks every digit that differs from the solution.", () => {
+        confirmAction(t("confirm.check.title"), t("confirm.check.text"), () => {
             check();
             reselect();
         });
@@ -318,7 +319,7 @@ function setButtons() {
         closeDialog("tools");
         if (!analyseCustomSudoku(true))
             return;
-        confirmAction("Solve?", "Fills in the solution. The sudoku counts as solved with the solver.", () => solve());
+        confirmAction(t("confirm.solve.title"), t("confirm.solve.text"), () => solve());
     });
     updateToolButtons();
 }
@@ -519,19 +520,19 @@ function showSolveTime() {
     recordSolve(entry, settings.countAutoFill).then(({ previousBest, isBest, counted }) => {
         if (practice) {
             text.textContent =
-                (settings.showTime ? `Time: ${formatTime(seconds)} - ` : "") +
-                    "practice, no time in the history";
+                (settings.showTime ? t("win.time", { time: formatTime(seconds) }) + " - " : "") +
+                    t("win.practice");
             return;
         }
         text.textContent =
-            `Time: ${formatTime(seconds)}` +
+            t("win.time", { time: formatTime(seconds) }) +
                 (!counted
-                    ? " (auto-filled pencil marks, not counted for the best time)"
+                    ? t("win.not-counted")
                     : isBest
                         ? previousBest === null
                             ? ""
-                            : " - new best!"
-                        : ` (best: ${formatTime(previousBest)})`);
+                            : t("win.new-best")
+                        : t("win.best", { time: formatTime(previousBest) }));
     });
 }
 function updateTimer() {
@@ -917,7 +918,7 @@ function updateDigitCounts() {
             continue;
         btn.querySelector(".count").textContent = String(counts[d]);
         btn.classList.toggle("done", counts[d] >= 9);
-        btn.title = `${counts[d]} of 9 set`;
+        btn.title = t("pad.count", { n: counts[d] });
     }
 }
 function updateGrid(removeMarks = true) {
