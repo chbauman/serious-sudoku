@@ -11,7 +11,8 @@ import {
   HistoryEntry,
   SolveStats,
 } from "./history.js";
-import { LEVEL_NAMES, levelName } from "./sudoku.js";
+import { levelName, levelNames } from "./sudoku.js";
+import { MessageKey, t } from "./i18n.js";
 import {
   settings,
   loadSettings,
@@ -20,25 +21,26 @@ import {
   Theme,
 } from "./settings.js";
 
-const TITLES: { [page: string]: string } = {
-  game: "Serious Sudoku",
-  help: "Help",
-  settings: "Settings",
-  history: "History",
-  about: "About",
+// The text of the title of every page
+const TITLES: { [page: string]: MessageKey } = {
+  game: "app.name",
+  help: "menu.help",
+  settings: "menu.settings",
+  history: "menu.history",
+  about: "menu.about",
 };
 
 /** Number of recent solves shown on the history page */
 const RECENT_ENTRIES = 10;
 
 /** Marks the solves with auto-filled pencil marks in the history */
-const WAND =
-  '<svg class="icon inline-icon" role="img" aria-label="Pencil marks filled in automatically">' +
+const wandIcon = () =>
+  `<svg class="icon inline-icon" role="img" aria-label="${t("aria.wand")}">` +
   '<use href="#i-color-wand-outline" /></svg> ';
 
 /** Marks the solves in practice mode in the history (instead of the time) */
-const PRACTICE =
-  '<svg class="icon inline-icon" role="img" aria-label="Practice, no time">' +
+const practiceIcon = () =>
+  `<svg class="icon inline-icon" role="img" aria-label="${t("aria.practice")}">` +
   '<use href="#i-practice-outline" /></svg>';
 
 const byId = <T extends HTMLElement>(id: string) =>
@@ -55,7 +57,7 @@ function showPage() {
   document.querySelectorAll<HTMLElement>("[data-page]").forEach((el) => {
     el.hidden = el.dataset.page !== page;
   });
-  byId("page-title").textContent = TITLES[page];
+  byId("page-title").textContent = t(TITLES[page]);
   byId("back-btn").hidden = page === "game";
   closeMenu();
   window.scrollTo(0, 0);
@@ -78,12 +80,14 @@ const shortDate = (iso: string) =>
 
 /** The time of a solve for the lists: the wand in front, an icon instead of the time for practice */
 const timeCell = (e: HistoryEntry) =>
-  (e.autoFill ? WAND : "") + (e.practice ? PRACTICE : formatTime(e.seconds));
+  (e.autoFill ? wandIcon() : "") + (e.practice ? practiceIcon() : formatTime(e.seconds));
 
 const infoRow = (name: string, value: string) => `<tr><th>${name}</th><td>${value}</td></tr>`;
 
 function replayButton(index: number): string {
-  return `<button type="button" class="action-btn" data-replay="${index}">Replay</button>`;
+  return `<button type="button" class="action-btn" data-replay="${index}">${t(
+    "history.replay"
+  )}</button>`;
 }
 
 /** Details of a solve: level, date, time and the replay button */
@@ -91,15 +95,18 @@ function solveDetails(index: number): string {
   const e = shownEntries[index];
   return (
     '<table class="info-table">' +
-    infoRow("Level", levelName(e.level)) +
-    infoRow("Date", new Date(e.date).toLocaleString()) +
+    infoRow(t("history.d.level"), levelName(e.level)) +
+    infoRow(t("history.d.date"), new Date(e.date).toLocaleString()) +
     infoRow(
-      "Time",
-      (e.autoFill ? WAND : "") +
+      t("history.d.time"),
+      (e.autoFill ? wandIcon() : "") +
         formatTime(e.seconds) +
         (e.autoFill || e.practice
-          ? ` (${[e.autoFill ? "using help" : "", e.practice ? "practice" : ""]
-              .filter((t) => t)
+          ? ` (${[
+              e.autoFill ? t("history.d.help") : "",
+              e.practice ? t("history.d.practice") : "",
+            ]
+              .filter((text) => text)
               .join(", ")})`
           : "")
     ) +
@@ -115,7 +122,9 @@ function openDialogById(id: string) {
 
 function showSolve(index: number) {
   const e = shownEntries[index];
-  byId("solve-info-title").textContent = `${levelName(e.level)} sudoku`;
+  byId("solve-info-title").textContent = t("history.solve.title", {
+    level: levelName(e.level),
+  });
   byId("solve-info-body").innerHTML = solveDetails(index);
   openDialogById("solve-info");
 }
@@ -135,27 +144,32 @@ function showLevel(level: number) {
     .reverse();
   byId("level-info-title").textContent = levelName(level);
   byId("level-info-body").innerHTML =
-    "<h3>Best solve</h3>" +
-    (best ? solveDetails(shownEntries.indexOf(best)) : "<p>None yet.</p>") +
-    "<h3>Solves</h3>" +
+    `<h3>${t("history.best.solve")}</h3>` +
+    (best ? solveDetails(shownEntries.indexOf(best)) : `<p>${t("history.none")}</p>`) +
+    `<h3>${t("history.solves")}</h3>` +
     '<table class="stats">' +
-    "<tr><th></th><th class=\"num\">Solved</th><th class=\"num\">Average</th></tr>" +
-    statsRow("Without help", stats.unassisted) +
+    `<tr><th></th><th class="num">${t("history.col.solved")}</th><th class="num">${t(
+      "history.col.average"
+    )}</th></tr>` +
+    statsRow(t("history.row.nohelp"), stats.unassisted) +
     // The solves with the magic wand only if there are any
-    (stats.assisted.count > 0 ? statsRow("Using help", stats.assisted) : "") +
+    (stats.assisted.count > 0 ? statsRow(t("history.row.help"), stats.assisted) : "") +
     // All of them, if both kinds exist (otherwise it is the same as a row above)
     (stats.assisted.count > 0 && stats.unassisted.count > 0
-      ? statsRow("All", stats.all)
+      ? statsRow(t("history.row.all"), stats.all)
       : "") +
     "</table>" +
-    "<h3>All solves</h3>" +
+    `<h3>${t("history.all.solves")}</h3>` +
     '<table class="stats">' +
     indexes
       .map(
         (i) =>
           `<tr><td>${shortDate(shownEntries[i].date)}</td><td class="num">${timeCell(
             shownEntries[i]
-          )}</td><td class="num">${moreButton(`data-solve="${i}"`, "Details of this solve")}</td></tr>`
+          )}</td><td class="num">${moreButton(
+            `data-solve="${i}"`,
+            t("history.more.solve")
+          )}</td></tr>`
       )
       .join("") +
     "</table>";
@@ -181,7 +195,10 @@ async function renderHistory() {
   const timed = entries.filter((e) => !e.practice);
   const levels = [...new Set(timed.map((e) => e.level))].sort((a, b) => a - b);
   byId("history-levels").innerHTML =
-    row(["Level", "Best", "Date", ""], "th") +
+    row(
+      [t("history.col.level"), t("history.col.best"), t("history.col.date"), ""],
+      "th"
+    ) +
     levels
       .map((level) => {
         const best = bestEntry(entries, level, count);
@@ -189,9 +206,12 @@ async function renderHistory() {
         const wandOnly = onlyWandSolves(entries, level, count);
         return row([
           levelName(level),
-          best === null ? "-" : (wandOnly ? WAND : "") + formatTime(best.seconds),
+          best === null ? "-" : (wandOnly ? wandIcon() : "") + formatTime(best.seconds),
           best === null ? "-" : shortDate(best.date),
-          moreButton(`data-level="${level}"`, `Details of ${levelName(level)}`),
+          moreButton(
+            `data-level="${level}"`,
+            t("history.more.level", { level: levelName(level) })
+          ),
         ]);
       })
       .join("");
@@ -199,14 +219,17 @@ async function renderHistory() {
   const firstRecent = Math.max(0, entries.length - RECENT_ENTRIES);
   const recent = entries.map((e, i) => i).slice(firstRecent).reverse();
   byId("history-recent").innerHTML =
-    row(["Date", "Level", "Time", ""], "th") +
+    row(
+      [t("history.col.date"), t("history.col.level"), t("history.col.time"), ""],
+      "th"
+    ) +
     recent
       .map((i) =>
         row([
           shortDate(entries[i].date),
           levelName(entries[i].level),
           timeCell(entries[i]),
-          moreButton(`data-solve="${i}"`, "Details of this solve"),
+          moreButton(`data-solve="${i}"`, t("history.more.solve")),
         ])
       )
       .join("");
@@ -239,8 +262,8 @@ function setupHistory() {
         byId("back-btn").click(); // back to the game
       } else {
         // The sudoku is not stored (or not valid)
-        byId("info-title").textContent = "Replay not possible";
-        byId("info-desc").textContent = "The sudoku of this solve was not stored.";
+        byId("info-title").textContent = t("history.replay.fail.title");
+        byId("info-desc").textContent = t("history.replay.fail.text");
         openDialogById("info");
       }
     });
@@ -258,25 +281,11 @@ function toggleMenu() {
   byId("menu-btn").setAttribute("aria-expanded", String(!menu.hidden));
 }
 
-// Longer explanations of the toggle settings, shown by their info buttons
-const SETTING_INFO: { [key: string]: { title: string; text: string } } = {
-  practice: {
-    title: "Practice mode",
-    text:
-      "Solves are listed in the history with a practice icon instead of a time and " +
-      "do not count for the best times.",
-  },
-  "show-time": {
-    title: "Show time",
-    text: "Shows the time below the buttons. The solving is timed either way.",
-  },
-  "count-wand": {
-    title: "Count wand solves",
-    text:
-      "Solves with auto-filled pencil marks (the magic wand) only count for the best " +
-      "times if this is on, or as long as the level was never solved without help. " +
-      "They are always listed in the history.",
-  },
+// The info buttons of the toggle settings: their texts (the title is the name of the setting)
+const SETTING_INFO: { [key: string]: { title: MessageKey; text: MessageKey } } = {
+  practice: { title: "settings.practice", text: "info.practice" },
+  "show-time": { title: "settings.show-time", text: "info.show-time" },
+  "count-wand": { title: "settings.count-wand", text: "info.count-wand" },
 };
 
 function setupSettings() {
@@ -286,13 +295,13 @@ function setupSettings() {
       e.preventDefault();
       e.stopPropagation();
       const info = SETTING_INFO[btn.dataset.info!];
-      byId("info-title").textContent = info.title;
-      byId("info-desc").textContent = info.text;
+      byId("info-title").textContent = t(info.title);
+      byId("info-desc").textContent = t(info.text);
       byId<HTMLDialogElement>("info").showModal();
     })
   );
   const level = byId<HTMLSelectElement>("setting-level");
-  LEVEL_NAMES.forEach((name, i) => level.add(new Option(name, String(i))));
+  levelNames().forEach((name, i) => level.add(new Option(name, String(i))));
   const theme = byId<HTMLSelectElement>("setting-theme");
   const countAutoFill = byId<HTMLInputElement>("setting-count-autofill");
   const practice = byId<HTMLInputElement>("setting-practice");

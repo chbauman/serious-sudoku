@@ -1,6 +1,6 @@
 // Import sudoku module
 import {
-  LEVEL_NAMES,
+  levelNames,
   MAX_LEVEL,
   levelName,
   congratulation,
@@ -24,6 +24,7 @@ import {
 import { storageGet, storageSet, storageRemove } from "./storage.js";
 import { settings, loadSettings } from "./settings.js";
 import { currentPage } from "./pages.js";
+import { t } from "./i18n.js";
 import { HistoryEntry, recordSolve, formatTime } from "./history.js";
 
 // Colors
@@ -227,7 +228,7 @@ function initGrid(tbl: HTMLTableElement) {
 // sudoku of it
 function setLevelFun() {
   const ulEl = getAssertedButton("lvl_list");
-  LEVEL_NAMES.forEach((name, level) => {
+  levelNames().forEach((name, level) => {
     const li = document.createElement("li");
     li.textContent = name;
     li.addEventListener("click", () => loadRandomSud(level));
@@ -276,27 +277,18 @@ function analyseCustomSudoku(forSolve: boolean): boolean {
     return true;
   }
   if (count === 0) {
-    showInfo(
-      "No solution",
-      "This sudoku cannot be solved. Check the digits you entered."
-    );
+    showInfo(t("custom.none.title"), t("custom.none.text"));
   } else if (forSolve) {
     customSolution = solution;
-    confirmAction(
-      "Not unique",
-      "This sudoku has more than one solution. Fill in one of them?",
-      () => solve(customSolution)
+    confirmAction(t("custom.several.title"), t("custom.several.solve"), () =>
+      solve(customSolution)
     );
   } else {
     customSolution = solution;
-    confirmAction(
-      "Not unique",
-      "This sudoku has more than one solution. Mistakes are marked against one of them, so a marked digit may be right in another solution. Mark anyway?",
-      () => {
-        check(customSolution);
-        reselect();
-      }
-    );
+    confirmAction(t("custom.several.title"), t("custom.several.check"), () => {
+      check(customSolution);
+      reselect();
+    });
   }
   return false;
 }
@@ -324,8 +316,8 @@ function updateToolButtons() {
 // entry in the tools dialog finishes the input; restarting makes no sense then
 function updateOwnInputUi() {
   getAssertedButton("own-sud-text").textContent = inputtingOwnSud
-    ? "Finish input"
-    : "Input own sudoku";
+    ? t("tools.finish")
+    : t("tools.own");
   getAssertedButton("own_sud")
     .querySelector("use")!
     .setAttribute("href", inputtingOwnSud ? "#i-checkmark-circle-outline" : "#i-create-outline");
@@ -397,14 +389,10 @@ function setButtons() {
   getAssertedButton("auto-fill-button").addEventListener("click", () => {
     if (inputtingOwnSud) return;
     closeDialog("tools");
-    confirmAction(
-      "Fill in pencil marks?",
-      "Adds all digits that are still possible as pencil marks to every empty cell.",
-      () => {
-        autoFillUsed = true;
-        withUndo(fillSmallDigits);
-      }
-    );
+    confirmAction(t("confirm.fill.title"), t("confirm.fill.text"), () => {
+      autoFillUsed = true;
+      withUndo(fillSmallDigits);
+    });
   });
 
   // Custom sudoku import: only the first click (clearing the grid) needs
@@ -414,11 +402,7 @@ function setButtons() {
     if (inputtingOwnSud) {
       inputCustomSudoku();
     } else {
-      confirmAction(
-        "Empty grid?",
-        "Add your own sudoku. Current game will be lost.",
-        inputCustomSudoku
-      );
+      confirmAction(t("confirm.own.title"), t("confirm.own.text"), inputCustomSudoku);
     }
   });
 
@@ -437,23 +421,15 @@ function setButtons() {
   getAssertedButton("check").addEventListener("click", () => {
     closeDialog("tools");
     if (!analyseCustomSudoku(false)) return;
-    confirmAction(
-      "Mark mistakes?",
-      "Marks every digit that differs from the solution.",
-      () => {
-        check();
-        reselect();
-      }
-    );
+    confirmAction(t("confirm.check.title"), t("confirm.check.text"), () => {
+      check();
+      reselect();
+    });
   });
   getAssertedButton("solve").addEventListener("click", () => {
     closeDialog("tools");
     if (!analyseCustomSudoku(true)) return;
-    confirmAction(
-      "Solve?",
-      "Fills in the solution. The sudoku counts as solved with the solver.",
-      () => solve()
-    );
+    confirmAction(t("confirm.solve.title"), t("confirm.solve.text"), () => solve());
   });
   updateToolButtons();
 }
@@ -690,19 +666,19 @@ function showSolveTime() {
       if (practice) {
         // In the history with a practice icon instead of the time
         text.textContent =
-          (settings.showTime ? `Time: ${formatTime(seconds)} - ` : "") +
-          "practice, no time in the history";
+          (settings.showTime ? t("win.time", { time: formatTime(seconds) }) + " - " : "") +
+          t("win.practice");
         return;
       }
       text.textContent =
-        `Time: ${formatTime(seconds)}` +
+        t("win.time", { time: formatTime(seconds) }) +
         (!counted
-          ? " (auto-filled pencil marks, not counted for the best time)"
+          ? t("win.not-counted")
           : isBest
           ? previousBest === null
             ? ""
-            : " - new best!"
-          : ` (best: ${formatTime(previousBest as number)})`);
+            : t("win.new-best")
+          : t("win.best", { time: formatTime(previousBest as number) }));
     }
   );
 }
@@ -1139,7 +1115,7 @@ function updateDigitCounts() {
     if (!btn) continue;
     btn.querySelector(".count")!.textContent = String(counts[d]);
     btn.classList.toggle("done", counts[d] >= 9);
-    btn.title = `${counts[d]} of 9 set`;
+    btn.title = t("pad.count", { n: counts[d] });
   }
 }
 

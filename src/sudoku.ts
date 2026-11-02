@@ -1,44 +1,43 @@
+import { MessageKey, t } from "./i18n.js";
+
 const DEBUG = false;
 
-// Names of the levels, from the easiest (level 0) to the hardest. The levels
-// are the numbers of the files assets/data/ext_lvl_<level>.txt (see
-// scripts/make-levels.mjs), so a new name needs a new file.
-const LEVEL_NAMES = [
-  "Beginner",
-  "Easy",
-  "Medium",
-  "Hard",
-  "Expert",
-  "Master",
-  "Grandmaster",
-];
+// Number of the levels, from the easiest (level 0) to the hardest (the names
+// are the texts level.0 to level.<LEVEL_COUNT - 1>). The levels are the numbers
+// of the files assets/data/ext_lvl_<level>.txt (see scripts/make-levels.mjs), so
+// a new level needs a new file.
+const LEVEL_COUNT = 7;
 
 // Highest level of the sudokus (levels are 0 to MAX_LEVEL)
-const MAX_LEVEL = LEVEL_NAMES.length - 1;
+const MAX_LEVEL = LEVEL_COUNT - 1;
 
 // Name of a level (levels that do not exist are shown as "Level <n>")
 function levelName(level: number): string {
-  return LEVEL_NAMES[level] ?? `Level ${level}`;
+  return level >= 0 && level < LEVEL_COUNT
+    ? t(`level.${level}` as MessageKey)
+    : t("level.other", { n: level });
+}
+
+// The names of all levels, from the easiest to the hardest
+function levelNames(): string[] {
+  return range(LEVEL_COUNT).map(levelName);
 }
 
 // Message of the win dialog. level: the level of the sudoku that was solved,
 // -1 for a custom sudoku, -2 if the solver was used.
 function congratulation(level: number): { title: string; text: string } {
   if (level === -2) {
-    return { title: "Solved with the solver", text: "Try the next one without it." };
+    return { title: t("cong.solver.title"), text: t("cong.solver.text") };
   }
   if (level === -1) {
-    return { title: "Your sudoku is solved", text: "Well done." };
+    return { title: t("cong.own.title"), text: t("cong.own.text") };
   }
   if (level >= MAX_LEVEL) {
-    return {
-      title: "Solved!",
-      text: `${levelName(level)} is the hardest level. There is nothing left to beat.`,
-    };
+    return { title: t("cong.title"), text: t("cong.top", { level: levelName(level) }) };
   }
   return {
-    title: "Solved!",
-    text: `${levelName(level)} done. Ready for ${levelName(level + 1)}?`,
+    title: t("cong.title"),
+    text: t("cong.next", { level: levelName(level), next: levelName(level + 1) }),
   };
 }
 
@@ -286,9 +285,10 @@ function permuteSuds(s: number[][], sudokuSol: number[][]) {
 
 // Export
 export {
-  LEVEL_NAMES,
+  LEVEL_COUNT,
   MAX_LEVEL,
   levelName,
+  levelNames,
   congratulation,
   T,
   Tsol,

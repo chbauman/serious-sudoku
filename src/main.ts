@@ -13,6 +13,7 @@ import {
   replaySudoku,
 } from "./html_util.js";
 import { setupPages, closeMenu } from "./pages.js";
+import { applyTranslations } from "./i18n.js";
 
 // State Variables
 let initialized = false;
@@ -33,6 +34,8 @@ export function init() {
   } else {
     initialized = true;
   }
+  // The static texts of the page
+  applyTranslations();
   // Clicking anywhere deselects the cell, except on dialogs and the buttons
   // that open them (cancelling must not lose the selection), the header
   // buttons and menu, and the digit pad (also between its buttons).
