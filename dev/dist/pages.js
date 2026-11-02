@@ -1,4 +1,4 @@
-import { loadHistory, averageTime, bestEntry, onlyWandSolves, solveCounts, formatTime, } from "./history.js";
+import { loadHistory, bestEntry, onlyWandSolves, solveStats, formatTime, } from "./history.js";
 import { LEVEL_NAMES, levelName } from "./sudoku.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
 const TITLES = {
@@ -50,7 +50,6 @@ function solveDetails(index) {
         infoRow("Date", new Date(e.date).toLocaleString()) +
         infoRow("Time", formatTime(e.seconds) + (e.practice ? " (practice)" : "")) +
         (e.autoFill ? infoRow("Pencil marks", WAND + "filled in automatically") : "") +
-        infoRow("ID", `#${e.id.split("-")[1]}`) +
         "</table>" +
         replayButton(index));
 }
@@ -68,10 +67,8 @@ function showSolve(index) {
 function showLevel(level) {
     const count = settings.countAutoFill;
     const best = bestEntry(shownEntries, level, count);
-    const counts = solveCounts(shownEntries, level);
-    const average = onlyWandSolves(shownEntries, level, count)
-        ? null
-        : averageTime(shownEntries, level, count);
+    const stats = solveStats(shownEntries, level);
+    const statsRow = (name, s) => `<tr><td>${name}</td><td class="num">${s.count}</td><td class="num">${s.average === null ? "-" : formatTime(s.average)}</td></tr>`;
     const indexes = shownEntries
         .map((e, i) => i)
         .filter((i) => shownEntries[i].level === level)
@@ -81,10 +78,10 @@ function showLevel(level) {
         "<h3>Best solve</h3>" +
             (best ? solveDetails(shownEntries.indexOf(best)) : "<p>None yet.</p>") +
             "<h3>Solves</h3>" +
-            '<table class="info-table">' +
-            infoRow("Solved", String(counts.unassisted)) +
-            (counts.assisted > 0 ? infoRow("Solved using help", String(counts.assisted)) : "") +
-            (average === null ? "" : infoRow("Average time", formatTime(average))) +
+            '<table class="stats">' +
+            "<tr><th></th><th class=\"num\">#</th><th class=\"num\">Average</th></tr>" +
+            statsRow("Without help", stats.unassisted) +
+            (stats.assisted.count > 0 ? statsRow("Using help", stats.assisted) : "") +
             "</table>" +
             "<h3>All solves</h3>" +
             '<table class="stats">' +
