@@ -48,13 +48,13 @@ async function renderHistory() {
                 .map((level) => {
                 const solved = timed.filter((e) => e.level === level).length;
                 const best = bestTime(entries, level, count);
-                const avg = averageTime(entries, level, count);
-                const wand = onlyWandSolves(entries, level, count) ? WAND : "";
+                const wandOnly = onlyWandSolves(entries, level, count);
+                const avg = wandOnly ? null : averageTime(entries, level, count);
                 return row([
                     levelName(level),
                     String(solved),
-                    best === null ? "-" : wand + formatTime(best),
-                    avg === null ? "-" : wand + formatTime(avg),
+                    best === null ? "-" : (wandOnly ? WAND : "") + formatTime(best),
+                    avg === null ? "-" : formatTime(avg),
                 ]);
             })
                 .join("");
