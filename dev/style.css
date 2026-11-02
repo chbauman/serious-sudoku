@@ -321,8 +321,7 @@ h1 {
     text-align: left;
 }
 
-#menu a,
-#menu span {
+#menu a {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -369,14 +368,44 @@ h1 {
     cursor: pointer;
 }
 
-/* Larger checkboxes of the toggle settings */
+/* The toggle settings are switches (checkboxes that look like a switch) */
 .setting input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
     flex: none;
-    width: 28px;
-    height: 28px;
+    position: relative;
+    width: 52px;
+    height: 30px;
     margin: 0;
-    accent-color: var(--accent);
+    border-radius: 15px;
+    background: var(--grid-line-thin);
     cursor: pointer;
+    transition: background 0.15s;
+}
+
+.setting input[type="checkbox"]::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s;
+}
+
+.setting input[type="checkbox"]:checked {
+    background: var(--accent);
+}
+
+.setting input[type="checkbox"]:checked::before {
+    transform: translateX(22px);
+}
+
+.setting input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .info-btn .icon {
@@ -418,11 +447,13 @@ h1 {
 
 #history-empty,
 #history-note,
+#history-note-mistakes,
 #history-note-practice {
     font-weight: normal !important;
 }
 
 #history-note,
+#history-note-mistakes,
 #history-note-practice {
     font-size: 15px;
 }
@@ -661,7 +692,7 @@ table {
     inset: -6px;
 }
 
-/* How many of the digit are set in the grid; all nine: the digit is crossed out */
+/* How many of the digit are set in the grid; all nine: see .done */
 .digit .count {
     position: absolute;
     right: 5px;
@@ -671,13 +702,23 @@ table {
     line-height: 1;
 }
 
-.digit.done .num {
-    text-decoration: line-through;
-    text-decoration-thickness: 2px;
+/* All nine set: the button is dimmed and crossed out by a diagonal line */
+.digit.done {
+    opacity: 0.45;
 }
 
-.digit.done {
-    opacity: 0.55;
+.digit.done::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    background: linear-gradient(
+        to top right,
+        transparent calc(50% - 1.5px),
+        currentColor calc(50% - 1.5px),
+        currentColor calc(50% + 1.5px),
+        transparent calc(50% + 1.5px)
+    );
 }
 
 

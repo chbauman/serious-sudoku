@@ -21,6 +21,7 @@ let sudLvl;
 let puzzleId = null;
 let puzzleStr = null;
 let autoFillUsed = false;
+let mistakesUsed = false;
 let timing = false;
 let elapsedMs = 0;
 let winShown = false;
@@ -487,6 +488,7 @@ function check(solution = null) {
     const sol = solution ?? Tsol;
     if (solution === null && solAvailable == false)
         return;
+    mistakesUsed = true;
     console.log("Checking Sudoku: ");
     for (let i = 0; i < 9; i++) {
         for (let j = 0; j < 9; j++) {
@@ -513,6 +515,7 @@ function showSolveTime() {
         level: sudLvl,
         ...(puzzleStr ? { puzzle: puzzleStr } : {}),
         ...(autoFillUsed ? { autoFill: true } : {}),
+        ...(mistakesUsed ? { mistakes: true } : {}),
         ...(practice ? { practice: true } : {}),
         seconds,
         date: new Date().toISOString(),
@@ -572,6 +575,7 @@ function reselect() {
 }
 const MAX_UNDO = 200;
 const undoStack = [];
+let inputUndoSteps = 0;
 function captureState() {
     const cellProp = (f) => Tref.map((row) => row.map(f));
     return {
@@ -591,8 +595,11 @@ function withUndo(action) {
     const key = (s) => JSON.stringify([s.T, s.mini, s.marked, s.clickable, s.color, s.hyps.length]);
     if (key(before) !== key(captureState())) {
         undoStack.push(before);
-        if (undoStack.length > MAX_UNDO)
+        if (undoStack.length > MAX_UNDO) {
             undoStack.shift();
+            if (inputUndoSteps > 0)
+                inputUndoSteps--;
+        }
         updateUndoButton();
         saveGame();
     }
@@ -632,6 +639,10 @@ function applySnapshot(s) {
     updateDigitCounts();
 }
 function undo() {
+    if (inputUndoSteps > 0 && undoStack.length === inputUndoSteps) {
+        confirmAction(t("confirm.edit.title"), t("confirm.edit.text"), editOwnSudoku);
+        return;
+    }
     const s = undoStack.pop();
     updateUndoButton();
     if (!s)
@@ -657,6 +668,7 @@ function saveGame() {
             puzzleId,
             puzzle: puzzleStr,
             autoFill: autoFillUsed,
+            mistakes: mistakesUsed,
             elapsed: elapsedMs,
             winShown,
         };
@@ -698,6 +710,7 @@ async function loadGame() {
         puzzleId = typeof g.puzzleId === "string" ? g.puzzleId : null;
         puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
         autoFillUsed = g.autoFill === true;
+        mistakesUsed = g.mistakes === true;
         elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
         winShown = g.winShown === true;
         timing = puzzleId !== null && sudLvl >= 0;
@@ -959,6 +972,7 @@ function setSudFromStr(retSud, index) {
     copyTo2d(sol, Tsol);
     puzzleStr = gridToString(sud);
     autoFillUsed = false;
+    mistakesUsed = false;
     winShown = false;
     enlarge();
     permuteSuds(T, Tsol);
@@ -1000,7 +1014,7 @@ function enableSmallDigs() {
     smallDigsEnabled = true;
     setEnabled("mode-but", true);
 }
-function inputCustomSudoku() {
+function inputCustomSudoku(keepGrid = false) {
     if (!inputtingOwnSud) {
         log("Own Input");
         puzzleId = null;
@@ -1008,7 +1022,8 @@ function inputCustomSudoku() {
         timing = false;
         updateTimer();
         elsewhere();
-        clearHyps();
+        if (!keepGrid)
+            clearHyps();
         disableHyp();
         inputtingOwnSud = true;
         solAvailable = false;
@@ -1016,8 +1031,10 @@ function inputCustomSudoku() {
         updateOwnInputUi();
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
-                T[i][j] = 0;
-                setCell(i, j, 0, true, false);
+                if (!keepGrid) {
+                    T[i][j] = 0;
+                    setCell(i, j, 0, true, false);
+                }
                 Tref[i][j].style.color = "";
                 Tref[i][j].style.backgroundColor = "";
                 Tref[i][j].setAttribute("clickable", "1");
@@ -1028,6 +1045,7 @@ function inputCustomSudoku() {
     }
     else {
         log("Done inputting own sudoku!");
+        inputUndoSteps = undoStack.length;
         enableHyp();
         sudLvl = -1;
         winShown = false;
@@ -1039,6 +1057,12 @@ function inputCustomSudoku() {
         enableSmallDigs();
         saveGame();
     }
+}
+function editOwnSudoku() {
+    inputUndoSteps = 0;
+    finishedHypChoosing();
+    inputCustomSudoku(true);
+    updateDigitCounts();
 }
 function loadRandomSud(lvl = MAX_LEVEL) {
     if (inputtingOwnSud) {
@@ -1083,9 +1107,10 @@ function solve(solution = null) {
 function clearHyps() {
     log("Clearing hypotheses");
     undoStack.length = 0;
+    inputUndoSteps = 0;
     updateUndoButton();
     hyps = [];
-    choosingHyp = false;
+    finishedHypChoosing();
     setActive("but1", false);
     disableHypRejection();
 }
@@ -1097,6 +1122,7 @@ function restart() {
     elapsedMs = 0;
     winShown = false;
     autoFillUsed = false;
+    mistakesUsed = false;
     timing = puzzleId !== null && sudLvl >= 0;
     updateTimer();
     elsewhere();
