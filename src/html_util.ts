@@ -51,6 +51,9 @@ let puzzleStr: string | null = null;
 let autoFillUsed = false;
 let timing = false;
 let elapsedMs = 0;
+// The solved dialog was shown for this sudoku (it is shown once, also when a
+// digit is taken back and set again)
+let winShown = false;
 let lastTick = Date.now();
 let choosingHyp = false;
 let hypRejectionEnabled = false;
@@ -731,6 +734,9 @@ function checkSolvedSud() {
     return;
   }
   clearSavedGame();
+  // Once per sudoku, and not at all after the solver was used
+  if (winShown || sudLvl === -2) return;
+  winShown = true;
   showSolveTime();
   const { title, text } = congratulation(sudLvl);
   getAssertedButton("solved-h").textContent = title;
@@ -842,6 +848,7 @@ interface SavedGame extends Snapshot {
   puzzle?: string | null;
   autoFill?: boolean;
   elapsed: number;
+  winShown?: boolean;
 }
 
 // Whether a grid has any digit (a sudoku that is loaded has givens)
@@ -862,6 +869,7 @@ function saveGame() {
       puzzle: puzzleStr,
       autoFill: autoFillUsed,
       elapsed: elapsedMs,
+      winShown,
     };
     storageSet(SAVE_KEY, JSON.stringify(game));
   } catch (e) {
@@ -905,6 +913,7 @@ async function loadGame(): Promise<boolean> {
     puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
     autoFillUsed = g.autoFill === true;
     elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
+    winShown = g.winShown === true;
     timing = puzzleId !== null && sudLvl >= 0;
     updateTimer();
     updateToolButtons();
@@ -1177,6 +1186,8 @@ function setSudFromStr(retSud: string, index: number) {
   copyTo2d(sol, Tsol);
   puzzleStr = gridToString(sud);
   autoFillUsed = false;
+  winShown = false;
+  enlarge(); // digits, not pencil marks, in a new sudoku
 
   // Shuffle
   permuteSuds(T, Tsol);
@@ -1243,6 +1254,7 @@ function inputCustomSudoku() {
     log("Done inputting own sudoku!");
     enableHyp();
     sudLvl = -1;
+    winShown = false;
 
     // Toggle State
     inputtingOwnSud = false;
@@ -1286,11 +1298,11 @@ function solve(solution: number[][] | null = null) {
       if (T[i][j] == 0) {
         T[i][j] = sol[i][j];
         setCell(i, j, T[i][j]);
-        Tref[i][j].style.color = "var(--disabled)";
+        Tref[i][j].style.color = "var(--solved)";
       } else if (T[i][j] != sol[i][j]) {
         T[i][j] = sol[i][j];
         setCell(i, j, T[i][j]);
-        Tref[i][j].style.color = "var(--disabled)";
+        Tref[i][j].style.color = "var(--solved)";
         Tref[i][j].style.backgroundColor = "var(--same-bg)";
       }
     }
@@ -1318,6 +1330,7 @@ function restart() {
   }
   log("Restarting");
   elapsedMs = 0;
+  winShown = false;
   autoFillUsed = false;
   timing = puzzleId !== null && sudLvl >= 0;
   updateTimer();

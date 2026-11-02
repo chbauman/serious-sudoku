@@ -3,6 +3,7 @@ import {
   averageTime,
   bestTime,
   isCounted,
+  onlyWandSolves,
   recordSolve,
 } from "../src/history";
 
@@ -32,9 +33,10 @@ test("solves with auto-filled pencil marks only count if wanted", () => {
   expect(averageTime(e, 1, true)).toBeCloseTo(350 / 3);
   expect(averageTime(e, 1, false)).toBe(150);
 
-  // a level with only such solves has no counted time
-  expect(bestTime(e, 2, false)).toBeNull();
-  expect(averageTime(e, 2, false)).toBeNull();
+  // a level that was only solved with the wand: these solves count anyway
+  expect(bestTime(e, 2, false)).toBe(30);
+  expect(averageTime(e, 2, false)).toBe(30);
+  // a level that was never solved has no time
   expect(bestTime(e, 3, false)).toBeNull();
 });
 
@@ -72,4 +74,38 @@ test("record solve: a practice solve is stored, but is not a best time", async (
   // the practice time is not the best to beat
   res = await recordSolve(entry(8, 90), true);
   expect(res).toEqual({ previousBest: 100, isBest: true, counted: true });
+});
+
+test("record solve: wand solves count as long as the level was never solved without help", async () => {
+  // level 9: no stored solves at the start
+  let res = await recordSolve(entry(9, 100, true), false);
+  expect(res).toEqual({ previousBest: null, isBest: true, counted: true });
+  res = await recordSolve(entry(9, 80, true), false);
+  expect(res).toEqual({ previousBest: 100, isBest: true, counted: true });
+  // practice solves never count
+  res = await recordSolve(entry(9, 10, true, true), false);
+  expect(res).toEqual({ previousBest: 80, isBest: false, counted: false });
+
+  // the first solve without help is the best one, also if it is slower
+  res = await recordSolve(entry(9, 200), false);
+  expect(res).toEqual({ previousBest: null, isBest: true, counted: true });
+  // from now on the wand solves do not count
+  res = await recordSolve(entry(9, 20, true), false);
+  expect(res).toEqual({ previousBest: 200, isBest: false, counted: false });
+  expect(bestTime([entry(9, 80, true), entry(9, 200)], 9, false)).toBe(200);
+});
+
+test("the best time only comes from wand solves when that is all there is", () => {
+  const wand = entry(1, 90, true);
+  const clean = entry(1, 120);
+  // the only solves of the level are with the wand
+  expect(onlyWandSolves([wand], 1, false)).toBe(true);
+  expect(onlyWandSolves([wand, entry(1, 80, true)], 1, true)).toBe(true);
+  // a solve without help: the best time is not from the wand
+  expect(onlyWandSolves([wand, clean], 1, false)).toBe(false);
+  // with the setting on, the wand solves count, a clean one next to them too
+  expect(onlyWandSolves([wand, clean], 1, true)).toBe(false);
+  // no solve (or only practice) of the level
+  expect(onlyWandSolves([wand], 2, false)).toBe(false);
+  expect(onlyWandSolves([entry(1, 50, true, true)], 1, false)).toBe(false);
 });

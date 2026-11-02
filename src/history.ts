@@ -52,15 +52,42 @@ export function isCounted(e: HistoryEntry, countAutoFill: boolean): boolean {
   return !e.practice && (countAutoFill || !e.autoFill);
 }
 
+/**
+ * The solves of a level that count for the best and average times: the ones
+ * that count (see isCounted), or all but the practice solves as long as the
+ * level was never solved without help (the magic wand).
+ */
+function countedSolves(
+  entries: HistoryEntry[],
+  level: number,
+  countAutoFill: boolean
+): HistoryEntry[] {
+  const ofLevel = entries.filter((e) => e.level === level);
+  const counted = ofLevel.filter((e) => isCounted(e, countAutoFill));
+  return counted.length > 0 ? counted : ofLevel.filter((e) => !e.practice);
+}
+
+/**
+ * Whether the best and average time of a level only come from solves with the
+ * magic wand (the only solves of the level, or the setting counts them and
+ * there is nothing else)
+ */
+export function onlyWandSolves(
+  entries: HistoryEntry[],
+  level: number,
+  countAutoFill = true
+): boolean {
+  const pool = countedSolves(entries, level, countAutoFill);
+  return pool.length > 0 && pool.every((e) => e.autoFill === true);
+}
+
 /** Best time of a level, only of the solves that count (null if there is none) */
 export function bestTime(
   entries: HistoryEntry[],
   level: number,
   countAutoFill = true
 ): number | null {
-  const times = entries
-    .filter((e) => e.level === level && isCounted(e, countAutoFill))
-    .map((e) => e.seconds);
+  const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
   return times.length ? Math.min(...times) : null;
 }
 
@@ -70,24 +97,38 @@ export function averageTime(
   level: number,
   countAutoFill = true
 ): number | null {
-  const times = entries
-    .filter((e) => e.level === level && isCounted(e, countAutoFill))
-    .map((e) => e.seconds);
+  const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
   return times.length ? times.reduce((a, b) => a + b, 0) / times.length : null;
 }
 
 /**
  * Stores a finished sudoku, returns the previous best time of its level.
  * isBest is false for a solve that does not count (auto-filled pencil marks
- * with countAutoFill off, or practice mode), it is still stored.
+ * with countAutoFill off, or practice mode), it is still stored. Solves with
+ * auto-filled pencil marks count anyway as long as the level was never solved
+ * without help.
  */
 export async function recordSolve(
   entry: HistoryEntry,
   countAutoFill = true
 ): Promise<{ previousBest: number | null; isBest: boolean; counted: boolean }> {
   const entries = await loadHistory();
-  const previousBest = bestTime(entries, entry.level, countAutoFill);
-  const counted = isCounted(entry, countAutoFill);
+  const ofLevel = entries.filter((e) => e.level === entry.level);
+  const clean = ofLevel.filter((e) => isCounted(e, countAutoFill));
+  const counted =
+    isCounted(entry, countAutoFill) || (clean.length === 0 && !entry.practice);
+  // The solves to beat: the ones that count like the entry; a solve that does
+  // not count is compared with the current best time of the level
+  const rivals = isCounted(entry, countAutoFill)
+    ? clean
+    : counted
+    ? ofLevel.filter((e) => !e.practice)
+    : [];
+  const previousBest = counted
+    ? rivals.length
+      ? Math.min(...rivals.map((e) => e.seconds))
+      : null
+    : bestTime(entries, entry.level, countAutoFill);
   entries.push(entry);
   if (entries.length > MAX_ENTRIES) entries.splice(0, entries.length - MAX_ENTRIES);
   storageSet(HISTORY_KEY, JSON.stringify(entries));
