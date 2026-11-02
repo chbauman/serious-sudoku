@@ -38,18 +38,20 @@ const shortDate = (iso) => new Date(iso).toLocaleDateString(undefined, { year: "
 const timeCell = (e) => (e.autoFill ? WAND : "") + (e.practice ? PRACTICE : formatTime(e.seconds));
 const infoRow = (name, value) => `<tr><th>${name}</th><td>${value}</td></tr>`;
 function replayButton(index) {
-    const e = shownEntries[index];
-    return e.puzzle
-        ? `<button type="button" class="action-btn" data-replay="${index}">Replay</button>`
-        : '<p class="info-note">The sudoku of this solve is not stored, no replay possible.</p>';
+    return `<button type="button" class="action-btn" data-replay="${index}">Replay</button>`;
 }
 function solveDetails(index) {
     const e = shownEntries[index];
     return ('<table class="info-table">' +
         infoRow("Level", levelName(e.level)) +
         infoRow("Date", new Date(e.date).toLocaleString()) +
-        infoRow("Time", formatTime(e.seconds) + (e.practice ? " (practice)" : "")) +
-        (e.autoFill ? infoRow("Pencil marks", WAND + "filled in automatically") : "") +
+        infoRow("Time", (e.autoFill ? WAND : "") +
+            formatTime(e.seconds) +
+            (e.autoFill || e.practice
+                ? ` (${[e.autoFill ? "using help" : "", e.practice ? "practice" : ""]
+                    .filter((t) => t)
+                    .join(", ")})`
+                : "")) +
         "</table>" +
         replayButton(index));
 }
@@ -152,10 +154,17 @@ function setupHistory() {
                 return;
             }
             const replay = target.closest("[data-replay]");
-            if (replay && replayHandler(shownEntries[Number(replay.dataset.replay)])) {
+            if (!replay)
+                return;
+            if (replayHandler(shownEntries[Number(replay.dataset.replay)])) {
                 byId("solve-info").close();
                 byId("level-info").close();
                 byId("back-btn").click();
+            }
+            else {
+                byId("info-title").textContent = "Replay not possible";
+                byId("info-desc").textContent = "The sudoku of this solve was not stored.";
+                openDialogById("info");
             }
         });
     }
