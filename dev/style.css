@@ -447,12 +447,14 @@ h1 {
 
 /* Button that opens the details of a level or a solve (history) */
 .more-btn {
-    display: inline-flex;
-    vertical-align: middle;
+    display: flex;
     border: none;
     background: none;
     color: var(--accent);
     padding: 4px;
+    /* The button is larger than the text of the row (tap target): the negative
+       margin keeps it from making the row taller, and it stays centered */
+    margin: -9px 0 -9px auto;
     font-size: 26px;
     line-height: 0;
     border-radius: 8px;
