@@ -1,17 +1,18 @@
 import { loadHistory, bestEntry, onlyWandSolves, solveStats, formatTime, } from "./history.js";
-import { LEVEL_NAMES, levelName } from "./sudoku.js";
+import { levelName, levelNames } from "./sudoku.js";
+import { t } from "./i18n.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
 const TITLES = {
-    game: "Serious Sudoku",
-    help: "Help",
-    settings: "Settings",
-    history: "History",
-    about: "About",
+    game: "app.name",
+    help: "menu.help",
+    settings: "menu.settings",
+    history: "menu.history",
+    about: "menu.about",
 };
 const RECENT_ENTRIES = 10;
-const WAND = '<svg class="icon inline-icon" role="img" aria-label="Pencil marks filled in automatically">' +
+const wandIcon = () => `<svg class="icon inline-icon" role="img" aria-label="${t("aria.wand")}">` +
     '<use href="#i-color-wand-outline" /></svg> ';
-const PRACTICE = '<svg class="icon inline-icon" role="img" aria-label="Practice, no time">' +
+const practiceIcon = () => `<svg class="icon inline-icon" role="img" aria-label="${t("aria.practice")}">` +
     '<use href="#i-practice-outline" /></svg>';
 const byId = (id) => document.getElementById(id);
 export function currentPage() {
@@ -23,7 +24,7 @@ function showPage() {
     document.querySelectorAll("[data-page]").forEach((el) => {
         el.hidden = el.dataset.page !== page;
     });
-    byId("page-title").textContent = TITLES[page];
+    byId("page-title").textContent = t(TITLES[page]);
     byId("back-btn").hidden = page === "game";
     closeMenu();
     window.scrollTo(0, 0);
@@ -35,21 +36,24 @@ let replayHandler = () => false;
 const MORE_ICON = '<svg class="icon" aria-hidden="true"><use href="#i-ellipsis-circle-outline" /></svg>';
 const moreButton = (attr, label) => `<button type="button" class="more-btn" ${attr} title="${label}" aria-label="${label}">${MORE_ICON}</button>`;
 const shortDate = (iso) => new Date(iso).toLocaleDateString(undefined, { year: "2-digit", month: "numeric", day: "numeric" });
-const timeCell = (e) => (e.autoFill ? WAND : "") + (e.practice ? PRACTICE : formatTime(e.seconds));
+const timeCell = (e) => (e.autoFill ? wandIcon() : "") + (e.practice ? practiceIcon() : formatTime(e.seconds));
 const infoRow = (name, value) => `<tr><th>${name}</th><td>${value}</td></tr>`;
 function replayButton(index) {
-    return `<button type="button" class="action-btn" data-replay="${index}">Replay</button>`;
+    return `<button type="button" class="action-btn" data-replay="${index}">${t("history.replay")}</button>`;
 }
 function solveDetails(index) {
     const e = shownEntries[index];
     return ('<table class="info-table">' +
-        infoRow("Level", levelName(e.level)) +
-        infoRow("Date", new Date(e.date).toLocaleString()) +
-        infoRow("Time", (e.autoFill ? WAND : "") +
+        infoRow(t("history.d.level"), levelName(e.level)) +
+        infoRow(t("history.d.date"), new Date(e.date).toLocaleString()) +
+        infoRow(t("history.d.time"), (e.autoFill ? wandIcon() : "") +
             formatTime(e.seconds) +
             (e.autoFill || e.practice
-                ? ` (${[e.autoFill ? "using help" : "", e.practice ? "practice" : ""]
-                    .filter((t) => t)
+                ? ` (${[
+                    e.autoFill ? t("history.d.help") : "",
+                    e.practice ? t("history.d.practice") : "",
+                ]
+                    .filter((text) => text)
                     .join(", ")})`
                 : "")) +
         "</table>" +
@@ -62,7 +66,9 @@ function openDialogById(id) {
 }
 function showSolve(index) {
     const e = shownEntries[index];
-    byId("solve-info-title").textContent = `${levelName(e.level)} sudoku`;
+    byId("solve-info-title").textContent = t("history.solve.title", {
+        level: levelName(e.level),
+    });
     byId("solve-info-body").innerHTML = solveDetails(index);
     openDialogById("solve-info");
 }
@@ -77,21 +83,21 @@ function showLevel(level) {
         .reverse();
     byId("level-info-title").textContent = levelName(level);
     byId("level-info-body").innerHTML =
-        "<h3>Best solve</h3>" +
-            (best ? solveDetails(shownEntries.indexOf(best)) : "<p>None yet.</p>") +
-            "<h3>Solves</h3>" +
+        `<h3>${t("history.best.solve")}</h3>` +
+            (best ? solveDetails(shownEntries.indexOf(best)) : `<p>${t("history.none")}</p>`) +
+            `<h3>${t("history.solves")}</h3>` +
             '<table class="stats">' +
-            "<tr><th></th><th class=\"num\">Solved</th><th class=\"num\">Average</th></tr>" +
-            statsRow("Without help", stats.unassisted) +
-            (stats.assisted.count > 0 ? statsRow("Using help", stats.assisted) : "") +
+            `<tr><th></th><th class="num">${t("history.col.solved")}</th><th class="num">${t("history.col.average")}</th></tr>` +
+            statsRow(t("history.row.nohelp"), stats.unassisted) +
+            (stats.assisted.count > 0 ? statsRow(t("history.row.help"), stats.assisted) : "") +
             (stats.assisted.count > 0 && stats.unassisted.count > 0
-                ? statsRow("All", stats.all)
+                ? statsRow(t("history.row.all"), stats.all)
                 : "") +
             "</table>" +
-            "<h3>All solves</h3>" +
+            `<h3>${t("history.all.solves")}</h3>` +
             '<table class="stats">' +
             indexes
-                .map((i) => `<tr><td>${shortDate(shownEntries[i].date)}</td><td class="num">${timeCell(shownEntries[i])}</td><td class="num">${moreButton(`data-solve="${i}"`, "Details of this solve")}</td></tr>`)
+                .map((i) => `<tr><td>${shortDate(shownEntries[i].date)}</td><td class="num">${timeCell(shownEntries[i])}</td><td class="num">${moreButton(`data-solve="${i}"`, t("history.more.solve"))}</td></tr>`)
                 .join("") +
             "</table>";
     openDialogById("level-info");
@@ -110,29 +116,29 @@ async function renderHistory() {
     const timed = entries.filter((e) => !e.practice);
     const levels = [...new Set(timed.map((e) => e.level))].sort((a, b) => a - b);
     byId("history-levels").innerHTML =
-        row(["Level", "Best", "Date", ""], "th") +
+        row([t("history.col.level"), t("history.col.best"), t("history.col.date"), ""], "th") +
             levels
                 .map((level) => {
                 const best = bestEntry(entries, level, count);
                 const wandOnly = onlyWandSolves(entries, level, count);
                 return row([
                     levelName(level),
-                    best === null ? "-" : (wandOnly ? WAND : "") + formatTime(best.seconds),
+                    best === null ? "-" : (wandOnly ? wandIcon() : "") + formatTime(best.seconds),
                     best === null ? "-" : shortDate(best.date),
-                    moreButton(`data-level="${level}"`, `Details of ${levelName(level)}`),
+                    moreButton(`data-level="${level}"`, t("history.more.level", { level: levelName(level) })),
                 ]);
             })
                 .join("");
     const firstRecent = Math.max(0, entries.length - RECENT_ENTRIES);
     const recent = entries.map((e, i) => i).slice(firstRecent).reverse();
     byId("history-recent").innerHTML =
-        row(["Date", "Level", "Time", ""], "th") +
+        row([t("history.col.date"), t("history.col.level"), t("history.col.time"), ""], "th") +
             recent
                 .map((i) => row([
                 shortDate(entries[i].date),
                 levelName(entries[i].level),
                 timeCell(entries[i]),
-                moreButton(`data-solve="${i}"`, "Details of this solve"),
+                moreButton(`data-solve="${i}"`, t("history.more.solve")),
             ]))
                 .join("");
     byId("history-note").hidden = !recent.some((i) => entries[i].autoFill);
@@ -165,8 +171,8 @@ function setupHistory() {
                 byId("back-btn").click();
             }
             else {
-                byId("info-title").textContent = "Replay not possible";
-                byId("info-desc").textContent = "The sudoku of this solve was not stored.";
+                byId("info-title").textContent = t("history.replay.fail.title");
+                byId("info-desc").textContent = t("history.replay.fail.text");
                 openDialogById("info");
             }
         });
@@ -182,33 +188,21 @@ function toggleMenu() {
     byId("menu-btn").setAttribute("aria-expanded", String(!menu.hidden));
 }
 const SETTING_INFO = {
-    practice: {
-        title: "Practice mode",
-        text: "Solves are listed in the history with a practice icon instead of a time and " +
-            "do not count for the best times.",
-    },
-    "show-time": {
-        title: "Show time",
-        text: "Shows the time below the buttons. The solving is timed either way.",
-    },
-    "count-wand": {
-        title: "Count wand solves",
-        text: "Solves with auto-filled pencil marks (the magic wand) only count for the best " +
-            "times if this is on, or as long as the level was never solved without help. " +
-            "They are always listed in the history.",
-    },
+    practice: { title: "settings.practice", text: "info.practice" },
+    "show-time": { title: "settings.show-time", text: "info.show-time" },
+    "count-wand": { title: "settings.count-wand", text: "info.count-wand" },
 };
 function setupSettings() {
     document.querySelectorAll(".info-btn").forEach((btn) => btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         const info = SETTING_INFO[btn.dataset.info];
-        byId("info-title").textContent = info.title;
-        byId("info-desc").textContent = info.text;
+        byId("info-title").textContent = t(info.title);
+        byId("info-desc").textContent = t(info.text);
         byId("info").showModal();
     }));
     const level = byId("setting-level");
-    LEVEL_NAMES.forEach((name, i) => level.add(new Option(name, String(i))));
+    levelNames().forEach((name, i) => level.add(new Option(name, String(i))));
     const theme = byId("setting-theme");
     const countAutoFill = byId("setting-count-autofill");
     const practice = byId("setting-practice");
