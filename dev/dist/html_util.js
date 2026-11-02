@@ -510,6 +510,7 @@ function showSolveTime() {
     updateTimer();
     const seconds = elapsedMs / 1000;
     const practice = settings.practiceMode;
+    const helped = autoFillUsed || mistakesUsed;
     const entry = {
         id: puzzleId,
         level: sudLvl,
@@ -529,6 +530,7 @@ function showSolveTime() {
         }
         text.textContent =
             t("win.time", { time: formatTime(seconds) }) +
+                (helped ? t("win.help") : "") +
                 (!counted
                     ? t("win.not-counted")
                     : isBest
