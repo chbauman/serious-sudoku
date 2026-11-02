@@ -122,10 +122,12 @@ test("best entry and the numbers of solves of a level", () => {
   expect(solveStats(all, 4)).toEqual({
     unassisted: { count: 2, average: 250 },
     assisted: { count: 1, average: 100 },
+    all: { count: 3, average: 200 },
   });
   expect(solveStats(all, 5)).toEqual({
     unassisted: { count: 0, average: null },
     assisted: { count: 0, average: null },
+    all: { count: 0, average: null },
   });
   // only wand solves of the level: its best solve is a wand solve
   expect(bestEntry([wand], 4, false)).toBe(wand);

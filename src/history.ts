@@ -115,17 +115,19 @@ const statsOf = (solves: HistoryEntry[]): SolveStats => ({
 });
 
 /**
- * The solves of a level (without the practice solves): the ones without help and
- * the ones with the magic wand, each with the number and the average time
+ * The solves of a level (without the practice solves): the ones without help,
+ * the ones with the magic wand and all of them, each with the number and the
+ * average time
  */
 export function solveStats(
   entries: HistoryEntry[],
   level: number
-): { unassisted: SolveStats; assisted: SolveStats } {
+): { unassisted: SolveStats; assisted: SolveStats; all: SolveStats } {
   const solved = entries.filter((e) => e.level === level && !e.practice);
   return {
     unassisted: statsOf(solved.filter((e) => !e.autoFill)),
     assisted: statsOf(solved.filter((e) => e.autoFill)),
+    all: statsOf(solved),
   };
 }
 

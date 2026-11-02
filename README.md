@@ -97,8 +97,8 @@ levels change) and whether the pencil marks
 were filled in automatically (the magic wand) are stored when you finish a
 sudoku without the solver; custom sudokus are not recorded. The History page
 has the leaderboard (per level: the best time, its date and a button for more:
-the best solve, a table with the number and the average time of the solves without
-help and, if there are any, of those using help (the wand), and all solves of the level) and the 10 most recent solves, each with a button for its details
+the best solve, a table with the number of solves and the average time without
+help, using help (the wand, if there are any) and all of them, and all solves of the level) and the 10 most recent solves, each with a button for its details
 (level, date, time). Solves with the magic wand are marked (left of the time)
 and only count for the best time if the setting says so, or as long as the level was
 never solved without help (then the wand is shown in front of the best time).

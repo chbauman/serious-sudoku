@@ -139,10 +139,14 @@ function showLevel(level: number) {
     (best ? solveDetails(shownEntries.indexOf(best)) : "<p>None yet.</p>") +
     "<h3>Solves</h3>" +
     '<table class="stats">' +
-    "<tr><th></th><th class=\"num\">#</th><th class=\"num\">Average</th></tr>" +
+    "<tr><th></th><th class=\"num\">Solved</th><th class=\"num\">Average</th></tr>" +
     statsRow("Without help", stats.unassisted) +
     // The solves with the magic wand only if there are any
     (stats.assisted.count > 0 ? statsRow("Using help", stats.assisted) : "") +
+    // All of them, if both kinds exist (otherwise it is the same as a row above)
+    (stats.assisted.count > 0 && stats.unassisted.count > 0
+      ? statsRow("All", stats.all)
+      : "") +
     "</table>" +
     "<h3>All solves</h3>" +
     '<table class="stats">' +
