@@ -5,7 +5,8 @@
 import {
   loadHistory,
   bestEntry,
-  onlyWandSolves,
+  onlyHelpedSolves,
+  usedHelp,
   solveStats,
   formatTime,
   HistoryEntry,
@@ -37,6 +38,15 @@ const RECENT_ENTRIES = 10;
 const wandIcon = () =>
   `<svg class="icon inline-icon" role="img" aria-label="${t("aria.wand")}">` +
   '<use href="#i-color-wand-outline" /></svg> ';
+
+/** Marks the solves where the mistakes were found in the history */
+const mistakesIcon = () =>
+  `<svg class="icon inline-icon" role="img" aria-label="${t("aria.mistakes")}">` +
+  '<use href="#i-search-outline" /></svg> ';
+
+/** The icons of the help used for a solve (none if it was solved without help) */
+const helpIcons = (e: HistoryEntry) =>
+  (e.autoFill ? wandIcon() : "") + (e.mistakes ? mistakesIcon() : "");
 
 /** Marks the solves in practice mode in the history (instead of the time) */
 const practiceIcon = () =>
@@ -80,7 +90,7 @@ const shortDate = (iso: string) =>
 
 /** The time of a solve for the lists: the wand in front, an icon instead of the time for practice */
 const timeCell = (e: HistoryEntry) =>
-  (e.autoFill ? wandIcon() : "") + (e.practice ? practiceIcon() : formatTime(e.seconds));
+  helpIcons(e) + (e.practice ? practiceIcon() : formatTime(e.seconds));
 
 const infoRow = (name: string, value: string) => `<tr><th>${name}</th><td>${value}</td></tr>`;
 
@@ -99,11 +109,11 @@ function solveDetails(index: number): string {
     infoRow(t("history.d.date"), new Date(e.date).toLocaleString()) +
     infoRow(
       t("history.d.time"),
-      (e.autoFill ? wandIcon() : "") +
+      helpIcons(e) +
         formatTime(e.seconds) +
-        (e.autoFill || e.practice
+        (usedHelp(e) || e.practice
           ? ` (${[
-              e.autoFill ? t("history.d.help") : "",
+              usedHelp(e) ? t("history.d.help") : "",
               e.practice ? t("history.d.practice") : "",
             ]
               .filter((text) => text)
@@ -152,7 +162,7 @@ function showLevel(level: number) {
       "history.col.average"
     )}</th></tr>` +
     statsRow(t("history.row.nohelp"), stats.unassisted) +
-    // The solves with the magic wand only if there are any
+    // The solves with help only if there are any
     (stats.assisted.count > 0 ? statsRow(t("history.row.help"), stats.assisted) : "") +
     // All of them, if both kinds exist (otherwise it is the same as a row above)
     (stats.assisted.count > 0 && stats.unassisted.count > 0
@@ -202,11 +212,11 @@ async function renderHistory() {
     levels
       .map((level) => {
         const best = bestEntry(entries, level, count);
-        // With only wand solves the best time gets the wand
-        const wandOnly = onlyWandSolves(entries, level, count);
+        // With only solves with help the best time gets the icons of its help
+        const helpOnly = onlyHelpedSolves(entries, level, count);
         return row([
           levelName(level),
-          best === null ? "-" : (wandOnly ? wandIcon() : "") + formatTime(best.seconds),
+          best === null ? "-" : (helpOnly ? helpIcons(best) : "") + formatTime(best.seconds),
           best === null ? "-" : shortDate(best.date),
           moreButton(
             `data-level="${level}"`,
@@ -234,6 +244,7 @@ async function renderHistory() {
       )
       .join("");
   byId("history-note").hidden = !recent.some((i) => entries[i].autoFill);
+  byId("history-note-mistakes").hidden = !recent.some((i) => entries[i].mistakes);
   byId("history-note-practice").hidden = !recent.some((i) => entries[i].practice);
 }
 
