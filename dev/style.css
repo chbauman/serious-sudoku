@@ -321,7 +321,8 @@ h1 {
     text-align: left;
 }
 
-#menu a {
+#menu a,
+#menu span {
     display: flex;
     align-items: center;
     gap: 12px;
