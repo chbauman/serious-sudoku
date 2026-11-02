@@ -1085,7 +1085,7 @@ function clearHyps() {
     undoStack.length = 0;
     updateUndoButton();
     hyps = [];
-    choosingHyp = false;
+    finishedHypChoosing();
     setActive("but1", false);
     disableHypRejection();
 }
