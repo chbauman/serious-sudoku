@@ -40,9 +40,8 @@ const infoRow = (name, value) => `<tr><th>${name}</th><td>${value}</td></tr>`;
 function replayButton(index) {
     const e = shownEntries[index];
     return e.puzzle
-        ? `<button type="button" class="action-btn" data-replay="${index}">Play again</button>` +
-            '<p class="info-note">The sudoku is shuffled differently.</p>'
-        : '<p class="info-note">The sudoku of this solve is not stored, it cannot be played again.</p>';
+        ? `<button type="button" class="action-btn" data-replay="${index}">Replay</button>`
+        : '<p class="info-note">The sudoku of this solve is not stored, no replay possible.</p>';
 }
 function solveDetails(index) {
     const e = shownEntries[index];
