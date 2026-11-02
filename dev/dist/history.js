@@ -49,6 +49,7 @@ export function solveStats(entries, level) {
     return {
         unassisted: statsOf(solved.filter((e) => !e.autoFill)),
         assisted: statsOf(solved.filter((e) => e.autoFill)),
+        all: statsOf(solved),
     };
 }
 export async function recordSolve(entry, countAutoFill = true) {

@@ -81,9 +81,12 @@ function showLevel(level) {
             (best ? solveDetails(shownEntries.indexOf(best)) : "<p>None yet.</p>") +
             "<h3>Solves</h3>" +
             '<table class="stats">' +
-            "<tr><th></th><th class=\"num\">#</th><th class=\"num\">Average</th></tr>" +
+            "<tr><th></th><th class=\"num\">Solved</th><th class=\"num\">Average</th></tr>" +
             statsRow("Without help", stats.unassisted) +
             (stats.assisted.count > 0 ? statsRow("Using help", stats.assisted) : "") +
+            (stats.assisted.count > 0 && stats.unassisted.count > 0
+                ? statsRow("All", stats.all)
+                : "") +
             "</table>" +
             "<h3>All solves</h3>" +
             '<table class="stats">' +
