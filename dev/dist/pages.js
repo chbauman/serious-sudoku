@@ -1,4 +1,4 @@
-import { loadHistory, bestEntry, onlyWandSolves, solveCounts, formatTime, } from "./history.js";
+import { loadHistory, averageTime, bestEntry, onlyWandSolves, solveCounts, formatTime, } from "./history.js";
 import { LEVEL_NAMES, levelName } from "./sudoku.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
 const TITLES = {
@@ -70,6 +70,9 @@ function showLevel(level) {
     const count = settings.countAutoFill;
     const best = bestEntry(shownEntries, level, count);
     const counts = solveCounts(shownEntries, level);
+    const average = onlyWandSolves(shownEntries, level, count)
+        ? null
+        : averageTime(shownEntries, level, count);
     const indexes = shownEntries
         .map((e, i) => i)
         .filter((i) => shownEntries[i].level === level)
@@ -80,8 +83,9 @@ function showLevel(level) {
             (best ? solveDetails(shownEntries.indexOf(best)) : "<p>None yet.</p>") +
             "<h3>Solves</h3>" +
             '<table class="info-table">' +
-            infoRow("Without the wand", String(counts.unassisted)) +
-            infoRow("Including the wand", String(counts.all)) +
+            infoRow("Solved", String(counts.unassisted)) +
+            (counts.assisted > 0 ? infoRow("Solved using help", String(counts.assisted)) : "") +
+            (average === null ? "" : infoRow("Average time", formatTime(average))) +
             "</table>" +
             "<h3>All solves</h3>" +
             '<table class="stats">' +

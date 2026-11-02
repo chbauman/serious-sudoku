@@ -42,7 +42,12 @@ export function bestTime(entries, level, countAutoFill = true) {
 }
 export function solveCounts(entries, level) {
     const solved = entries.filter((e) => e.level === level && !e.practice);
-    return { unassisted: solved.filter((e) => !e.autoFill).length, all: solved.length };
+    const assisted = solved.filter((e) => e.autoFill).length;
+    return { unassisted: solved.length - assisted, assisted };
+}
+export function averageTime(entries, level, countAutoFill = true) {
+    const times = countedSolves(entries, level, countAutoFill).map((e) => e.seconds);
+    return times.length ? times.reduce((a, b) => a + b, 0) / times.length : null;
 }
 export async function recordSolve(entry, countAutoFill = true) {
     const entries = await loadHistory();
