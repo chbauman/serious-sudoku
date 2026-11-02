@@ -84,14 +84,15 @@ async function renderHistory() {
       .map((level) => {
         const solved = timed.filter((e) => e.level === level).length;
         const best = bestTime(entries, level, count);
-        const avg = averageTime(entries, level, count);
-        // The wand in front of the times if they only come from wand solves
-        const wand = onlyWandSolves(entries, level, count) ? WAND : "";
+        // If there are only wand solves, the best time gets the wand and there
+        // is no average
+        const wandOnly = onlyWandSolves(entries, level, count);
+        const avg = wandOnly ? null : averageTime(entries, level, count);
         return row([
           levelName(level),
           String(solved),
-          best === null ? "-" : wand + formatTime(best),
-          avg === null ? "-" : wand + formatTime(avg),
+          best === null ? "-" : (wandOnly ? WAND : "") + formatTime(best),
+          avg === null ? "-" : formatTime(avg),
         ]);
       })
       .join("");

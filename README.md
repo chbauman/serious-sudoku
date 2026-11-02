@@ -99,7 +99,8 @@ sudoku without the solver; custom sudokus are not recorded. The History page
 shows the best and average time per level and the 10 most recent solves; solves
 with the magic wand are marked there (left of the time) and only count for the best
 and average times if the setting says so, or as long as the level was never solved
-without help (they are always stored). The win dialog congratulates
+without help, then the wand is shown in front of the best time and there is no average
+(they are always stored). The win dialog congratulates
 (a short message, the next level to try) and shows the time and whether it is a new best;
 it is shown once per sudoku (not again after taking back a digit, and not after using
 the solver). A new sudoku starts in the digit mode (not the pencil marks). The version
