@@ -9,7 +9,7 @@ import {
   permuteSuds,
   parseSudokuLine,
   gridToString,
-  LEVEL_NAMES,
+  levelNames,
   MAX_LEVEL,
   congratulation,
   solveSudoku,
@@ -251,19 +251,20 @@ test("test permute without randomness", () => {
 });
 
 test("level names", () => {
-  expect(LEVEL_NAMES.length).toBe(MAX_LEVEL + 1);
-  expect(new Set(LEVEL_NAMES).size).toBe(LEVEL_NAMES.length);
-  expect(levelName(0)).toBe(LEVEL_NAMES[0]);
-  expect(levelName(MAX_LEVEL)).toBe(LEVEL_NAMES[MAX_LEVEL]);
+  const names = levelNames();
+  expect(names.length).toBe(MAX_LEVEL + 1);
+  expect(new Set(names).size).toBe(names.length);
+  expect(levelName(0)).toBe(names[0]);
+  expect(levelName(MAX_LEVEL)).toBe(names[MAX_LEVEL]);
   // levels that do not exist
   expect(levelName(7)).toBe("Level 7");
 });
 
 test("win dialog messages", () => {
   expect(congratulation(0).text).toBe(
-    `${LEVEL_NAMES[0]} done. Ready for ${LEVEL_NAMES[1]}?`
+    `${levelNames()[0]} done. Ready for ${levelNames()[1]}?`
   );
-  expect(congratulation(MAX_LEVEL - 1).text).toContain(LEVEL_NAMES[MAX_LEVEL]);
+  expect(congratulation(MAX_LEVEL - 1).text).toContain(levelNames()[MAX_LEVEL]);
   expect(congratulation(MAX_LEVEL).text).toContain("hardest");
   expect(congratulation(-1).title).toBe("Your sudoku is solved");
   expect(congratulation(-2).title).toBe("Solved with the solver");

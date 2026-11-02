@@ -43,7 +43,8 @@ if (process.env.DEV_BUILD) {
       .replaceAll("serious-sudoku:", "serious-sudoku-dev:")
       .replaceAll("Serious Sudoku", "Serious Sudoku (dev)");
   for (const f of ["index.html", "manifest.webmanifest"]) rewrite(`${out}/${f}`, dev);
-  for (const f of ["main", "html_util", "storage", "settings", "pages", "history"]) {
+  // (the texts of the app name are in the messages)
+  for (const f of ["main", "html_util", "storage", "settings", "pages", "history", "messages_en"]) {
     rewrite(`${out}/dist/${f}.js`, dev);
   }
   rewrite(`${out}/sw.js`, (s) => s.replace('"sudoku-', '"dev-sudoku-'));

@@ -24,6 +24,17 @@ and is specifically designed to be unsolvable to all but the sharpest minds.](ht
 Built upon simpler JavaScript version found at https://github.com/baruchel/sudoku-js.
 The icons are open source (Ionicons, MIT) and taken from https://ionicons.com/; they are inlined in `src/index.html`.
 
+## Texts
+
+All texts of the app are in one module, `src/messages_en.ts` (English, one entry per
+key, placeholders like `{name}`). The code gets a text with `t(key, params)`
+(`src/i18n.ts`); the static texts of `src/index.html` are empty elements with
+`data-i18n="key"` (the content, may have markup like links), `data-i18n-title`,
+`data-i18n-aria` or `data-i18n-label` (title and aria-label), which
+`applyTranslations()` fills in when the app starts. The tests check that every key
+that is used exists and that every text is used. The privacy policy
+(`src/privacy.html`) and the web manifest are separate files and not part of it.
+
 ## Level files
 
 The sudokus are in `assets/data/ext_lvl_<level>.txt` (levels 0 to 6: Beginner, Easy, Medium, Hard, Expert, Master and Grandmaster, see
