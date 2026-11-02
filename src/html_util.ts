@@ -679,7 +679,7 @@ function showSolveTime() {
         t("win.time", { time: formatTime(seconds) }) +
         (helped ? t("win.help") : "") +
         (!counted
-          ? t("win.not-counted")
+          ? ""
           : isBest
           ? previousBest === null
             ? ""
