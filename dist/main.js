@@ -1,5 +1,5 @@
 import { initGrid, setButtons, htmlButtonDict, digits, log, elsewhere, clickCell, } from "./html_util.js";
-import { setupPages } from "./pages.js";
+import { setupPages, closeMenu } from "./pages.js";
 let initialized = false;
 const getDocEl = (id) => {
     const res = document.getElementById(id);
@@ -62,6 +62,7 @@ export function init() {
         const cell = e.target.closest(".gridCell");
         if (cell) {
             clickCell(cell);
+            closeMenu();
             e.stopPropagation();
         }
     });

@@ -1,4 +1,4 @@
-import { loadHistory, bestTime, averageTime, formatTime, } from "./history.js";
+import { loadHistory, bestTime, averageTime, onlyWandSolves, formatTime, } from "./history.js";
 import { LEVEL_NAMES, levelName } from "./sudoku.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
 const TITLES = {
@@ -9,8 +9,8 @@ const TITLES = {
     about: "About",
 };
 const RECENT_ENTRIES = 10;
-const WAND = ' <svg class="icon inline-icon" role="img" aria-label="Pencil marks filled in automatically">' +
-    '<use href="#i-color-wand-outline" /></svg>';
+const WAND = '<svg class="icon inline-icon" role="img" aria-label="Pencil marks filled in automatically">' +
+    '<use href="#i-color-wand-outline" /></svg> ';
 const PRACTICE = '<svg class="icon inline-icon" role="img" aria-label="Practice, no time">' +
     '<use href="#i-practice-outline" /></svg>';
 const byId = (id) => document.getElementById(id);
@@ -48,11 +48,12 @@ async function renderHistory() {
                 .map((level) => {
                 const solved = timed.filter((e) => e.level === level).length;
                 const best = bestTime(entries, level, count);
-                const avg = averageTime(entries, level, count);
+                const wandOnly = onlyWandSolves(entries, level, count);
+                const avg = wandOnly ? null : averageTime(entries, level, count);
                 return row([
                     levelName(level),
                     String(solved),
-                    best === null ? "-" : formatTime(best),
+                    best === null ? "-" : (wandOnly ? WAND : "") + formatTime(best),
                     avg === null ? "-" : formatTime(avg),
                 ]);
             })
@@ -64,14 +65,14 @@ async function renderHistory() {
                 .map((e) => row([
                 new Date(e.date).toLocaleDateString(),
                 levelName(e.level),
-                (e.practice ? PRACTICE : formatTime(e.seconds)) + (e.autoFill ? WAND : ""),
+                (e.autoFill ? WAND : "") + (e.practice ? PRACTICE : formatTime(e.seconds)),
                 `#${e.id.split("-")[1]}`,
             ]))
                 .join("");
     byId("history-note").hidden = !recent.some((e) => e.autoFill);
     byId("history-note-practice").hidden = !recent.some((e) => e.practice);
 }
-function closeMenu() {
+export function closeMenu() {
     byId("menu").hidden = true;
     byId("menu-btn").setAttribute("aria-expanded", "false");
 }
@@ -93,7 +94,8 @@ const SETTING_INFO = {
     "count-wand": {
         title: "Count wand solves",
         text: "Solves with auto-filled pencil marks (the magic wand) only count for the best " +
-            "times if this is on. They are always listed in the history.",
+            "times if this is on, or as long as the level was never solved without help. " +
+            "They are always listed in the history.",
     },
 };
 function setupSettings() {
