@@ -1,11 +1,35 @@
 import { en } from "./messages_en.js";
-const catalogs = { en };
+import { de } from "./messages_de.js";
+export const LANGUAGES = ["en", "de"];
+const catalogs = { en, de };
 let language = "en";
+const listeners = [];
 export function getLanguage() {
     return language;
 }
+export function systemLanguage() {
+    const preferred = typeof navigator === "undefined" ? [] : navigator.languages ?? [navigator.language];
+    for (const tag of preferred) {
+        const lang = LANGUAGES.find((l) => tag.toLowerCase().split("-")[0] === l);
+        if (lang)
+            return lang;
+    }
+    return "en";
+}
+export const resolveLanguage = (setting) => setting === "auto" ? systemLanguage() : setting;
+export const dateLocale = () => language === systemLanguage() ? undefined : language;
+export function onLanguageChange(listener) {
+    listeners.push(listener);
+}
 export function setLanguage(lang) {
+    if (lang === language)
+        return;
     language = lang;
+    if (typeof document !== "undefined") {
+        document.documentElement.lang = lang;
+        applyTranslations();
+    }
+    listeners.forEach((listener) => listener());
 }
 export function t(key, params = {}) {
     const text = catalogs[language][key] ?? en[key] ?? key;

@@ -4,6 +4,7 @@ const SETTINGS_KEY = "serious-sudoku-dev:settings:v1";
 export const settings = {
     level: 2,
     theme: "auto",
+    language: "auto",
     countAutoFill: false,
     practiceMode: false,
     showTime: true,
@@ -38,6 +39,8 @@ async function readSettings() {
             }
             if (["auto", "light", "dark"].includes(s.theme))
                 settings.theme = s.theme;
+            if (["auto", "en", "de"].includes(s.language))
+                settings.language = s.language;
             if (typeof s.countAutoFill === "boolean")
                 settings.countAutoFill = s.countAutoFill;
             if (typeof s.practiceMode === "boolean")

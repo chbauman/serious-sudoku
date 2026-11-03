@@ -1,6 +1,6 @@
 import { loadHistory, bestEntry, onlyHelpedSolves, usedHelp, solveStats, formatTime, } from "./history.js";
 import { levelName, levelNames } from "./sudoku.js";
-import { t } from "./i18n.js";
+import { t, dateLocale, onLanguageChange, setLanguage, resolveLanguage, } from "./i18n.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
 const TITLES = {
     game: "app.name",
@@ -38,7 +38,7 @@ let shownEntries = [];
 let replayHandler = () => false;
 const MORE_ICON = '<svg class="icon" aria-hidden="true"><use href="#i-ellipsis-circle-outline" /></svg>';
 const moreButton = (attr, label) => `<button type="button" class="more-btn" ${attr} title="${label}" aria-label="${label}">${MORE_ICON}</button>`;
-const shortDate = (iso) => new Date(iso).toLocaleDateString(undefined, { year: "2-digit", month: "numeric", day: "numeric" });
+const shortDate = (iso) => new Date(iso).toLocaleDateString(dateLocale(), { year: "2-digit", month: "numeric", day: "numeric" });
 const timeCell = (e) => helpIcons(e) + (e.practice ? practiceIcon() : formatTime(e.seconds));
 const infoRow = (name, value) => `<tr><th>${name}</th><td>${value}</td></tr>`;
 function replayButton(index) {
@@ -48,7 +48,7 @@ function solveDetails(index) {
     const e = shownEntries[index];
     return ('<table class="info-table">' +
         infoRow(t("history.d.level"), levelName(e.level)) +
-        infoRow(t("history.d.date"), new Date(e.date).toLocaleString()) +
+        infoRow(t("history.d.date"), new Date(e.date).toLocaleString(dateLocale())) +
         infoRow(t("history.d.time"), helpIcons(e) +
             formatTime(e.seconds) +
             (usedHelp(e) || e.practice
@@ -208,6 +208,7 @@ function setupSettings() {
     const level = byId("setting-level");
     levelNames().forEach((name, i) => level.add(new Option(name, String(i))));
     const theme = byId("setting-theme");
+    const language = byId("setting-language");
     const countAutoFill = byId("setting-count-autofill");
     const practice = byId("setting-practice");
     const showTime = byId("setting-show-time");
@@ -216,6 +217,8 @@ function setupSettings() {
         showTime.checked = settings.showTime;
         level.value = String(settings.level);
         theme.value = settings.theme;
+        language.value = settings.language;
+        setLanguage(resolveLanguage(settings.language));
         countAutoFill.checked = settings.countAutoFill;
     });
     level.addEventListener("change", () => {
@@ -233,6 +236,17 @@ function setupSettings() {
     countAutoFill.addEventListener("change", () => {
         settings.countAutoFill = countAutoFill.checked;
         saveSettings();
+    });
+    language.addEventListener("change", () => {
+        settings.language = language.value;
+        setLanguage(resolveLanguage(settings.language));
+        saveSettings();
+    });
+    onLanguageChange(() => {
+        levelNames().forEach((name, i) => (level.options[i].text = name));
+        byId("page-title").textContent = t(TITLES[currentPage()]);
+        if (currentPage() === "history")
+            renderHistory();
     });
     theme.addEventListener("change", () => {
         settings.theme = theme.value;
