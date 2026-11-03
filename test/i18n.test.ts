@@ -1,7 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
-import { t } from "../src/i18n";
+import { t, setLanguage, getLanguage, resolveLanguage } from "../src/i18n";
 import { en } from "../src/messages_en";
+import { de } from "../src/messages_de";
 import { LEVEL_COUNT } from "../src/sudoku";
 
 const srcDir = path.join(__dirname, "..", "src");
@@ -37,7 +38,7 @@ test("every key used in the code and in index.html exists", () => {
 test("every text is used", () => {
   const code = fs
     .readdirSync(srcDir)
-    .filter((f) => f.endsWith(".ts") && f !== "messages_en.ts")
+    .filter((f) => f.endsWith(".ts") && !f.startsWith("messages_"))
     .map(read)
     .join("\n");
   const html = read("index.html");
@@ -45,4 +46,26 @@ test("every text is used", () => {
     if (key.startsWith("level.") && key !== "level.other") continue; // level.<n>
     expect([key, code.includes(`"${key}"`) || html.includes(`"${key}"`)]).toEqual([key, true]);
   }
+});
+
+const placeholders = (text: string) => (text.match(/\{\w+\}/g) ?? []).sort().join(",");
+const tags = (text: string) => (text.match(/<[^>]+>/g) ?? []).join("");
+
+test("the German texts have the same keys, placeholders and links as the English ones", () => {
+  expect(Object.keys(de).sort()).toEqual(keys.slice().sort());
+  for (const key of keys as (keyof typeof en)[]) {
+    expect([key, de[key].trim() !== ""]).toEqual([key, true]);
+    expect([key, placeholders(de[key])]).toEqual([key, placeholders(en[key])]);
+    expect([key, tags(de[key])]).toEqual([key, tags(en[key])]);
+  }
+});
+
+test("switching the language", () => {
+  expect(resolveLanguage("de")).toBe("de");
+  expect(resolveLanguage("en")).toBe("en");
+  setLanguage("de");
+  expect(getLanguage()).toBe("de");
+  expect(t("win.time", { time: "1:23" })).toBe("Zeit: 1:23");
+  setLanguage("en");
+  expect(t("win.time", { time: "1:23" })).toBe("Time: 1:23");
 });

@@ -1,21 +1,64 @@
-// Texts of the app: the keys and the English texts are in messages_en.ts. `t`
-// gives the text for a key in the current language, `applyTranslations` fills
-// the static texts of index.html (elements with data-i18n attributes).
+// Texts of the app: the keys and the English texts are in messages_en.ts, the
+// German ones in messages_de.ts. `t` gives the text for a key in the current
+// language, `applyTranslations` fills the static texts of index.html (elements
+// with data-i18n attributes).
 import { en, MessageKey } from "./messages_en.js";
+import { de } from "./messages_de.js";
 
 export type { MessageKey };
 export type Messages = { readonly [K in MessageKey]: string };
-export type Lang = "en";
+export type Lang = "en" | "de";
+/** The language setting: "auto" follows the system */
+export type LanguageSetting = "auto" | Lang;
 
-const catalogs: { [lang in Lang]: Messages } = { en };
+export const LANGUAGES: Lang[] = ["en", "de"];
+
+const catalogs: { [lang in Lang]: Messages } = { en, de };
 let language: Lang = "en";
+const listeners: (() => void)[] = [];
 
 export function getLanguage(): Lang {
   return language;
 }
 
+/** The language of the system (the first of its languages that the app has, otherwise English) */
+export function systemLanguage(): Lang {
+  const preferred = typeof navigator === "undefined" ? [] : navigator.languages ?? [navigator.language];
+  for (const tag of preferred) {
+    const lang = LANGUAGES.find((l) => tag.toLowerCase().split("-")[0] === l);
+    if (lang) return lang;
+  }
+  return "en";
+}
+
+/** The language for a language setting */
+export const resolveLanguage = (setting: LanguageSetting): Lang =>
+  setting === "auto" ? systemLanguage() : setting;
+
+/**
+ * Locale for the dates: the one of the system when the app has its language,
+ * otherwise the language of the app
+ */
+export const dateLocale = (): string | undefined =>
+  language === systemLanguage() ? undefined : language;
+
+/** Registers a function that updates the texts that are not static, called after the language changed */
+export function onLanguageChange(listener: () => void) {
+  listeners.push(listener);
+}
+
+/**
+ * Sets the language: the static texts are replaced, then the listeners update
+ * the other ones (lists, timer, ...). Nothing happens if it is the same language.
+ */
 export function setLanguage(lang: Lang) {
+  if (lang === language) return;
   language = lang;
+  if (typeof document !== "undefined") {
+    document.documentElement.lang = lang;
+    applyTranslations();
+  }
+  listeners.forEach((listener) => listener());
 }
 
 /** The text for a key in the current language, {name} replaced by params["name"] */
