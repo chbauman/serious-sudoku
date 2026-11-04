@@ -1,6 +1,6 @@
 import { initGrid, setButtons, htmlButtonDict, digits, log, elsewhere, clickCell, replaySudoku, } from "./html_util.js";
 import { setupPages, closeMenu } from "./pages.js";
-import { applyTranslations } from "./i18n.js";
+import { applyTranslations, setLanguage, systemLanguage } from "./i18n.js";
 let initialized = false;
 const getDocEl = (id) => {
     const res = document.getElementById(id);
@@ -16,6 +16,7 @@ export function init() {
     else {
         initialized = true;
     }
+    setLanguage(systemLanguage());
     applyTranslations();
     document.addEventListener("click", (e) => {
         const target = e.target;

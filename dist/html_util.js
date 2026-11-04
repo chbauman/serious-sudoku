@@ -2,7 +2,7 @@ import { levelNames, MAX_LEVEL, levelName, congratulation, T, DEBUG, Marked, rea
 import { storageGet, storageSet, storageRemove } from "./storage.js";
 import { settings, loadSettings } from "./settings.js";
 import { currentPage } from "./pages.js";
-import { t } from "./i18n.js";
+import { t, onLanguageChange } from "./i18n.js";
 import { recordSolve, formatTime } from "./history.js";
 const col1 = "var(--accent)";
 const smallDigCol = "var(--small-dig-bg)";
@@ -166,6 +166,14 @@ function setLevelFun() {
         li.textContent = name;
         li.addEventListener("click", () => loadRandomSud(level));
         ulEl.appendChild(li);
+    });
+    onLanguageChange(() => {
+        levelNames().forEach((name, level) => {
+            ulEl.children[level].textContent = name;
+        });
+        updateTimer();
+        updateOwnInputUi();
+        updateDigitCounts();
     });
 }
 function startHyp(e) {
