@@ -1,4 +1,4 @@
-import { loadHistory, bestEntry, usedHelp, solveStats, formatTime, } from "./history.js";
+import { loadHistory, bestEntry, onlyHelpedSolves, usedHelp, solveStats, formatTime, } from "./history.js";
 import { levelName, levelNames } from "./sudoku.js";
 import { t, dateLocale, onLanguageChange, setLanguage, resolveLanguage, } from "./i18n.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
@@ -123,9 +123,10 @@ async function renderHistory() {
             levels
                 .map((level) => {
                 const best = bestEntry(entries, level, count);
+                const helpOnly = onlyHelpedSolves(entries, level, count);
                 return row([
                     levelName(level),
-                    best === null ? "-" : helpIcons(best) + formatTime(best.seconds),
+                    best === null ? "-" : (helpOnly ? helpIcons(best) : "") + formatTime(best.seconds),
                     best === null ? "-" : shortDate(best.date),
                     moreButton(`data-level="${level}"`, t("history.more.level", { level: levelName(level) })),
                 ]);

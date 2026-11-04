@@ -3,8 +3,14 @@ import { storageGet, storageSet, storageRemove } from "./storage.js";
 import { settings, loadSettings } from "./settings.js";
 import { currentPage } from "./pages.js";
 import { t, onLanguageChange } from "./i18n.js";
-import { color } from "./colors.js";
 import { recordSolve, formatTime } from "./history.js";
+const col1 = "var(--accent)";
+const smallDigCol = "var(--small-dig-bg)";
+const rowColSquareForbidCol = "var(--forbid-bg)";
+const sameDigCol = "var(--same-bg)";
+const hypCol = "var(--hyp)";
+const normH = "var(--selected-bg)";
+const wrongHypCol = "var(--wrong)";
 let large = true;
 let smallDigsEnabled = true;
 let curX = -1;
@@ -378,7 +384,7 @@ function setCell(y, x, n, largeMode = true, highlightCells = false, removeRed = 
                 highlight(y, x);
             if (removeRed) {
                 Marked[y][x] = 0;
-                Tref[y][x].style.backgroundColor = color.selected;
+                Tref[y][x].style.backgroundColor = normH;
             }
         }
         else {
@@ -425,7 +431,7 @@ function hypothesis3() {
         setClickableTrefT();
         const y = hyps[nHyps - 2][0][0];
         const x = hyps[nHyps - 2][0][1];
-        Tref[y][x].style.color = color.guess;
+        Tref[y][x].style.color = hypCol;
         Tref[y][x].setAttribute("clickable", "0");
     }
     copyTo2d(lastHyp[1], T);
@@ -436,9 +442,9 @@ function hypothesis3() {
                 const m = markCopy[i][j];
                 setCell(i, j, T[i][j], true, false);
                 if (Tref[i][j].getAttribute("clickable") == "1") {
-                    Tref[i][j].style.color = color.accent;
+                    Tref[i][j].style.color = col1;
                     if (m > 0) {
-                        Tref[i][j].style.backgroundColor = color.wrong;
+                        Tref[i][j].style.backgroundColor = wrongHypCol;
                         Marked[i][j] = 1;
                         log(`m is ${m}, setting (${i}, ${j})`);
                     }
@@ -461,7 +467,7 @@ function hypothesis3() {
         const x = hyps[nHyps - 2][0][1];
         if (markCopy[y][x]) {
             Marked[y][x] = 1;
-            Tref[y][x].style.backgroundColor = color.wrong;
+            Tref[y][x].style.backgroundColor = wrongHypCol;
         }
         clickCell(Tref[y][x]);
     }
@@ -496,7 +502,7 @@ function check(solution = null) {
         for (let j = 0; j < 9; j++) {
             if (T[i][j] != sol[i][j] && T[i][j] != 0) {
                 console.log(`Cell (${i}, ${j}) is incorrect!`);
-                Tref[i][j].style.backgroundColor = color.wrong;
+                Tref[i][j].style.backgroundColor = wrongHypCol;
                 Marked[i][j] = 1;
             }
         }
@@ -633,7 +639,7 @@ function applySnapshot(s) {
             }
             cell.setAttribute("clickable", s.clickable[i][j]);
             cell.style.color = s.color[i][j];
-            cell.style.backgroundColor = Marked[i][j] ? color.wrong : "";
+            cell.style.backgroundColor = Marked[i][j] ? wrongHypCol : "";
         }
     }
     if (s.rejectionEnabled)
@@ -782,7 +788,7 @@ function clickCell(cell) {
     }
     else {
         if (Marked[y][x] == 0) {
-            Tref[y][x].style.backgroundColor = color.selected;
+            Tref[y][x].style.backgroundColor = normH;
         }
     }
     curY = y;
@@ -801,18 +807,18 @@ function clickCell(cell) {
         for (let i = 0; i < 10; i++) {
             if (d[i]) {
                 const v = i;
-                digits[i].style.color = color.accent;
-                digits[i].style.borderColor = color.accent;
+                digits[i].style.color = col1;
+                digits[i].style.borderColor = col1;
                 if (!choosingHyp || v == 0) {
                     digitHandlers[i] = (e) => {
                         log("Setting digit");
                         if (large || v == 0) {
                             T[y][x] = v;
                             if (v == 0) {
-                                Tref[y][x].style.color = color.text;
+                                Tref[y][x].style.color = "var(--fg)";
                             }
                             else {
-                                Tref[y][x].style.color = color.accent;
+                                Tref[y][x].style.color = col1;
                             }
                         }
                         setCell(y, x, v, large, true, true);
@@ -840,7 +846,7 @@ function clickCell(cell) {
                         hyps.push(hypTuple);
                         setClickableTrefT();
                         T[y][x] = v;
-                        Tref[y][x].style.color = color.guess;
+                        Tref[y][x].style.color = hypCol;
                         Tref[y][x].setAttribute("clickable", "0");
                         setCell(y, x, v, large, true);
                         clickCell(Tref[y][x]);
@@ -853,8 +859,8 @@ function clickCell(cell) {
                 }
             }
             else {
-                digits[i].style.color = color.disabled;
-                digits[i].style.borderColor = color.disabled;
+                digits[i].style.color = "var(--disabled)";
+                digits[i].style.borderColor = "var(--disabled)";
                 digitHandlers[i] = (e) => {
                     log("Cannot set this number!");
                     e.stopPropagation();
@@ -865,8 +871,8 @@ function clickCell(cell) {
     else {
         digitHandlers.length = 0;
         for (let i = 0; i < 10; i++) {
-            digits[i].style.color = color.disabled;
-            digits[i].style.borderColor = color.disabled;
+            digits[i].style.color = "var(--disabled)";
+            digits[i].style.borderColor = "var(--disabled)";
         }
     }
 }
@@ -877,8 +883,8 @@ function elsewhere() {
         curX = -1;
         unhighlightAll();
         for (let i = 0; i < digits.length; ++i) {
-            digits[i].style.color = color.disabled;
-            digits[i].style.borderColor = color.disabled;
+            digits[i].style.color = "var(--disabled)";
+            digits[i].style.borderColor = "var(--disabled)";
             digitHandlers[i] = (e) => {
                 log("Neet to select a cell first.");
                 e.stopPropagation();
@@ -888,7 +894,7 @@ function elsewhere() {
 }
 function setIfNotMarked(y, x) {
     if (Marked[y][x] == 0) {
-        Tref[y][x].style.backgroundColor = color.sameUnit;
+        Tref[y][x].style.backgroundColor = rowColSquareForbidCol;
     }
 }
 function highlight(y, x) {
@@ -903,16 +909,16 @@ function highlight(y, x) {
         for (let j = 0; j < 9; j++) {
             if (T[i][j] == currDig) {
                 if (Marked[i][j] == 0) {
-                    Tref[i][j].style.backgroundColor = color.sameDigit;
+                    Tref[i][j].style.backgroundColor = sameDigCol;
                 }
             }
             if (T[i][j] == 0 && TsubBinaryTables[i][j][currDig - 1]) {
-                Tref[i][j].style.backgroundColor = color.pencilMatch;
+                Tref[i][j].style.backgroundColor = smallDigCol;
             }
         }
     }
     if (Marked[y][x] == 0) {
-        Tref[y][x].style.backgroundColor = color.selected;
+        Tref[y][x].style.backgroundColor = normH;
     }
 }
 function unhighlightAll() {
@@ -1093,13 +1099,13 @@ function solve(solution = null) {
             if (T[i][j] == 0) {
                 T[i][j] = sol[i][j];
                 setCell(i, j, T[i][j]);
-                Tref[i][j].style.color = color.solved;
+                Tref[i][j].style.color = "var(--solved)";
             }
             else if (T[i][j] != sol[i][j]) {
                 T[i][j] = sol[i][j];
                 setCell(i, j, T[i][j]);
-                Tref[i][j].style.color = color.solved;
-                Tref[i][j].style.backgroundColor = color.sameDigit;
+                Tref[i][j].style.color = "var(--solved)";
+                Tref[i][j].style.backgroundColor = "var(--same-bg)";
             }
         }
     }
@@ -1162,5 +1168,5 @@ function fillSmallDigits() {
     unhighlightAll();
     reselect();
 }
-export { enlarge, shrink, initGrid, htmlButtonDict, digits, loadRandomSud, setButtons, log, elsewhere, clickCell, };
+export { enlarge, shrink, initGrid, htmlButtonDict, col1, digits, loadRandomSud, setButtons, log, elsewhere, clickCell, };
 //# sourceMappingURL=html_util.js.map
