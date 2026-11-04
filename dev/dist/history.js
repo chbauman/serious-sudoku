@@ -31,10 +31,6 @@ function countedSolves(entries, level, countAutoFill) {
     const counted = ofLevel.filter((e) => isCounted(e, countAutoFill));
     return counted.length > 0 ? counted : ofLevel.filter((e) => !e.practice);
 }
-export function onlyHelpedSolves(entries, level, countAutoFill = true) {
-    const pool = countedSolves(entries, level, countAutoFill);
-    return pool.length > 0 && pool.every(usedHelp);
-}
 export function bestEntry(entries, level, countAutoFill = true) {
     const pool = countedSolves(entries, level, countAutoFill);
     return pool.reduce((best, e) => (best === null || e.seconds < best.seconds ? e : best), null);
