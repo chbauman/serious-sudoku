@@ -94,6 +94,8 @@ export const en = {
   "history.row.all": "All",
   "history.all.solves": "All solves",
 
+  "settings.language": "Language",
+  "settings.language.auto": "System",
   "settings.level": "Default level",
   "settings.theme": "Appearance",
   "settings.theme.auto": "System",

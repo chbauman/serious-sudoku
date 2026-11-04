@@ -22,6 +22,7 @@ const PRECACHE = [
   "dist/history.js",
   "dist/i18n.js",
   "dist/messages_en.js",
+  "dist/messages_de.js",
   "assets/favicon/favicon.svg",
   "assets/favicon/favicon.ico",
   "assets/favicon/favicon-16x16.png",

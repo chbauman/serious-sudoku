@@ -13,7 +13,15 @@ import {
   SolveStats,
 } from "./history.js";
 import { levelName, levelNames } from "./sudoku.js";
-import { MessageKey, t } from "./i18n.js";
+import {
+  MessageKey,
+  t,
+  dateLocale,
+  onLanguageChange,
+  setLanguage,
+  resolveLanguage,
+  LanguageSetting,
+} from "./i18n.js";
 import {
   settings,
   loadSettings,
@@ -86,7 +94,7 @@ const moreButton = (attr: string, label: string) =>
   `<button type="button" class="more-btn" ${attr} title="${label}" aria-label="${label}">${MORE_ICON}</button>`;
 
 const shortDate = (iso: string) =>
-  new Date(iso).toLocaleDateString(undefined, { year: "2-digit", month: "numeric", day: "numeric" });
+  new Date(iso).toLocaleDateString(dateLocale(), { year: "2-digit", month: "numeric", day: "numeric" });
 
 /** The time of a solve for the lists: the wand in front, an icon instead of the time for practice */
 const timeCell = (e: HistoryEntry) =>
@@ -106,7 +114,7 @@ function solveDetails(index: number): string {
   return (
     '<table class="info-table">' +
     infoRow(t("history.d.level"), levelName(e.level)) +
-    infoRow(t("history.d.date"), new Date(e.date).toLocaleString()) +
+    infoRow(t("history.d.date"), new Date(e.date).toLocaleString(dateLocale())) +
     infoRow(
       t("history.d.time"),
       helpIcons(e) +
@@ -314,6 +322,7 @@ function setupSettings() {
   const level = byId<HTMLSelectElement>("setting-level");
   levelNames().forEach((name, i) => level.add(new Option(name, String(i))));
   const theme = byId<HTMLSelectElement>("setting-theme");
+  const language = byId<HTMLSelectElement>("setting-language");
   const countAutoFill = byId<HTMLInputElement>("setting-count-autofill");
   const practice = byId<HTMLInputElement>("setting-practice");
   const showTime = byId<HTMLInputElement>("setting-show-time");
@@ -322,6 +331,8 @@ function setupSettings() {
     showTime.checked = settings.showTime;
     level.value = String(settings.level);
     theme.value = settings.theme;
+    language.value = settings.language;
+    setLanguage(resolveLanguage(settings.language));
     countAutoFill.checked = settings.countAutoFill;
   });
   level.addEventListener("change", () => {
@@ -339,6 +350,17 @@ function setupSettings() {
   countAutoFill.addEventListener("change", () => {
     settings.countAutoFill = countAutoFill.checked;
     saveSettings();
+  });
+  language.addEventListener("change", () => {
+    settings.language = language.value as LanguageSetting;
+    setLanguage(resolveLanguage(settings.language));
+    saveSettings();
+  });
+  // The texts that are not static change with the language
+  onLanguageChange(() => {
+    levelNames().forEach((name, i) => (level.options[i].text = name));
+    byId("page-title").textContent = t(TITLES[currentPage()]);
+    if (currentPage() === "history") renderHistory();
   });
   theme.addEventListener("change", () => {
     settings.theme = theme.value as Theme;

@@ -24,7 +24,7 @@ import {
 import { storageGet, storageSet, storageRemove } from "./storage.js";
 import { settings, loadSettings } from "./settings.js";
 import { currentPage } from "./pages.js";
-import { t } from "./i18n.js";
+import { t, onLanguageChange } from "./i18n.js";
 import { HistoryEntry, recordSolve, formatTime } from "./history.js";
 
 // Colors
@@ -235,6 +235,15 @@ function setLevelFun() {
     li.textContent = name;
     li.addEventListener("click", () => loadRandomSud(level));
     ulEl.appendChild(li);
+  });
+  // The texts that are not static change with the language
+  onLanguageChange(() => {
+    levelNames().forEach((name, level) => {
+      ulEl.children[level].textContent = name;
+    });
+    updateTimer();
+    updateOwnInputUi();
+    updateDigitCounts();
   });
 }
 

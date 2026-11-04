@@ -13,7 +13,7 @@ import {
   replaySudoku,
 } from "./html_util.js";
 import { setupPages, closeMenu } from "./pages.js";
-import { applyTranslations } from "./i18n.js";
+import { applyTranslations, setLanguage, systemLanguage } from "./i18n.js";
 
 // State Variables
 let initialized = false;
@@ -34,7 +34,9 @@ export function init() {
   } else {
     initialized = true;
   }
-  // The static texts of the page
+  // The static texts of the page, in the language of the system until the
+  // settings are loaded
+  setLanguage(systemLanguage());
   applyTranslations();
   // Clicking anywhere deselects the cell, except on dialogs and the buttons
   // that open them (cancelling must not lose the selection), the header

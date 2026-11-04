@@ -1,6 +1,7 @@
 // User settings, stored with the saved game (see storage.ts)
 import { storageGet, storageSet } from "./storage.js";
 import { MAX_LEVEL } from "./sudoku.js";
+import type { LanguageSetting } from "./i18n.js";
 
 export type Theme = "auto" | "light" | "dark";
 
@@ -8,6 +9,8 @@ export interface Settings {
   /** Level of the sudoku that is loaded when the app starts without a saved game */
   level: number;
   theme: Theme;
+  /** Language of the texts, "auto": the one of the system */
+  language: LanguageSetting;
   /** Solves with auto-filled pencil marks (the magic wand) count for the best times */
   countAutoFill: boolean;
   /**
@@ -24,6 +27,7 @@ const SETTINGS_KEY = "serious-sudoku:settings:v1";
 export const settings: Settings = {
   level: 2,
   theme: "auto",
+  language: "auto",
   countAutoFill: false,
   practiceMode: false,
   showTime: true,
@@ -67,6 +71,7 @@ async function readSettings() {
         settings.level = s.level;
       }
       if (["auto", "light", "dark"].includes(s.theme)) settings.theme = s.theme;
+      if (["auto", "en", "de"].includes(s.language)) settings.language = s.language;
       if (typeof s.countAutoFill === "boolean") settings.countAutoFill = s.countAutoFill;
       if (typeof s.practiceMode === "boolean") settings.practiceMode = s.practiceMode;
       if (typeof s.showTime === "boolean") settings.showTime = s.showTime;
