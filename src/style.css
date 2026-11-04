@@ -1,4 +1,7 @@
-/* Theme: colors are CSS variables so JS and dark mode share one palette. */
+/* Theme: all colors of the app are defined here, as CSS variables (the code
+   uses them by the names in src/colors.ts). The light theme is :root, the dark
+   theme comes twice below (system setting, and chosen in the settings): keep
+   them the same, test/colors.test.ts checks it. */
 :root {
     color-scheme: light dark;
     --bg: #fff;
@@ -10,7 +13,7 @@
     --danger: #f00;
     --hyp: #0c5;
     --wrong: #f22;
-    --selected-bg: #ffe066;
+    --selected-bg: #c6c6c6;
     --solved: #6e6e6e; /* digits filled in by the solver */
     --pencil: #838383;
     --small-dig-bg: #dfd;
@@ -18,6 +21,8 @@
     --same-bg: #fbb;
     --active-bg: rgba(10, 133, 255, 0.14);
     --overlay: rgba(0, 0, 0, 0.5);
+    --shadow: rgba(0, 0, 0, 0.35);
+    --thumb: #fff; /* knob of the switches */
 
     --page-width: 560px;
     --side: 8px; /* minimum margin at the sides of the game page */
@@ -49,7 +54,7 @@
         --danger: #ff5a5a;
         --hyp: #2fd47a;
         --wrong: #ff5a5a;
-        --selected-bg: #7a5f00;
+        --selected-bg: #50555f;
         --solved: #9a9ea8;
         --pencil: #7b7e87;
         --small-dig-bg: #1e3a28;
@@ -70,7 +75,7 @@
     --danger: #ff5a5a;
     --hyp: #2fd47a;
     --wrong: #ff5a5a;
-    --selected-bg: #7a5f00;
+    --selected-bg: #50555f;
     --solved: #9a9ea8;
     --pencil: #7b7e87;
     --small-dig-bg: #1e3a28;
@@ -121,7 +126,7 @@ dialog {
     color: var(--fg);
     border: 1px solid var(--grid-line-thin);
     border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 24px var(--shadow);
     padding: 0.8em 1.5em 1em;
     max-width: min(92vw, 520px);
     max-height: 90vh;
@@ -319,7 +324,7 @@ h1 {
     background: var(--bg);
     border: 1px solid var(--grid-line-thin);
     border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 24px var(--shadow);
     padding: 6px 0;
     text-align: left;
 }
@@ -394,7 +399,7 @@ h1 {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: #fff;
+    background: var(--thumb);
     transition: transform 0.15s;
 }
 
