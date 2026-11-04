@@ -10,7 +10,7 @@
     --danger: #f00;
     --hyp: #0c5;
     --wrong: #f22;
-    --selected-bg: #ddd;
+    --selected-bg: #ffe066;
     --solved: #6e6e6e; /* digits filled in by the solver */
     --pencil: #838383;
     --small-dig-bg: #dfd;
@@ -49,7 +49,7 @@
         --danger: #ff5a5a;
         --hyp: #2fd47a;
         --wrong: #ff5a5a;
-        --selected-bg: #3a3e47;
+        --selected-bg: #7a5f00;
         --solved: #9a9ea8;
         --pencil: #7b7e87;
         --small-dig-bg: #1e3a28;
@@ -70,7 +70,7 @@
     --danger: #ff5a5a;
     --hyp: #2fd47a;
     --wrong: #ff5a5a;
-    --selected-bg: #3a3e47;
+    --selected-bg: #7a5f00;
     --solved: #9a9ea8;
     --pencil: #7b7e87;
     --small-dig-bg: #1e3a28;
@@ -86,6 +86,9 @@ body {
     color: var(--fg);
     /* No pull-to-refresh / overscroll glow (the page is installable as an app) */
     overscroll-behavior: none;
+    /* No square highlight of the browser when tapping a button (the pressed
+       buttons have their own, rounded one, see :active) */
+    -webkit-tap-highlight-color: transparent;
 }
 
 body,
@@ -646,6 +649,12 @@ table {
 
 .digit.disabled {
     border-color: var(--disabled);
+}
+
+/* Pressed button: rounded like the button */
+.digit:active:not(.disabled),
+#buttons2 li:active:not(.disabled) {
+    background: var(--active-bg);
 }
 
 .topBorder {

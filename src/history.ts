@@ -73,20 +73,6 @@ function countedSolves(
   return counted.length > 0 ? counted : ofLevel.filter((e) => !e.practice);
 }
 
-/**
- * Whether the best and average time of a level only come from solves with
- * help (the only solves of the level, or the setting counts them and there is
- * nothing else)
- */
-export function onlyHelpedSolves(
-  entries: HistoryEntry[],
-  level: number,
-  countAutoFill = true
-): boolean {
-  const pool = countedSolves(entries, level, countAutoFill);
-  return pool.length > 0 && pool.every(usedHelp);
-}
-
 /** The solve with the best time of a level, among the solves that count (null if there is none) */
 export function bestEntry(
   entries: HistoryEntry[],

@@ -4,7 +4,6 @@ import {
   bestTime,
   solveStats,
   isCounted,
-  onlyHelpedSolves,
   usedHelp,
   recordSolve,
 } from "../src/history";
@@ -93,21 +92,6 @@ test("record solve: wand solves count as long as the level was never solved with
   expect(bestTime([entry(9, 80, true), entry(9, 200)], 9, false)).toBe(200);
 });
 
-test("the best time only comes from wand solves when that is all there is", () => {
-  const wand = entry(1, 90, true);
-  const clean = entry(1, 120);
-  // the only solves of the level are with the wand
-  expect(onlyHelpedSolves([wand], 1, false)).toBe(true);
-  expect(onlyHelpedSolves([wand, entry(1, 80, true)], 1, true)).toBe(true);
-  // a solve without help: the best time is not from the wand
-  expect(onlyHelpedSolves([wand, clean], 1, false)).toBe(false);
-  // with the setting on, the wand solves count, a clean one next to them too
-  expect(onlyHelpedSolves([wand, clean], 1, true)).toBe(false);
-  // no solve (or only practice) of the level
-  expect(onlyHelpedSolves([wand], 2, false)).toBe(false);
-  expect(onlyHelpedSolves([entry(1, 50, true, true)], 1, false)).toBe(false);
-});
-
 test("best entry and the numbers of solves of a level", () => {
   const a = { ...entry(4, 300), date: "2026-01-01T00:00:00.000Z" };
   const b = { ...entry(4, 200), date: "2026-02-01T00:00:00.000Z" };
@@ -143,6 +127,5 @@ test("finding the mistakes counts as help like the filled-in pencil marks", () =
   expect(bestEntry([clean, found], 1, false)).toBe(clean);
   expect(bestEntry([clean, found], 1, true)).toBe(found);
   // the only solve of the level: counts anyway, with its help shown
-  expect(onlyHelpedSolves([found], 1, false)).toBe(true);
   expect(solveStats([clean, found], 1).assisted.count).toBe(1);
 });

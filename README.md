@@ -132,7 +132,7 @@ of the solutions, "Solve" fills in one of them). Custom sudokus are not recorded
 
 ## Saved game
 
-The current game (digits, pencil marks and hypotheses) is stored in the
+The current game (digits, pencil marks and guesses) is stored in the
 browser's `localStorage` (in the Android app additionally in the native
 Preferences, see `src/storage.ts`: the WebView writes `localStorage` to disk
 lazily, so a game could be lost when the app was swiped away right after a
@@ -148,7 +148,7 @@ not saved.
 | Arrow keys | Move the selected cell (starts at the top left) |
 | `1`-`9` | Enter the digit (or toggle the pencil mark in pencil mode) |
 | `Delete` / `Backspace` / `0` | Clear the selected cell |
-| `Ctrl`/`Cmd` + `Z` | Undo (digits, pencil marks, autofill, hypothesis rejection) |
+| `Ctrl`/`Cmd` + `Z` | Undo (digits, pencil marks, autofill, rejected guesses) |
 
 ## Development
 
