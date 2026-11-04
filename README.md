@@ -13,7 +13,6 @@ solve times (light mode shown, the dark mode is available in the settings):
 
 ![Screenshots of the help, settings and history pages](docs/screenshot-pages.png)
 
-More instructions can be found in a blog post [here.](https://chbauman.github.io/info/2020/03/25/sudoku-ts/)
 Can you solve the one below? It was [devised by Arto Inkala, a Finnish mathematician,
 and is specifically designed to be unsolvable to all but the sharpest minds.](https://www.telegraph.co.uk/news/science/science-news/9359579/Worlds-hardest-sudoku-can-you-crack-it.html)
 
