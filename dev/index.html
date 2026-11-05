@@ -1,7 +1,37 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Serious Sudoku (dev)</title>
+    <title>Serious Sudoku (dev) – free sudoku game for hard puzzles</title>
+    <meta name="description" content="Serious Sudoku (dev) is a free sudoku game for hard puzzles, with pencil marks, guessing and backtracking. No ads, works offline in the browser and on Android." />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Serious Sudoku (dev)" />
+    <meta property="og:title" content="Serious Sudoku (dev) – free sudoku game for hard puzzles" />
+    <meta property="og:description" content="Serious Sudoku (dev) is a free sudoku game for hard puzzles, with pencil marks, guessing and backtracking. No ads, works offline in the browser and on Android." />
+    <meta property="og:url" content="https://chrisbaumann.ch/serious-sudoku/" />
+    <meta property="og:image" content="https://chrisbaumann.ch/serious-sudoku/assets/social-card.png" />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="500" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Serious Sudoku (dev)",
+        "url": "https://chrisbaumann.ch/serious-sudoku/",
+        "description": "Serious Sudoku (dev) is a free sudoku game for hard puzzles, with pencil marks, guessing and backtracking. No ads, works offline in the browser and on Android.",
+        "applicationCategory": "GameApplication",
+        "genre": "Puzzle",
+        "operatingSystem": "Any (web browser), Android",
+        "browserRequirements": "Requires JavaScript",
+        "inLanguage": ["en", "de"],
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CHF" },
+        "image": "https://chrisbaumann.ch/serious-sudoku/assets/social-card.png",
+        "author": { "@type": "Person", "name": "Chris Baumann", "url": "https://chrisbaumann.ch/" },
+        "codeRepository": "https://github.com/chbauman/serious-sudoku"
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
 
@@ -61,15 +91,15 @@
         <button id="back-btn" class="icon-btn" data-i18n-label="nav.back" hidden>
           <svg class="icon" aria-hidden="true"><use href="#i-arrow-back-outline" /></svg>
         </button>
-        <h1 id="page-title" data-i18n="app.name"></h1>
+        <h1 id="page-title" data-i18n="app.name">Serious Sudoku (dev)</h1>
         <button id="menu-btn" class="icon-btn" data-i18n-label="nav.menu" aria-haspopup="true" aria-expanded="false">
           <svg class="icon" aria-hidden="true"><use href="#i-menu-outline" /></svg>
         </button>
         <nav id="menu" hidden>
-          <a href="#help"><svg class="icon" aria-hidden="true"><use href="#i-help-circle-outline" /></svg><span data-i18n="menu.help"></span></a>
-          <a href="#settings"><svg class="icon" aria-hidden="true"><use href="#i-settings-outline" /></svg><span data-i18n="menu.settings"></span></a>
-          <a href="#history"><svg class="icon" aria-hidden="true"><use href="#i-time-outline" /></svg><span data-i18n="menu.history"></span></a>
-          <a href="#about"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg><span data-i18n="menu.about"></span></a>
+          <a href="#help"><svg class="icon" aria-hidden="true"><use href="#i-help-circle-outline" /></svg><span data-i18n="menu.help">Help</span></a>
+          <a href="#settings"><svg class="icon" aria-hidden="true"><use href="#i-settings-outline" /></svg><span data-i18n="menu.settings">Settings</span></a>
+          <a href="#history"><svg class="icon" aria-hidden="true"><use href="#i-time-outline" /></svg><span data-i18n="menu.history">History</span></a>
+          <a href="#about"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg><span data-i18n="menu.about">About</span></a>
         </nav>
       </header>
 
@@ -123,150 +153,150 @@
       </main>
 
       <section id="help" data-page="help" hidden>
-        <p data-i18n="help.how.h"></p>
-        <p class="help-text" data-i18n="help.how.1"></p>
-        <p class="help-text" data-i18n="help.how.2"></p>
+        <p data-i18n="help.how.h">How to play</p>
+        <p class="help-text" data-i18n="help.how.1">Tap a cell, then tap a digit to set it. Digits that conflict with the row, column or block are greyed out. Given digits are black, digits you set are blue.</p>
+        <p class="help-text" data-i18n="help.how.2">Tapping a cell that contains a digit highlights its row, column and block in light red, the same digit elsewhere in red, and the empty cells that still have this digit as a pencil mark in green.</p>
 
-        <p data-i18n="help.pad.h"></p>
+        <p data-i18n="help.pad.h">Number pad</p>
         <ul>
           <li><svg class="icon" aria-hidden="true"><use href="#i-eraser-outline" /></svg></li>
-          <li class="help" data-i18n="help.pad.clear"></li>
+          <li class="help" data-i18n="help.pad.clear">Clear the selected cell (digit and pencil marks).</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-pencil-outline" /></svg></li>
-          <li class="help" data-i18n="help.pad.pencil"></li>
+          <li class="help" data-i18n="help.pad.pencil">Pencil mode: digits toggle small pencil marks instead of setting the cell. Marks that become impossible are removed automatically.</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-arrow-undo-outline" /></svg></li>
-          <li class="help" data-i18n="help.pad.undo"></li>
+          <li class="help" data-i18n="help.pad.undo">Undo the last action.</li>
         </ul>
 
-        <p data-i18n="help.buttons.h"></p>
+        <p data-i18n="help.buttons.h">Buttons below the sudoku</p>
         <ul>
           <li><svg class="icon" aria-hidden="true"><use href="#i-add-circle-outline" /></svg></li>
-          <li class="help" data-i18n="help.buttons.new"></li>
+          <li class="help" data-i18n="help.buttons.new">Start a new sudoku and choose its level, from the easiest to the hardest.</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-git-branch-outline" /></svg></li>
-          <li class="help" data-i18n="help.buttons.hyp"></li>
+          <li class="help" data-i18n="help.buttons.hyp">Guess a digit, see below.</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-close-circle-outline" /></svg></li>
-          <li class="help" data-i18n="help.buttons.reject"></li>
+          <li class="help" data-i18n="help.buttons.reject">Reject the last guess, see below.</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-ellipsis-circle-outline" /></svg></li>
-          <li class="help" data-i18n="help.buttons.tools"></li>
+          <li class="help" data-i18n="help.buttons.tools">Open the tools, see below.</li>
         </ul>
 
-        <p data-i18n="help.tools.h"></p>
+        <p data-i18n="help.tools.h">Tools</p>
         <ul>
           <li><svg class="icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg></li>
-          <li class="help" data-i18n="help.tools.fill"></li>
+          <li class="help" data-i18n="help.tools.fill">Fill in pencil marks: All digits that are still possible are added to every empty cell. Counts as help used.</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-refresh-outline" /></svg></li>
-          <li class="help" data-i18n="help.tools.restart"></li>
+          <li class="help" data-i18n="help.tools.restart">Restart: The current sudoku is started again, all progress is lost.</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-search-outline" /></svg></li>
-          <li class="help" data-i18n="help.tools.check"></li>
+          <li class="help" data-i18n="help.tools.check">Find mistakes: Digits that differ from the solution are marked in red. Counts as help used.</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-help-circle-outline" /></svg></li>
-          <li class="help" data-i18n="help.tools.solve"></li>
+          <li class="help" data-i18n="help.tools.solve">Solve: The solution is filled in. It is not recorded in the history.</li>
           <li><svg class="icon" aria-hidden="true"><use href="#i-create-outline" /></svg></li>
-          <li class="help" data-i18n="help.tools.own"></li>
+          <li class="help" data-i18n="help.tools.own">Input own sudoku: The grid is emptied, then set the digits you want and tap the check mark below the sudoku (or choose “Finish input” in the tools). Custom sudokus are not recorded in the history.</li>
         </ul>
 
-        <p data-i18n="help.guess.h"></p>
-        <p class="help-text" data-i18n="help.guess"></p>
+        <p data-i18n="help.guess.h">Guessing</p>
+        <p class="help-text" data-i18n="help.guess">For difficult sudokus you sometimes get stuck and have to guess. Tap the branch button and then a digit: the digit is a guess and shown in green. All digits set so far are fixed (black) and assumed to be correct, this is a save point. If the guess leads to a contradiction, everything done since the last guess is reverted with the cross button. You can make another guess inside a guess.</p>
 
-        <p data-i18n="help.time.h"></p>
-        <p class="help-text" data-i18n="help.time"></p>
+        <p data-i18n="help.time.h">Time and history</p>
+        <p class="help-text" data-i18n="help.time">When you finish a sudoku, it is recorded in the history (menu). The current game is saved on your device, so you can close the app and continue later. The timer can be hidden in the settings (menu).</p>
 
         <div id="keyboard-help" hidden>
-          <p data-i18n="help.keys.h"></p>
+          <p data-i18n="help.keys.h">Keyboard shortcuts</p>
           <dl class="shortcuts">
             <dt><kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd></dt>
-            <dd data-i18n="help.keys.move"></dd>
+            <dd data-i18n="help.keys.move">Move the selected cell</dd>
             <dt><kbd>1</kbd> – <kbd>9</kbd></dt>
-            <dd data-i18n="help.keys.digit"></dd>
-            <dt><kbd data-i18n="key.del"></kbd> <kbd data-i18n="key.backspace"></kbd> <kbd>0</kbd></dt>
-            <dd data-i18n="help.keys.clear"></dd>
-            <dt><kbd data-i18n="key.ctrl"></kbd> + <kbd>Z</kbd></dt>
-            <dd data-i18n="help.keys.undo"></dd>
+            <dd data-i18n="help.keys.digit">Enter a digit (pencil mark in pencil mode)</dd>
+            <dt><kbd data-i18n="key.del">Del</kbd> <kbd data-i18n="key.backspace">Backspace</kbd> <kbd>0</kbd></dt>
+            <dd data-i18n="help.keys.clear">Clear the selected cell</dd>
+            <dt><kbd data-i18n="key.ctrl">Ctrl</kbd> + <kbd>Z</kbd></dt>
+            <dd data-i18n="help.keys.undo">Undo</dd>
           </dl>
         </div>
       </section>
 
       <section id="about" data-page="about" hidden>
-        <p data-i18n="app.name"></p>
-        <p class="help-text" data-i18n="about.desc"></p>
+        <p data-i18n="app.name">Serious Sudoku (dev)</p>
+        <p class="help-text" data-i18n="about.desc">A sudoku game focusing on hard puzzles, with guessing and backtracking. Free, without ads, and it works offline.</p>
 
-        <p data-i18n="about.open.h"></p>
-        <p class="help-text" data-i18n="about.open"></p>
+        <p data-i18n="about.open.h">Open source</p>
+        <p class="help-text" data-i18n="about.open">The <a href="https://github.com/chbauman/serious-sudoku" target="_blank" rel="noopener">sources are on GitHub</a>. Based on <a href="https://github.com/baruchel/sudoku-js" target="_blank" rel="noopener">sudoku-js</a> by Thomas Baruchel. Icons from <a href="https://ionicons.com/" target="_blank" rel="noopener">Ionicons</a>.</p>
 
-        <p data-i18n="about.version.h"></p>
-        <p class="help-text">1.1.0 (build 0098817c82, test build)</p>
+        <p data-i18n="about.version.h">Version</p>
+        <p class="help-text">1.1.0 (build 1972d2e065, test build)</p>
 
-        <p data-i18n="about.author.h"></p>
-        <p class="help-text" data-i18n="about.author"></p>
+        <p data-i18n="about.author.h">Author</p>
+        <p class="help-text" data-i18n="about.author">Made by <a href="https://chrisbaumann.ch/" target="_blank" rel="noopener">chrisbaumann.ch</a>.</p>
 
-        <p data-i18n="about.privacy.h"></p>
-        <p class="help-text" data-i18n="about.privacy"></p>
+        <p data-i18n="about.privacy.h">Privacy</p>
+        <p class="help-text" data-i18n="about.privacy">The app does not collect any data, your game, settings and solve times stay on your device. Read the <a href="https://chrisbaumann.ch/serious-sudoku/privacy.html" target="_blank" rel="noopener">privacy policy</a>.</p>
       </section>
 
       <section id="history" data-page="history" hidden>
-        <p id="history-empty" data-i18n="history.empty"></p>
+        <p id="history-empty" data-i18n="history.empty">No solved sudokus yet.</p>
         <div id="history-content" hidden>
-          <p data-i18n="history.best.h"></p>
+          <p data-i18n="history.best.h">Best solves</p>
           <table class="stats" id="history-levels"></table>
-          <p data-i18n="history.recent.h"></p>
+          <p data-i18n="history.recent.h">Recent</p>
           <table class="stats" id="history-recent"></table>
           <p id="history-note" hidden>
-            <svg class="icon inline-icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg> <span data-i18n="history.note.wand"></span></p>
+            <svg class="icon inline-icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg> <span data-i18n="history.note.wand">Help used: pencil marks filled in.</span></p>
           <p id="history-note-mistakes" hidden>
-            <svg class="icon inline-icon" aria-hidden="true"><use href="#i-search-outline" /></svg> <span data-i18n="history.note.mistakes"></span></p>
+            <svg class="icon inline-icon" aria-hidden="true"><use href="#i-search-outline" /></svg> <span data-i18n="history.note.mistakes">Help used: mistakes found.</span></p>
           <p id="history-note-practice" hidden>
-            <svg class="icon inline-icon" aria-hidden="true"><use href="#i-practice-outline" /></svg> <span data-i18n="history.note.practice"></span></p>
+            <svg class="icon inline-icon" aria-hidden="true"><use href="#i-practice-outline" /></svg> <span data-i18n="history.note.practice">Solved in practice mode, without a time.</span></p>
         </div>
       </section>
 
       <section id="settings" data-page="settings" hidden>
         <label class="setting">
-          <span data-i18n="settings.level"></span>
+          <span data-i18n="settings.level">Default level</span>
           <select id="setting-level"></select>
         </label>
         <label class="setting">
-          <span data-i18n="settings.language"></span>
+          <span data-i18n="settings.language">Language</span>
           <select id="setting-language">
-            <option value="auto" data-i18n="settings.language.auto"></option>
+            <option value="auto" data-i18n="settings.language.auto">System</option>
             <option value="en">English</option>
             <option value="de">Deutsch</option>
           </select>
         </label>
         <label class="setting">
-          <span data-i18n="settings.theme"></span>
+          <span data-i18n="settings.theme">Appearance</span>
           <select id="setting-theme">
-            <option value="auto" data-i18n="settings.theme.auto"></option>
-            <option value="light" data-i18n="settings.theme.light"></option>
-            <option value="dark" data-i18n="settings.theme.dark"></option>
+            <option value="auto" data-i18n="settings.theme.auto">System</option>
+            <option value="light" data-i18n="settings.theme.light">Light</option>
+            <option value="dark" data-i18n="settings.theme.dark">Dark</option>
           </select>
         </label>
         <label class="setting" for="setting-practice">
-          <span class="setting-name"><span data-i18n="settings.practice"></span> <button type="button" class="info-btn" data-info="practice"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg></button></span>
+          <span class="setting-name"><span data-i18n="settings.practice">Practice mode</span> <button type="button" class="info-btn" data-info="practice"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg></button></span>
           <input type="checkbox" role="switch" id="setting-practice" />
         </label>
         <label class="setting" for="setting-show-time">
-          <span class="setting-name"><span data-i18n="settings.show-time"></span> <button type="button" class="info-btn" data-info="show-time"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg></button></span>
+          <span class="setting-name"><span data-i18n="settings.show-time">Show time</span> <button type="button" class="info-btn" data-info="show-time"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg></button></span>
           <input type="checkbox" role="switch" id="setting-show-time" />
         </label>
         <label class="setting" for="setting-count-autofill">
-          <span class="setting-name"><span data-i18n="settings.count-wand"></span> <button type="button" class="info-btn" data-info="count-wand"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg></button></span>
+          <span class="setting-name"><span data-i18n="settings.count-wand">Count solves using help</span> <button type="button" class="info-btn" data-info="count-wand"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg></button></span>
           <input type="checkbox" role="switch" id="setting-count-autofill" />
         </label>
       </section>
 
       <dialog id="waiting" data-persistent>
-        <p data-i18n="waiting"></p>
+        <p data-i18n="waiting">generating a new grid…</p>
       </dialog>
 
       <dialog id="newGrid">
-        <h2 data-i18n="newgrid.h"></h2>
+        <h2 data-i18n="newgrid.h">Select level:</h2>
         <ul id="lvl_list"></ul>
         <button class="dialog-x" data-close data-i18n-label="close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
       </dialog>
 
       <dialog id="restart">
-        <h2 data-i18n="restart.h"></h2>
-        <p class="dialog-text" data-i18n="restart.text"></p>
+        <h2 data-i18n="restart.h">Restart game?</h2>
+        <p class="dialog-text" data-i18n="restart.text">Current progress will be lost.</p>
         <ul>
-          <li id="restart_but" data-i18n="yes"></li>
+          <li id="restart_but" data-i18n="yes">yes</li>
         </ul>
         <button class="dialog-x" data-close data-i18n-label="close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
       </dialog>
@@ -275,7 +305,7 @@
         <h2 id="confirm-title"></h2>
         <p id="confirm-desc"></p>
         <ul>
-          <li id="confirm-yes" data-i18n="yes"></li>
+          <li id="confirm-yes" data-i18n="yes">yes</li>
         </ul>
         <button class="dialog-x" data-close data-i18n-label="close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
       </dialog>
@@ -299,18 +329,18 @@
       </dialog>
 
       <dialog id="tools">
-        <h2 data-i18n="tools.h"></h2>
-        <button id="auto-fill-button" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg><span data-i18n="tools.fill"></span></button>
-        <button id="tools-restart" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-refresh-outline" /></svg><span data-i18n="tools.restart"></span></button>
-        <button id="check" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-search-outline" /></svg><span data-i18n="tools.check"></span></button>
-        <button id="solve" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-help-circle-outline" /></svg><span data-i18n="tools.solve"></span></button>
-        <button id="own_sud" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-create-outline" /></svg><span id="own-sud-text" data-i18n="tools.own"></span></button>
+        <h2 data-i18n="tools.h">Tools</h2>
+        <button id="auto-fill-button" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-color-wand-outline" /></svg><span data-i18n="tools.fill">Fill in pencil marks</span></button>
+        <button id="tools-restart" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-refresh-outline" /></svg><span data-i18n="tools.restart">Restart</span></button>
+        <button id="check" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-search-outline" /></svg><span data-i18n="tools.check">Find mistakes</span></button>
+        <button id="solve" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-help-circle-outline" /></svg><span data-i18n="tools.solve">Solve</span></button>
+        <button id="own_sud" class="tool-item"><svg class="icon" aria-hidden="true"><use href="#i-create-outline" /></svg><span id="own-sud-text" data-i18n="tools.own">Input own sudoku</span></button>
         <button class="dialog-x" data-close data-i18n-label="close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
       </dialog>
 
       <dialog id="win">
         <svg class="win-icon" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="192" fill="none" stroke="currentColor" stroke-width="32"/><polyline points="176 262 232 318 340 200" fill="none" stroke="currentColor" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <h2 id="solved-h" data-i18n="win.h"></h2>
+        <h2 id="solved-h" data-i18n="win.h">Solved!</h2>
         <p id="solved-text"></p>
         <p id="log-txt"></p>
         <button class="dialog-x" data-close data-i18n-label="close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>

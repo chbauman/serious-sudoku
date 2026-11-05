@@ -1,5 +1,6 @@
 import { storageGet, storageSet } from "./storage.js";
 import { MAX_LEVEL } from "./sudoku.js";
+import { THEME_BG } from "./colors.js";
 const SETTINGS_KEY = "serious-sudoku-dev:settings:v1";
 export const settings = {
     level: 2,
@@ -9,7 +10,6 @@ export const settings = {
     practiceMode: false,
     showTime: true,
 };
-const THEME_COLORS = { light: "#ffffff", dark: "#16181d" };
 export function applyTheme(theme) {
     const root = document.documentElement;
     if (theme === "auto")
@@ -20,8 +20,8 @@ export function applyTheme(theme) {
     metas.forEach((meta) => {
         const dark = meta.media.includes("dark");
         const color = theme === "auto"
-            ? THEME_COLORS[dark ? "dark" : "light"]
-            : THEME_COLORS[theme];
+            ? THEME_BG[dark ? "dark" : "light"]
+            : THEME_BG[theme];
         meta.content = color;
     });
 }

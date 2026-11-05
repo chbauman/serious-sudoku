@@ -58,7 +58,11 @@ export function applyTranslations(root = document) {
         el.title = text;
         el.setAttribute("aria-label", text);
     });
-    if (root === document)
-        document.title = t("app.name");
+    if (root === document) {
+        document.title = t("app.title");
+        document
+            .querySelector('meta[name="description"]')
+            ?.setAttribute("content", t("app.description"));
+    }
 }
 //# sourceMappingURL=i18n.js.map
