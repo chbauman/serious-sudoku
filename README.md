@@ -187,6 +187,19 @@ service worker caches (`dev-sudoku-...`) and the name "Serious Sudoku (dev)".
 The deployment of `main` keeps the `dev/` folder, and the two workflows wait for
 each other (they push to the same `gh-pages` branch).
 
+### Search engines
+
+`src/index.html` has what search engines need: title and description (also in
+German, set by the script), canonical address, Open Graph / Twitter card
+(`assets/social-card.png`), structured data (`WebApplication`) and the English
+texts of all pages in the HTML itself (filled in by `scripts/assemble-site.mjs`,
+so they are there before the script runs). `src/sitemap.xml` lists the page and
+the privacy policy. The test build in `dev/` is marked `noindex` and has no
+sitemap. A `robots.txt` has to be at the root of the domain
+(`https://chrisbaumann.ch/robots.txt`), a `Sitemap:` line there can point to
+<https://chrisbaumann.ch/serious-sudoku/sitemap.xml>; it can also be submitted in
+the Google Search Console.
+
 ## Installable / offline (PWA)
 
 The deployed page is an installable web app (`src/manifest.webmanifest`) and
