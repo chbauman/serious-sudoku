@@ -21,7 +21,7 @@ Guesses can be nested, so you can do a depth-first search by hand.
 Features
 - Seven levels from Beginner to Grandmaster, with thousands of sudokus
 - Pencil marks, filled in automatically on request and removed when they become impossible
-- Hypotheses: guess a digit, continue, and reject the guess with one tap
+- Guessing: guess a digit, continue, and reject the guess with one tap
 - Undo
 - Highlighting of the row, column, block and equal digits of the selected cell
 - Enter your own sudoku

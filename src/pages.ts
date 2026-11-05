@@ -5,7 +5,6 @@
 import {
   loadHistory,
   bestEntry,
-  onlyHelpedSolves,
   usedHelp,
   solveStats,
   formatTime,
@@ -220,11 +219,10 @@ async function renderHistory() {
     levels
       .map((level) => {
         const best = bestEntry(entries, level, count);
-        // With only solves with help the best time gets the icons of its help
-        const helpOnly = onlyHelpedSolves(entries, level, count);
+        // The best time shows the help that was used for it, whatever the settings
         return row([
           levelName(level),
-          best === null ? "-" : (helpOnly ? helpIcons(best) : "") + formatTime(best.seconds),
+          best === null ? "-" : helpIcons(best) + formatTime(best.seconds),
           best === null ? "-" : shortDate(best.date),
           moreButton(
             `data-level="${level}"`,

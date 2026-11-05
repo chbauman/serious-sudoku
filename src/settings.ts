@@ -2,6 +2,7 @@
 import { storageGet, storageSet } from "./storage.js";
 import { MAX_LEVEL } from "./sudoku.js";
 import type { LanguageSetting } from "./i18n.js";
+import { THEME_BG } from "./colors.js";
 
 export type Theme = "auto" | "light" | "dark";
 
@@ -34,7 +35,6 @@ export const settings: Settings = {
 };
 
 // theme-color of the browser / app UI, matching the page background
-const THEME_COLORS = { light: "#ffffff", dark: "#16181d" };
 
 /** Applies the theme: "auto" follows the system, the others force a theme. */
 export function applyTheme(theme: Theme) {
@@ -49,8 +49,8 @@ export function applyTheme(theme: Theme) {
     const dark = meta.media.includes("dark");
     const color =
       theme === "auto"
-        ? THEME_COLORS[dark ? "dark" : "light"]
-        : THEME_COLORS[theme];
+        ? THEME_BG[dark ? "dark" : "light"]
+        : THEME_BG[theme];
     meta.content = color;
   });
 }
