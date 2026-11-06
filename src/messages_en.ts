@@ -3,6 +3,8 @@
 
 export const en = {
   "app.name": "Serious Sudoku",
+  "app.title": "Serious Sudoku – free sudoku game for hard puzzles",
+  "app.description": "Serious Sudoku is a free sudoku game for hard puzzles, with pencil marks, guessing and backtracking. No ads, works offline in the browser and on Android.",
 
   "nav.back": "Back",
   "nav.menu": "Menu",
