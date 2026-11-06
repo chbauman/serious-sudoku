@@ -1,5 +1,7 @@
 export const de = {
     "app.name": "Serious Sudoku",
+    "app.title": "Serious Sudoku – kostenloses Sudoku für schwierige Rätsel",
+    "app.description": "Serious Sudoku ist ein kostenloses Sudoku-Spiel für schwierige Rätsel, mit Notizen, Raten und Zurückgehen. Ohne Werbung, offline im Browser und auf Android.",
     "nav.back": "Zurück",
     "nav.menu": "Menü",
     "menu.help": "Hilfe",
