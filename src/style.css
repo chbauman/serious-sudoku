@@ -23,6 +23,7 @@
     --overlay: rgba(0, 0, 0, 0.5);
     --shadow: rgba(0, 0, 0, 0.35);
     --thumb: #fff; /* knob of the switches */
+    --on-accent: #fff; /* on the accent color (trophies) */
 
     --page-width: 560px;
     --side: 8px; /* minimum margin at the sides of the game page */
@@ -442,11 +443,13 @@ h1 {
 #help,
 #history,
 #settings,
-#about {
+#about,
+#achievements {
     text-align: left;
 }
 
 #history > p,
+#achievements > p,
 #history-content > p {
     font-weight: bold;
     font-size: 16px;
@@ -830,7 +833,8 @@ li {
 }
 
 #help > p.help-text,
-#about > p.help-text {
+#about > p.help-text,
+#achievements > p.help-text {
     font-weight: normal;
     font-size: 15px;
     line-height: 1.45;
@@ -921,4 +925,62 @@ kbd {
     font-size: 18px;
     font-variant-numeric: tabular-nums;
     color: var(--disabled);
+}
+
+/* Achievements: the trophy in a circle and the name, a button for the details */
+.ach-list {
+    margin: 0 0 8px;
+}
+
+.ach {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 4px;
+    border: none;
+    border-bottom: 1px solid var(--grid-line-thin);
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-size: 17px;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* No line under the last one (at the bottom of the dialog or before a heading) */
+.ach:last-child {
+    border-bottom: none;
+}
+
+.ach-icon {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ach-icon .icon {
+    margin: 0;
+}
+
+.ach.open {
+    color: var(--pencil);
+}
+
+.ach.open .ach-icon {
+    background: var(--disabled);
+}
+
+.ach-date,
+.ach-empty {
+    font-size: 14px;
+    color: var(--pencil);
 }

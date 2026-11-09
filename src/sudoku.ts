@@ -127,6 +127,36 @@ function readSudokuFromFile(
 }
 
 // The grid as a string of its 81 digits, row by row (0 = empty)
+/**
+ * Whether the whole board is filled in except for one 3x3 square in which the
+ * player has set nothing yet (only the given digits are there) and that has at
+ * least `minEmpty` empty cells.
+ * @param T The board
+ * @param Tinit The given digits of the sudoku
+ */
+function squareLeftEmpty(T: number[][], Tinit: number[][], minEmpty = 5): boolean {
+  for (let b = 0; b < 9; b++) {
+    const y0 = 3 * Math.floor(b / 3);
+    const x0 = 3 * (b % 3);
+    let empty = 0;
+    let untouched = true;
+    let restDone = true;
+    for (let y = 0; y < 9 && untouched && restDone; y++) {
+      for (let x = 0; x < 9; x++) {
+        const inside = y >= y0 && y < y0 + 3 && x >= x0 && x < x0 + 3;
+        if (inside) {
+          if (T[y][x] === 0) empty++;
+          else if (Tinit[y][x] === 0) untouched = false; // a digit of the player
+        } else if (T[y][x] === 0) {
+          restDone = false;
+        }
+      }
+    }
+    if (untouched && restDone && empty >= minEmpty) return true;
+  }
+  return false;
+}
+
 function gridToString(g: number[][]): string {
   return g.map((r) => r.join("")).join("");
 }
@@ -289,6 +319,7 @@ export {
   MAX_LEVEL,
   levelName,
   levelNames,
+  squareLeftEmpty,
   congratulation,
   T,
   Tsol,
