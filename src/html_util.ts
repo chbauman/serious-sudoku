@@ -26,6 +26,7 @@ import { settings, loadSettings } from "./settings.js";
 import { currentPage } from "./pages.js";
 import { t, onLanguageChange } from "./i18n.js";
 import { color } from "./colors.js";
+import { awardAchievements, Achievement } from "./achievements.js";
 import { HistoryEntry, recordSolve, formatTime } from "./history.js";
 
 // State variables
@@ -45,6 +46,15 @@ let puzzleStr: string | null = null;
 let autoFillUsed = false;
 // "Find mistakes" was used in this game
 let mistakesUsed = false;
+// Facts of this game for the achievements (see achievements.ts)
+let pencilUsed = false; // a pencil mark was set (or all were filled in)
+let guessDepth = 0; // deepest nesting of guesses
+let digitLast = false; // only the cells of one digit (at least 4) were left at some point
+const resetGameFacts = () => {
+  pencilUsed = false;
+  guessDepth = 0;
+  digitLast = false;
+};
 let timing = false;
 let elapsedMs = 0;
 // The solved dialog was shown for this sudoku (it is shown once, also when a
@@ -394,6 +404,7 @@ function setButtons() {
     closeDialog("tools");
     confirmAction(t("confirm.fill.title"), t("confirm.fill.text"), () => {
       autoFillUsed = true;
+      pencilUsed = true;
       withUndo(fillSmallDigits);
     });
   });
@@ -645,12 +656,26 @@ function check(solution: number[][] | null = null) {
   saveGame();
 }
 
+// Lists the achievements that a solve unlocked in the dialog of the solved sudoku
+function showAchievements(unlocked: Achievement[]) {
+  const el = getAssertedButton("win-achievements");
+  el.hidden = unlocked.length === 0;
+  el.innerHTML = unlocked
+    .map(
+      (a) =>
+        '<svg class="icon inline-icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg> ' +
+        t("ach.unlocked", { title: a.title() })
+    )
+    .join("<br>");
+}
+
 // Records the solve (not for custom sudokus and when the solver was used) and
 // shows the time in the win dialog; a solve in practice mode is recorded
 // without time (practice icon in the history)
 function showSolveTime() {
   const text = getAssertedButton("log-txt");
   text.textContent = "";
+  showAchievements([]);
   if (!timing || puzzleId === null || sudLvl < 0) return;
   timing = false;
   updateTimer();
@@ -667,7 +692,20 @@ function showSolveTime() {
     seconds,
     date: new Date().toISOString(),
   };
-  recordSolve(entry, settings.countAutoFill).then(
+  // The achievements first: the solve is not in the history yet when the ones
+  // for the solves of the history are given the first time
+  awardAchievements({
+    level: sudLvl,
+    seconds,
+    practice,
+    helped,
+    pencil: pencilUsed,
+    guessDepth,
+    digitLast,
+  })
+    .then(showAchievements)
+    .then(() => recordSolve(entry, settings.countAutoFill))
+    .then(
     ({ previousBest, isBest, counted }) => {
       if (practice) {
         // In the history with a practice icon instead of the time
@@ -844,6 +882,9 @@ interface SavedGame extends Snapshot {
   puzzle?: string | null;
   autoFill?: boolean;
   mistakes?: boolean;
+  pencil?: boolean;
+  guessDepth?: number;
+  digitLast?: boolean;
   elapsed: number;
   winShown?: boolean;
 }
@@ -866,6 +907,9 @@ function saveGame() {
       puzzle: puzzleStr,
       autoFill: autoFillUsed,
       mistakes: mistakesUsed,
+      pencil: pencilUsed,
+      guessDepth,
+      digitLast,
       elapsed: elapsedMs,
       winShown,
     };
@@ -911,6 +955,9 @@ async function loadGame(): Promise<boolean> {
     puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
     autoFillUsed = g.autoFill === true;
     mistakesUsed = g.mistakes === true;
+    pencilUsed = g.pencil === true;
+    guessDepth = Number.isInteger(g.guessDepth) ? (g.guessDepth as number) : 0;
+    digitLast = g.digitLast === true;
     elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
     winShown = g.winShown === true;
     timing = puzzleId !== null && sudLvl >= 0;
@@ -1012,6 +1059,7 @@ function clickCell(cell: HTMLTableCellElement) {
                 Tref[y][x].style.color = color.accent;
               }
             }
+            if (!large && v != 0) pencilUsed = true;
             setCell(y, x, v, large, true, true);
             if (v == 0) {
               clickCell(Tref[y][x]); // Depth one recursion
@@ -1034,6 +1082,7 @@ function clickCell(cell: HTMLTableCellElement) {
             const tSubBinaryTablesCopy = deepCopy3D(TsubBinaryTables);
             const hypTuple = [[y, x], tCopy, tSubBinaryTablesCopy];
             hyps.push(hypTuple);
+            guessDepth = Math.max(guessDepth, hyps.length);
             setClickableTrefT();
             T[y][x] = v;
             Tref[y][x].style.color = color.guess;
@@ -1132,6 +1181,11 @@ function unhighlightAll() {
 function updateDigitCounts() {
   const counts = new Array(10).fill(0);
   for (const row of T) for (const v of row) counts[v]++;
+  // Only the cells of one digit are left, and a few of them (achievement)
+  const open = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => counts[d] < 9);
+  if (timing && open.length === 1 && counts[open[0]] <= 5) {
+    if ([1, 2, 3, 4, 5, 6, 7, 8, 9].every((d) => counts[d] <= 9)) digitLast = true;
+  }
   for (let d = 1; d <= 9; d++) {
     const btn = digits[d];
     if (!btn) continue;
@@ -1186,6 +1240,7 @@ function setSudFromStr(retSud: string, index: number) {
   puzzleStr = gridToString(sud);
   autoFillUsed = false;
   mistakesUsed = false;
+  resetGameFacts();
   winShown = false;
   enlarge(); // digits, not pencil marks, in a new sudoku
 
@@ -1364,6 +1419,7 @@ function restart() {
   winShown = false;
   autoFillUsed = false;
   mistakesUsed = false;
+  resetGameFacts();
   timing = puzzleId !== null && sudLvl >= 0;
   updateTimer();
   elsewhere();

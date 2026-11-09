@@ -12,6 +12,7 @@ import {
   SolveStats,
 } from "./history.js";
 import { levelName, levelNames } from "./sudoku.js";
+import { achievementStatus, Achievement } from "./achievements.js";
 import {
   MessageKey,
   t,
@@ -35,6 +36,7 @@ const TITLES: { [page: string]: MessageKey } = {
   help: "menu.help",
   settings: "menu.settings",
   history: "menu.history",
+  achievements: "menu.achievements",
   about: "menu.about",
 };
 
@@ -79,6 +81,28 @@ function showPage() {
   closeMenu();
   window.scrollTo(0, 0);
   if (page === "history") renderHistory();
+  if (page === "achievements") renderAchievements();
+}
+
+const TROPHY =
+  '<svg class="icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg>';
+
+/** An entry of the lists of the achievements page: icon, title, text and the date if it is done */
+const achievementItem = (a: Achievement, date?: string, open = false) =>
+  `<div class="ach${open ? " open" : ""}">${TROPHY}<div><b>${a.title()}</b><br>${a.text()}` +
+  (date ? `<br><span class="ach-date">${shortDate(date)}</span>` : "") +
+  "</div></div>";
+
+/** The achievements page: the unlocked ones and the next open ones */
+async function renderAchievements() {
+  const { done, next, total } = await achievementStatus();
+  byId("ach-done-h").textContent = t("ach.done.h", { n: done.length, total });
+  byId("ach-done").innerHTML = done.length
+    ? done.map((d) => achievementItem(d.achievement, d.date)).join("")
+    : `<p class="ach-empty">${t("ach.none")}</p>`;
+  byId("ach-next").innerHTML = next.length
+    ? next.map((a) => achievementItem(a, undefined, true)).join("")
+    : `<p class="ach-empty">${t("ach.all")}</p>`;
 }
 
 // The solves that the "more" buttons refer to (indexes of the last rendering)
@@ -359,6 +383,7 @@ function setupSettings() {
     levelNames().forEach((name, i) => (level.options[i].text = name));
     byId("page-title").textContent = t(TITLES[currentPage()]);
     if (currentPage() === "history") renderHistory();
+    if (currentPage() === "achievements") renderAchievements();
   });
   theme.addEventListener("change", () => {
     settings.theme = theme.value as Theme;

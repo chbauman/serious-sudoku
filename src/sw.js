@@ -20,6 +20,7 @@ const PRECACHE = [
   "dist/settings.js",
   "dist/pages.js",
   "dist/history.js",
+  "dist/achievements.js",
   "dist/i18n.js",
   "dist/messages_en.js",
   "dist/messages_de.js",

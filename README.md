@@ -121,6 +121,19 @@ is shown on the About page. The data stays on the device (same
 storage as the saved game, see below), there is no server; the last 500 solves
 are kept.
 
+## Achievements
+
+The menu has an Achievements page (13 of them: a sudoku of every level solved, without
+any pencil mark, the top level without pencil marks, the top level in under 5 minutes,
+more than an hour for a sudoku, guessing 4 levels deep, and finishing with all the remaining
+cells of one digit, at least 4, set last). The page lists the ones that are done (the latest
+first, with the date) and the next 3 open ones. Practice solves and solves with help
+(`src/achievements.ts` has the rules) do not count. They are checked when a sudoku is solved
+and shown in the win dialog; the ones that only need the level and the time are also given
+for the solves that are already in the history, once. For the others the game keeps a few
+facts (pencil marks used, deepest guess, last digit), saved with the game.
+They are stored with the history (`serious-sudoku:achievements:v1`).
+
 Custom sudokus (Tools, "Input own sudoku"): any sudoku can be entered. It is only
 analysed when "Mark mistakes" or "Solve" is requested: `solveSudoku`
 (`src/sudoku.ts`, backtracking that fills the cell with the fewest candidates and
