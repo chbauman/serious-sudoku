@@ -19,11 +19,14 @@ let autoFillUsed = false;
 let mistakesUsed = false;
 let pencilUsed = false;
 let guessDepth = 0;
+let rejectedGuess = false;
+let replayed = false;
 let digitLast = false;
 let squareLast = false;
 const resetGameFacts = () => {
     pencilUsed = false;
     guessDepth = 0;
+    rejectedGuess = false;
     digitLast = false;
     squareLast = false;
 };
@@ -415,6 +418,7 @@ function hypothesis1() {
 }
 function endHyp(e) {
     if (hypRejectionEnabled) {
+        rejectedGuess = true;
         withUndo(hypothesis3);
     }
     e.stopPropagation();
@@ -528,6 +532,16 @@ function showSolveTime() {
     const text = getAssertedButton("log-txt");
     text.textContent = "";
     showAchievements([]);
+    if (sudLvl === -1 && puzzleId === null) {
+        awardAchievements({
+            level: -1,
+            seconds: 0,
+            practice: false,
+            helped: autoFillUsed || mistakesUsed,
+            own: true,
+        }).then(showAchievements);
+        return;
+    }
     if (!timing || puzzleId === null || sudLvl < 0)
         return;
     timing = false;
@@ -554,6 +568,8 @@ function showSolveTime() {
         mistakes: mistakesUsed,
         pencil: pencilUsed,
         guessDepth,
+        rejected: rejectedGuess,
+        replayed,
         digitLast,
         squareLast,
     })
@@ -711,6 +727,8 @@ function saveGame() {
             mistakes: mistakesUsed,
             pencil: pencilUsed,
             guessDepth,
+            rejected: rejectedGuess,
+            replayed,
             digitLast,
             squareLast,
             elapsed: elapsedMs,
@@ -756,7 +774,9 @@ async function loadGame() {
         autoFillUsed = g.autoFill === true;
         mistakesUsed = g.mistakes === true;
         pencilUsed = g.pencil === undefined || g.pencil === true;
-        guessDepth = Number.isInteger(g.guessDepth) ? g.guessDepth : 0;
+        guessDepth = Number.isInteger(g.guessDepth) ? g.guessDepth : undefined;
+        rejectedGuess = g.rejected === true;
+        replayed = g.replayed === true;
         digitLast = g.digitLast === true;
         squareLast = g.squareLast === true;
         elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
@@ -884,7 +904,7 @@ function clickCell(cell) {
                         const tSubBinaryTablesCopy = deepCopy3D(TsubBinaryTables);
                         const hypTuple = [[y, x], tCopy, tSubBinaryTablesCopy];
                         hyps.push(hypTuple);
-                        guessDepth = Math.max(guessDepth, hyps.length);
+                        guessDepth = Math.max(guessDepth ?? 0, hyps.length);
                         setClickableTrefT();
                         T[y][x] = v;
                         Tref[y][x].style.color = color.guess;
@@ -1030,6 +1050,7 @@ function setSudFromStr(retSud, index) {
     autoFillUsed = false;
     mistakesUsed = false;
     resetGameFacts();
+    replayed = false;
     winShown = false;
     enlarge();
     permuteSuds(T, Tsol);
@@ -1059,6 +1080,8 @@ export function replaySudoku(entry) {
     sudLvl = entry.level;
     const index = Number(entry.id.split("-")[1]);
     setSudFromStr(line, Number.isFinite(index) ? index : 0);
+    replayed = true;
+    saveGame();
     return true;
 }
 function disableSmallDigs() {
@@ -1076,6 +1099,10 @@ function inputCustomSudoku(keepGrid = false) {
         log("Own Input");
         puzzleId = null;
         puzzleStr = null;
+        autoFillUsed = false;
+        mistakesUsed = false;
+        resetGameFacts();
+        replayed = false;
         timing = false;
         updateTimer();
         elsewhere();

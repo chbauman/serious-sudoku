@@ -5,6 +5,7 @@ import { LEVEL_COUNT, levelName } from "./sudoku.js";
 const TOP_LEVEL = LEVEL_COUNT - 1;
 const HOUR = 3600;
 const FAST_SECONDS = 5 * 60;
+const NO_GUESS_LEVEL = 3;
 export const ACHIEVEMENTS = [
     ...Array.from({ length: LEVEL_COUNT }, (_, level) => ({
         id: `level-${level}`,
@@ -33,6 +34,31 @@ export const ACHIEVEMENTS = [
         earned: (s) => s.mistakes === true,
         anySolve: true,
     },
+    {
+        id: "first-guess",
+        title: () => t("ach.first-guess.title"),
+        text: () => t("ach.first-guess.text"),
+        earned: (s) => (s.guessDepth ?? 0) >= 1,
+    },
+    {
+        id: "reject",
+        title: () => t("ach.reject.title"),
+        text: () => t("ach.reject.text"),
+        earned: (s) => s.rejected === true,
+    },
+    {
+        id: "replay",
+        title: () => t("ach.replay.title"),
+        text: () => t("ach.replay.text"),
+        earned: (s) => s.replayed === true,
+    },
+    {
+        id: "own",
+        title: () => t("ach.own.title"),
+        text: () => t("ach.own.text"),
+        earned: (s) => s.own === true,
+        forOwn: true,
+    },
     ...Array.from({ length: LEVEL_COUNT }, (_, level) => ({
         id: `fast-${level}`,
         title: () => t("ach.fast.title", { level: levelName(level) }),
@@ -50,6 +76,12 @@ export const ACHIEVEMENTS = [
         title: () => t("ach.no-pencil-top.title"),
         text: () => t("ach.no-pencil-top.text", { level: levelName(TOP_LEVEL) }),
         earned: (s) => s.pencil === false && s.level === TOP_LEVEL,
+    },
+    {
+        id: "no-guess",
+        title: () => t("ach.no-guess.title"),
+        text: () => t("ach.no-guess.text", { level: levelName(NO_GUESS_LEVEL) }),
+        earned: (s) => s.level >= NO_GUESS_LEVEL && s.guessDepth === 0,
     },
     {
         id: "marathon",
@@ -79,7 +111,8 @@ export const ACHIEVEMENTS = [
 export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id);
 export function earnedBy(s) {
     const clean = !s.practice && !s.helped;
-    return ACHIEVEMENTS.filter((a) => (clean || a.anySolve) && a.earned(s));
+    const own = s.own === true;
+    return ACHIEVEMENTS.filter((a) => (a.forOwn === true) === own && (clean || a.anySolve) && a.earned(s));
 }
 export const infoOfEntry = (e) => ({
     level: e.level,
