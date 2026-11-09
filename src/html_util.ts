@@ -660,7 +660,12 @@ function check(solution: number[][] | null = null) {
 function showAchievements(unlocked: Achievement[]) {
   const el = getAssertedButton("win-achievements");
   el.hidden = unlocked.length === 0;
-  el.innerHTML = unlocked.map((a) => achievementItem(a)).join("");
+  // The harder ones first (they come later in the list)
+  el.innerHTML = unlocked
+    .slice()
+    .reverse()
+    .map((a) => achievementItem(a))
+    .join("");
 }
 
 // Records the solve (not for custom sudokus and when the solver was used) and
@@ -951,7 +956,8 @@ async function loadGame(): Promise<boolean> {
     puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
     autoFillUsed = g.autoFill === true;
     mistakesUsed = g.mistakes === true;
-    pencilUsed = g.pencil === true;
+    // A game saved before the facts were kept: the pencil marks may have been used
+    pencilUsed = g.pencil === undefined || g.pencil === true;
     guessDepth = Number.isInteger(g.guessDepth) ? (g.guessDepth as number) : 0;
     digitLast = g.digitLast === true;
     elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;

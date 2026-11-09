@@ -111,3 +111,12 @@ test("awarding: only new achievements, once", async () => {
   expect(status.next.map((a) => a.id)).toEqual(["level-0", "level-1", "level-2"]);
   expect(status.total).toBe(m.ACHIEVEMENTS.length);
 });
+
+test("the unlocked ones: the latest first, the harder one first for the same solve", async () => {
+  jest.resetModules();
+  const m = await import("../src/achievements");
+  await m.awardAchievements(solve({ level: 1, seconds: 100 }), "2026-03-01T00:00:00.000Z");
+  await m.awardAchievements(solve({ level: 3, seconds: 200 }), "2026-03-02T00:00:00.000Z");
+  const status = await m.achievementStatus();
+  expect(status.done.map((d) => d.achievement.id)).toEqual(["fast-3", "level-3", "fast-1", "level-1"]);
+});

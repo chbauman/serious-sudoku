@@ -200,7 +200,7 @@ export async function awardAchievements(
 export const NEXT_COUNT = 3;
 
 export interface AchievementStatus {
-  /** The unlocked ones, the latest first */
+  /** The unlocked ones, the latest first (the harder one first among the ones of one solve) */
   done: { achievement: Achievement; date: string }[];
   /** The first open ones of the list */
   next: Achievement[];
@@ -209,9 +209,12 @@ export interface AchievementStatus {
 
 export async function achievementStatus(): Promise<AchievementStatus> {
   const store = await loadStore();
-  const done = ACHIEVEMENTS.filter((a) => a.id in store.unlocked)
-    .map((achievement) => ({ achievement, date: store.unlocked[achievement.id] }))
-    .sort((a, b) => b.date.localeCompare(a.date));
+  // Later in the list is harder: first among the ones with the same date
+  const done = ACHIEVEMENTS.map((achievement, index) => ({ achievement, index }))
+    .filter((a) => a.achievement.id in store.unlocked)
+    .map((a) => ({ ...a, date: store.unlocked[a.achievement.id] }))
+    .sort((a, b) => b.date.localeCompare(a.date) || b.index - a.index)
+    .map(({ achievement, date }) => ({ achievement, date }));
   const next = ACHIEVEMENTS.filter((a) => !(a.id in store.unlocked)).slice(0, NEXT_COUNT);
   return { done, next, total: ACHIEVEMENTS.length };
 }

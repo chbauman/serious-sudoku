@@ -135,7 +135,8 @@ are checked when a sudoku is solved and shown in the same style in the win dialo
 that only need what the history has (level, time, practice mode, help) are also given for the
 solves that are already in the history, when the page is loaded, with the date of the solve.
 For the others the game keeps a few facts (pencil marks used, deepest guess, last digit),
-saved with the game.
+saved with the game (a game saved by an older version counts as "pencil marks used").
+The latest ones are listed first, and among the ones of one solve the harder first.
 They are stored with the history (`serious-sudoku:achievements:v1`).
 
 Custom sudokus (Tools, "Input own sudoku"): any sudoku can be entered. It is only
