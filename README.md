@@ -123,17 +123,19 @@ are kept.
 
 ## Achievements
 
-The menu has an Achievements page (19 of them: a sudoku of every level solved, and every level
-in under 5 minutes, without any pencil mark, the top level without pencil marks, more than an
+The menu has an Achievements page (22 of them: a sudoku of every level solved, and every level
+in under 5 minutes, solved in practice mode, after filling in the pencil marks, after finding the
+mistakes, without any pencil mark, the top level without pencil marks, more than an
 hour for a sudoku, guessing 4 levels deep, and finishing with all nine cells of one digit set last,
 after all the other digits are complete). The page lists the ones that are done (the latest
 first) and the next 3 open ones, each as a round trophy (blue if done, grey if open) with its
 name; tapping it opens the details (what to do, and when it was unlocked). Practice solves and
-solves with help (`src/achievements.ts` has the rules) do not count. They are checked when a
-sudoku is solved and shown in the same style in the win dialog; the ones that only need the
-level and the time are also given for the solves that are already in the history, once. For the
-others the game keeps a few facts (pencil marks used, deepest guess, last digit), saved with the
-game.
+solves with help only earn the three that are for them (`src/achievements.ts` has the rules). They
+are checked when a sudoku is solved and shown in the same style in the win dialog. The ones
+that only need what the history has (level, time, practice mode, help) are also given for the
+solves that are already in the history, when the page is loaded, with the date of the solve.
+For the others the game keeps a few facts (pencil marks used, deepest guess, last digit),
+saved with the game.
 They are stored with the history (`serious-sudoku:achievements:v1`).
 
 Custom sudokus (Tools, "Input own sudoku"): any sudoku can be entered. It is only

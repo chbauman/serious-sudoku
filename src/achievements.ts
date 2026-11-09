@@ -1,6 +1,7 @@
 // Achievements: unlocked when a sudoku is solved (see awardAchievements), stored
-// locally with the date. The ones that only need the level and the time are
-// also given for the solves that are already in the history (once).
+// locally with the date. The ones that only need the facts that the history has
+// (level, time, practice mode, help) are also given for the solves that are
+// already in the history, when the page is loaded.
 import { storageGet, storageSet } from "./storage.js";
 import { loadHistory, usedHelp, HistoryEntry } from "./history.js";
 import { t } from "./i18n.js";
@@ -14,6 +15,10 @@ export interface SolveInfo {
   practice: boolean;
   /** Pencil marks were filled in or mistakes were found */
   helped: boolean;
+  /** The pencil marks were filled in with the tool */
+  fill?: boolean;
+  /** The mistakes were found with the tool */
+  mistakes?: boolean;
   /** Any pencil mark was set */
   pencil?: boolean;
   /** Deepest nesting of guesses */
@@ -26,8 +31,10 @@ export interface Achievement {
   id: string;
   title: () => string;
   text: () => string;
-  /** Whether the solve earns it (practice solves and solves with help are excluded before) */
+  /** Whether the solve earns it */
   earned: (s: SolveInfo) => boolean;
+  /** Also earned by practice solves and solves with help (otherwise they never earn it) */
+  anySolve?: boolean;
 }
 
 const TOP_LEVEL = LEVEL_COUNT - 1;
@@ -42,6 +49,27 @@ export const ACHIEVEMENTS: Achievement[] = [
     text: () => t("ach.level.text", { level: levelName(level) }),
     earned: (s) => s.level === level,
   })),
+  {
+    id: "practice",
+    title: () => t("ach.practice.title"),
+    text: () => t("ach.practice.text"),
+    earned: (s) => s.practice,
+    anySolve: true,
+  },
+  {
+    id: "wand",
+    title: () => t("ach.wand.title"),
+    text: () => t("ach.wand.text"),
+    earned: (s) => s.fill === true,
+    anySolve: true,
+  },
+  {
+    id: "detective",
+    title: () => t("ach.detective.title"),
+    text: () => t("ach.detective.text"),
+    earned: (s) => s.mistakes === true,
+    anySolve: true,
+  },
   ...Array.from({ length: LEVEL_COUNT }, (_, level): Achievement => ({
     id: `fast-${level}`,
     title: () => t("ach.fast.title", { level: levelName(level) }),
@@ -83,9 +111,13 @@ export const ACHIEVEMENTS: Achievement[] = [
 export const achievementById = (id: string): Achievement | undefined =>
   ACHIEVEMENTS.find((a) => a.id === id);
 
-/** The achievements that a solve earns (none for practice solves and solves with help) */
+/**
+ * The achievements that a solve earns. Practice solves and solves with help
+ * only earn the ones that are for them (anySolve).
+ */
 export function earnedBy(s: SolveInfo): Achievement[] {
-  return s.practice || s.helped ? [] : ACHIEVEMENTS.filter((a) => a.earned(s));
+  const clean = !s.practice && !s.helped;
+  return ACHIEVEMENTS.filter((a) => (clean || a.anySolve) && a.earned(s));
 }
 
 /** The facts of a solve that are in the history */
@@ -94,6 +126,8 @@ export const infoOfEntry = (e: HistoryEntry): SolveInfo => ({
   seconds: e.seconds,
   practice: e.practice === true,
   helped: usedHelp(e),
+  fill: e.autoFill === true,
+  mistakes: e.mistakes === true,
 });
 
 /** Achievement id -> ISO date it was unlocked */
@@ -101,8 +135,6 @@ type Unlocked = { [id: string]: string };
 
 interface Store {
   unlocked: Unlocked;
-  /** The solves of the history are checked once */
-  imported: boolean;
 }
 
 const ACHIEVEMENTS_KEY = "serious-sudoku:achievements:v1";
@@ -127,7 +159,7 @@ export function importEntries(store: Store, entries: HistoryEntry[]): boolean {
 
 function loadStore(): Promise<Store> {
   return (loading ??= (async () => {
-    const store: Store = { unlocked: {}, imported: false };
+    const store: Store = { unlocked: {} };
     try {
       const raw = await storageGet(ACHIEVEMENTS_KEY);
       const parsed = raw ? JSON.parse(raw) : null;
@@ -135,16 +167,13 @@ function loadStore(): Promise<Store> {
         for (const a of ACHIEVEMENTS) {
           if (typeof parsed.unlocked[a.id] === "string") store.unlocked[a.id] = parsed.unlocked[a.id];
         }
-        store.imported = parsed.imported === true;
       }
     } catch (e) {
       // start without
     }
-    if (!store.imported) {
-      importEntries(store, await loadHistory());
-      store.imported = true;
-      save(store);
-    }
+    // The solves of the history give the achievements that they earn (quiet, with
+    // the date of the solve): the first time, and for achievements that came later
+    if (importEntries(store, await loadHistory())) save(store);
     return store;
   })());
 }

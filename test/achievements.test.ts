@@ -52,12 +52,22 @@ test("guesses and the last digit", () => {
   expect(ids(solve({ digitLast: true }))).toContain("one-digit");
 });
 
-test("practice solves and solves with help earn nothing", () => {
-  expect(earnedBy(solve({ practice: true, pencil: false }))).toEqual([]);
-  expect(earnedBy(solve({ helped: true, pencil: false, seconds: 7200 }))).toEqual([]);
+test("practice solves and solves with help only earn their own achievements", () => {
+  expect(ids(solve({ practice: true, pencil: false }))).toEqual(["practice"]);
+  expect(ids(solve({ helped: true, fill: true, pencil: false, seconds: 7200 }))).toEqual(["wand"]);
+  expect(ids(solve({ helped: true, mistakes: true, level: 0, seconds: 10 }))).toEqual(["detective"]);
+  expect(ids(solve({ helped: true, fill: true, mistakes: true, practice: true }))).toEqual([
+    "practice",
+    "wand",
+    "detective",
+  ]);
+  // without them none of the three
+  expect(ids(solve())).not.toContain("practice");
+  expect(ids(solve())).not.toContain("wand");
+  expect(ids(solve())).not.toContain("detective");
 });
 
-test("the solves of the history give the achievements that need no more facts, with their dates", () => {
+test("the solves of the history give the achievements that their facts allow, with their dates", () => {
   const entry = (level: number, seconds: number, date: string, extra = {}): HistoryEntry => ({
     id: `${level}-1`,
     level,
@@ -65,18 +75,22 @@ test("the solves of the history give the achievements that need no more facts, w
     date,
     ...extra,
   });
-  const store = { unlocked: {} as { [id: string]: string }, imported: false };
+  const store = { unlocked: {} as { [id: string]: string } };
   const changed = importEntries(store, [
     entry(1, 250, "2026-01-01T00:00:00.000Z"),
     entry(1, 4000, "2026-01-02T00:00:00.000Z"),
     entry(2, 100, "2026-01-03T00:00:00.000Z", { autoFill: true }), // with help
     entry(3, 100, "2026-01-04T00:00:00.000Z", { practice: true }), // practice
+    entry(3, 100, "2026-01-05T00:00:00.000Z", { mistakes: true }),
   ]);
   expect(changed).toBe(true);
   expect(store.unlocked).toEqual({
     "level-1": "2026-01-01T00:00:00.000Z",
     "fast-1": "2026-01-01T00:00:00.000Z",
     marathon: "2026-01-02T00:00:00.000Z",
+    wand: "2026-01-03T00:00:00.000Z",
+    practice: "2026-01-04T00:00:00.000Z",
+    detective: "2026-01-05T00:00:00.000Z",
   });
   // nothing new the second time
   expect(importEntries(store, [entry(1, 200, "2026-02-01T00:00:00.000Z")])).toBe(false);
@@ -91,9 +105,9 @@ test("awarding: only new achievements, once", async () => {
   const second = await m.awardAchievements(solve({ level: 4, pencil: false }));
   expect(second).toEqual([]);
   const third = await m.awardAchievements(solve({ level: 5, pencil: true, practice: true }));
-  expect(third).toEqual([]);
+  expect(third.map((a) => a.id)).toEqual(["practice"]);
   const status = await m.achievementStatus();
-  expect(status.done.map((d) => d.achievement.id).sort()).toEqual(["level-4", "no-pencil"]);
+  expect(status.done.map((d) => d.achievement.id).sort()).toEqual(["level-4", "no-pencil", "practice"]);
   expect(status.next.map((a) => a.id)).toEqual(["level-0", "level-1", "level-2"]);
   expect(status.total).toBe(m.ACHIEVEMENTS.length);
 });
