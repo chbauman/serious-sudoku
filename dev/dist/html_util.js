@@ -516,7 +516,11 @@ function check(solution = null) {
 function showAchievements(unlocked) {
     const el = getAssertedButton("win-achievements");
     el.hidden = unlocked.length === 0;
-    el.innerHTML = unlocked.map((a) => achievementItem(a)).join("");
+    el.innerHTML = unlocked
+        .slice()
+        .reverse()
+        .map((a) => achievementItem(a))
+        .join("");
 }
 function showSolveTime() {
     const text = getAssertedButton("log-txt");
@@ -747,7 +751,7 @@ async function loadGame() {
         puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
         autoFillUsed = g.autoFill === true;
         mistakesUsed = g.mistakes === true;
-        pencilUsed = g.pencil === true;
+        pencilUsed = g.pencil === undefined || g.pencil === true;
         guessDepth = Number.isInteger(g.guessDepth) ? g.guessDepth : 0;
         digitLast = g.digitLast === true;
         elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;

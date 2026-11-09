@@ -131,9 +131,11 @@ export async function awardAchievements(info, date = new Date().toISOString()) {
 export const NEXT_COUNT = 3;
 export async function achievementStatus() {
     const store = await loadStore();
-    const done = ACHIEVEMENTS.filter((a) => a.id in store.unlocked)
-        .map((achievement) => ({ achievement, date: store.unlocked[achievement.id] }))
-        .sort((a, b) => b.date.localeCompare(a.date));
+    const done = ACHIEVEMENTS.map((achievement, index) => ({ achievement, index }))
+        .filter((a) => a.achievement.id in store.unlocked)
+        .map((a) => ({ ...a, date: store.unlocked[a.achievement.id] }))
+        .sort((a, b) => b.date.localeCompare(a.date) || b.index - a.index)
+        .map(({ achievement, date }) => ({ achievement, date }));
     const next = ACHIEVEMENTS.filter((a) => !(a.id in store.unlocked)).slice(0, NEXT_COUNT);
     return { done, next, total: ACHIEVEMENTS.length };
 }
