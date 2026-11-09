@@ -49,12 +49,15 @@ let autoFillUsed = false;
 let mistakesUsed = false;
 // Facts of this game for the achievements (see achievements.ts)
 let pencilUsed = false; // a pencil mark was set (or all were filled in)
-let guessDepth = 0; // deepest nesting of guesses
+let guessDepth: number | undefined = 0; // deepest nesting of guesses (undefined: unknown)
+let rejectedGuess = false; // a guess was rejected
+let replayed = false; // the sudoku came from the history (Replay)
 let digitLast = false; // all nine cells of one digit were left at some point
 let squareLast = false; // one 3x3 square without a digit of the player was left at some point
 const resetGameFacts = () => {
   pencilUsed = false;
   guessDepth = 0;
+  rejectedGuess = false;
   digitLast = false;
   squareLast = false;
 };
@@ -547,6 +550,7 @@ function hypothesis1() {
 
 function endHyp(e: Event) {
   if (hypRejectionEnabled) {
+    rejectedGuess = true;
     withUndo(hypothesis3);
   }
   e.stopPropagation();
@@ -678,6 +682,17 @@ function showSolveTime() {
   const text = getAssertedButton("log-txt");
   text.textContent = "";
   showAchievements([]);
+  if (sudLvl === -1 && puzzleId === null) {
+    // A sudoku that the player entered: no time, not in the history
+    awardAchievements({
+      level: -1,
+      seconds: 0,
+      practice: false,
+      helped: autoFillUsed || mistakesUsed,
+      own: true,
+    }).then(showAchievements);
+    return;
+  }
   if (!timing || puzzleId === null || sudLvl < 0) return;
   timing = false;
   updateTimer();
@@ -705,6 +720,8 @@ function showSolveTime() {
     mistakes: mistakesUsed,
     pencil: pencilUsed,
     guessDepth,
+    rejected: rejectedGuess,
+    replayed,
     digitLast,
     squareLast,
   })
@@ -889,6 +906,8 @@ interface SavedGame extends Snapshot {
   mistakes?: boolean;
   pencil?: boolean;
   guessDepth?: number;
+  rejected?: boolean;
+  replayed?: boolean;
   digitLast?: boolean;
   squareLast?: boolean;
   elapsed: number;
@@ -915,6 +934,8 @@ function saveGame() {
       mistakes: mistakesUsed,
       pencil: pencilUsed,
       guessDepth,
+      rejected: rejectedGuess,
+      replayed,
       digitLast,
       squareLast,
       elapsed: elapsedMs,
@@ -964,7 +985,9 @@ async function loadGame(): Promise<boolean> {
     mistakesUsed = g.mistakes === true;
     // A game saved before the facts were kept: the pencil marks may have been used
     pencilUsed = g.pencil === undefined || g.pencil === true;
-    guessDepth = Number.isInteger(g.guessDepth) ? (g.guessDepth as number) : 0;
+    guessDepth = Number.isInteger(g.guessDepth) ? (g.guessDepth as number) : undefined;
+    rejectedGuess = g.rejected === true;
+    replayed = g.replayed === true;
     digitLast = g.digitLast === true;
     squareLast = g.squareLast === true;
     elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
@@ -1091,7 +1114,7 @@ function clickCell(cell: HTMLTableCellElement) {
             const tSubBinaryTablesCopy = deepCopy3D(TsubBinaryTables);
             const hypTuple = [[y, x], tCopy, tSubBinaryTablesCopy];
             hyps.push(hypTuple);
-            guessDepth = Math.max(guessDepth, hyps.length);
+            guessDepth = Math.max(guessDepth ?? 0, hyps.length);
             setClickableTrefT();
             T[y][x] = v;
             Tref[y][x].style.color = color.guess;
@@ -1249,6 +1272,7 @@ function setSudFromStr(retSud: string, index: number) {
   autoFillUsed = false;
   mistakesUsed = false;
   resetGameFacts();
+  replayed = false;
   winShown = false;
   enlarge(); // digits, not pencil marks, in a new sudoku
 
@@ -1280,6 +1304,8 @@ export function replaySudoku(entry: HistoryEntry): boolean {
   sudLvl = entry.level;
   const index = Number(entry.id.split("-")[1]);
   setSudFromStr(line, Number.isFinite(index) ? index : 0);
+  replayed = true;
+  saveGame();
   return true;
 }
 
@@ -1303,6 +1329,11 @@ function inputCustomSudoku(keepGrid = false) {
     log("Own Input");
     puzzleId = null;
     puzzleStr = null;
+    // The help and the facts of the game before are not the ones of the own sudoku
+    autoFillUsed = false;
+    mistakesUsed = false;
+    resetGameFacts();
+    replayed = false;
     timing = false;
     updateTimer();
     elsewhere();

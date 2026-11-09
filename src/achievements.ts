@@ -21,8 +21,14 @@ export interface SolveInfo {
   mistakes?: boolean;
   /** Any pencil mark was set */
   pencil?: boolean;
-  /** Deepest nesting of guesses */
+  /** Deepest nesting of guesses (unknown for a game saved by an old version) */
   guessDepth?: number;
+  /** A guess was rejected */
+  rejected?: boolean;
+  /** The sudoku came from the history (Replay) */
+  replayed?: boolean;
+  /** A sudoku that the player entered (no level, no time) */
+  own?: boolean;
   /** Reached the state where all nine cells of one digit were left, all the others were done */
   digitLast?: boolean;
   /** Reached the state where only one 3x3 square without a digit of the player was left */
@@ -37,11 +43,15 @@ export interface Achievement {
   earned: (s: SolveInfo) => boolean;
   /** Also earned by practice solves and solves with help (otherwise they never earn it) */
   anySolve?: boolean;
+  /** Only earned by the sudokus that the player entered (they earn nothing else) */
+  forOwn?: boolean;
 }
 
 const TOP_LEVEL = LEVEL_COUNT - 1;
 const HOUR = 3600;
 const FAST_SECONDS = 5 * 60;
+/** The level from which a solve without a guess is an achievement */
+const NO_GUESS_LEVEL = 3;
 
 /** All achievements, in the order of the list (the open ones are shown from the top) */
 export const ACHIEVEMENTS: Achievement[] = [
@@ -72,6 +82,31 @@ export const ACHIEVEMENTS: Achievement[] = [
     earned: (s) => s.mistakes === true,
     anySolve: true,
   },
+  {
+    id: "first-guess",
+    title: () => t("ach.first-guess.title"),
+    text: () => t("ach.first-guess.text"),
+    earned: (s) => (s.guessDepth ?? 0) >= 1,
+  },
+  {
+    id: "reject",
+    title: () => t("ach.reject.title"),
+    text: () => t("ach.reject.text"),
+    earned: (s) => s.rejected === true,
+  },
+  {
+    id: "replay",
+    title: () => t("ach.replay.title"),
+    text: () => t("ach.replay.text"),
+    earned: (s) => s.replayed === true,
+  },
+  {
+    id: "own",
+    title: () => t("ach.own.title"),
+    text: () => t("ach.own.text"),
+    earned: (s) => s.own === true,
+    forOwn: true,
+  },
   ...Array.from({ length: LEVEL_COUNT }, (_, level): Achievement => ({
     id: `fast-${level}`,
     title: () => t("ach.fast.title", { level: levelName(level) }),
@@ -89,6 +124,12 @@ export const ACHIEVEMENTS: Achievement[] = [
     title: () => t("ach.no-pencil-top.title"),
     text: () => t("ach.no-pencil-top.text", { level: levelName(TOP_LEVEL) }),
     earned: (s) => s.pencil === false && s.level === TOP_LEVEL,
+  },
+  {
+    id: "no-guess",
+    title: () => t("ach.no-guess.title"),
+    text: () => t("ach.no-guess.text", { level: levelName(NO_GUESS_LEVEL) }),
+    earned: (s) => s.level >= NO_GUESS_LEVEL && s.guessDepth === 0,
   },
   {
     id: "marathon",
@@ -125,7 +166,8 @@ export const achievementById = (id: string): Achievement | undefined =>
  */
 export function earnedBy(s: SolveInfo): Achievement[] {
   const clean = !s.practice && !s.helped;
-  return ACHIEVEMENTS.filter((a) => (clean || a.anySolve) && a.earned(s));
+  const own = s.own === true;
+  return ACHIEVEMENTS.filter((a) => (a.forOwn === true) === own && (clean || a.anySolve) && a.earned(s));
 }
 
 /** The facts of a solve that are in the history */

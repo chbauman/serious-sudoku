@@ -150,3 +150,43 @@ test("the unlocked ones: the latest first, the harder one first for the same sol
   const status = await m.achievementStatus();
   expect(status.done.map((d) => d.achievement.id)).toEqual(["fast-3", "level-3", "fast-1", "level-1"]);
 });
+
+test("guesses: none on a high level, the first one, a rejected one", () => {
+  // no guess: from Hard on, and only when it is known that there was none
+  expect(ids(solve({ level: 3, guessDepth: 0 }))).toContain("no-guess");
+  expect(ids(solve({ level: 6, guessDepth: 0 }))).toContain("no-guess");
+  expect(ids(solve({ level: 2, guessDepth: 0 }))).not.toContain("no-guess");
+  expect(ids(solve({ level: 3, guessDepth: 1 }))).not.toContain("no-guess");
+  expect(ids(solve({ level: 3 }))).not.toContain("no-guess"); // unknown (old saved game)
+  // first guess
+  expect(ids(solve({ guessDepth: 0 }))).not.toContain("first-guess");
+  expect(ids(solve({}))).not.toContain("first-guess");
+  expect(ids(solve({ guessDepth: 1 }))).toContain("first-guess");
+  expect(ids(solve({ guessDepth: 5 }))).toContain("first-guess");
+  // rejected a guess
+  expect(ids(solve({ rejected: false }))).not.toContain("reject");
+  expect(ids(solve({ rejected: true }))).toContain("reject");
+});
+
+test("replay", () => {
+  expect(ids(solve({ replayed: true }))).toContain("replay");
+  expect(ids(solve({ replayed: false }))).not.toContain("replay");
+  // like any other solve: not with help
+  expect(ids(solve({ replayed: true, helped: true }))).not.toContain("replay");
+});
+
+test("an own sudoku only earns its achievement, and only without help", () => {
+  const own = (extra: Partial<SolveInfo> = {}): SolveInfo => ({
+    level: -1,
+    seconds: 0,
+    practice: false,
+    helped: false,
+    own: true,
+    pencil: false,
+    ...extra,
+  });
+  expect(ids(own())).toEqual(["own"]);
+  expect(ids(own({ helped: true, fill: true }))).toEqual([]);
+  // the normal solves never earn it
+  expect(ids(solve({ pencil: false }))).not.toContain("own");
+});
