@@ -949,6 +949,11 @@ kbd {
     cursor: pointer;
 }
 
+/* No line under the last one (at the bottom of the dialog or before a heading) */
+.ach:last-child {
+    border-bottom: none;
+}
+
 .ach-icon {
     flex: none;
     width: 48px;
