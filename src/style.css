@@ -23,6 +23,7 @@
     --overlay: rgba(0, 0, 0, 0.5);
     --shadow: rgba(0, 0, 0, 0.35);
     --thumb: #fff; /* knob of the switches */
+    --on-accent: #fff; /* on the accent color (trophies) */
 
     --page-width: 560px;
     --side: 8px; /* minimum margin at the sides of the game page */
@@ -926,34 +927,51 @@ kbd {
     color: var(--disabled);
 }
 
-/* Achievements page */
+/* Achievements: the trophy in a circle and the name, a button for the details */
 .ach-list {
     margin: 0 0 8px;
 }
 
 .ach {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
     padding: 10px 4px;
+    border: none;
     border-bottom: 1px solid var(--grid-line-thin);
-    font-size: 16px;
-    line-height: 1.35;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-size: 17px;
     text-align: left;
+    cursor: pointer;
 }
 
-.ach .icon {
+.ach-icon {
     flex: none;
-    margin: 2px 0 0;
-    color: var(--accent);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ach-icon .icon {
+    margin: 0;
 }
 
 .ach.open {
     color: var(--pencil);
 }
 
-.ach.open .icon {
-    color: var(--disabled);
+.ach.open .ach-icon {
+    background: var(--disabled);
 }
 
 .ach-date,

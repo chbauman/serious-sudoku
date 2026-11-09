@@ -31,13 +31,16 @@ test("level, time and pencil marks", () => {
   expect(ids(solve({ pencil: false }))).toEqual(["level-2", "no-pencil"]);
   expect(ids(solve({ level: top, pencil: false, seconds: 299 }))).toEqual([
     `level-${top}`,
+    `fast-${top}`,
     "no-pencil",
     "no-pencil-top",
-    "lightning",
   ]);
-  // not under 5 minutes, and an hour
-  expect(ids(solve({ level: top, seconds: 300 }))).not.toContain("lightning");
-  expect(ids(solve({ level: 1, seconds: 299 }))).not.toContain("lightning");
+  // under 5 minutes for every level, not exactly 5 minutes; and an hour
+  for (let level = 0; level < LEVEL_COUNT; ++level) {
+    expect(ids(solve({ level, seconds: 299 }))).toContain(`fast-${level}`);
+    expect(ids(solve({ level, seconds: 300 }))).not.toContain(`fast-${level}`);
+  }
+  expect(ids(solve({ level: 1, seconds: 299 }))).not.toContain("fast-2");
   expect(ids(solve({ seconds: 3600 }))).not.toContain("marathon");
   expect(ids(solve({ seconds: 3601 }))).toContain("marathon");
 });
@@ -64,7 +67,7 @@ test("the solves of the history give the achievements that need no more facts, w
   });
   const store = { unlocked: {} as { [id: string]: string }, imported: false };
   const changed = importEntries(store, [
-    entry(1, 300, "2026-01-01T00:00:00.000Z"),
+    entry(1, 250, "2026-01-01T00:00:00.000Z"),
     entry(1, 4000, "2026-01-02T00:00:00.000Z"),
     entry(2, 100, "2026-01-03T00:00:00.000Z", { autoFill: true }), // with help
     entry(3, 100, "2026-01-04T00:00:00.000Z", { practice: true }), // practice
@@ -72,6 +75,7 @@ test("the solves of the history give the achievements that need no more facts, w
   expect(changed).toBe(true);
   expect(store.unlocked).toEqual({
     "level-1": "2026-01-01T00:00:00.000Z",
+    "fast-1": "2026-01-01T00:00:00.000Z",
     marathon: "2026-01-02T00:00:00.000Z",
   });
   // nothing new the second time

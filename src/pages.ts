@@ -12,7 +12,7 @@ import {
   SolveStats,
 } from "./history.js";
 import { levelName, levelNames } from "./sudoku.js";
-import { achievementStatus, Achievement } from "./achievements.js";
+import { achievementStatus, achievementById, Achievement } from "./achievements.js";
 import {
   MessageKey,
   t,
@@ -87,21 +87,36 @@ function showPage() {
 const TROPHY =
   '<svg class="icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg>';
 
-/** An entry of the lists of the achievements page: icon, title, text and the date if it is done */
-const achievementItem = (a: Achievement, date?: string, open = false) =>
-  `<div class="ach${open ? " open" : ""}">${TROPHY}<div><b>${a.title()}</b><br>${a.text()}` +
-  (date ? `<br><span class="ach-date">${shortDate(date)}</span>` : "") +
-  "</div></div>";
+/** An entry of the lists of the achievements: the trophy in a circle and the name, a button for the details */
+export const achievementItem = (a: Achievement, open = false) =>
+  `<button type="button" class="ach${open ? " open" : ""}" data-ach="${a.id}">` +
+  `<span class="ach-icon">${TROPHY}</span><span class="ach-name">${a.title()}</span></button>`;
+
+/** The details of an achievement in a dialog: the text and when it was unlocked */
+async function showAchievement(id: string) {
+  const a = achievementById(id);
+  if (!a) return;
+  const { done } = await achievementStatus();
+  const date = done.find((d) => d.achievement.id === id)?.date;
+  byId("info-title").textContent = a.title();
+  byId("info-desc").innerHTML =
+    `${a.text()}<br><span class="ach-date">` +
+    (date
+      ? t("ach.date", { date: new Date(date).toLocaleDateString(dateLocale()) })
+      : t("ach.locked")) +
+    "</span>";
+  openDialogById("info");
+}
 
 /** The achievements page: the unlocked ones and the next open ones */
 async function renderAchievements() {
   const { done, next, total } = await achievementStatus();
   byId("ach-done-h").textContent = t("ach.done.h", { n: done.length, total });
   byId("ach-done").innerHTML = done.length
-    ? done.map((d) => achievementItem(d.achievement, d.date)).join("")
+    ? done.map((d) => achievementItem(d.achievement)).join("")
     : `<p class="ach-empty">${t("ach.none")}</p>`;
   byId("ach-next").innerHTML = next.length
-    ? next.map((a) => achievementItem(a, undefined, true)).join("")
+    ? next.map((a) => achievementItem(a, true)).join("")
     : `<p class="ach-empty">${t("ach.all")}</p>`;
 }
 
@@ -459,6 +474,11 @@ export function setupPages(replay: (entry: HistoryEntry) => boolean) {
   });
 
   byId("menu-btn").addEventListener("click", toggleMenu);
+  // The achievements (on their page and in the dialog of a solved sudoku): details
+  document.addEventListener("click", (e) => {
+    const item = (e.target as Element).closest<HTMLElement>("[data-ach]");
+    if (item) showAchievement(item.dataset.ach!);
+  });
   // Clicking an entry navigates via its link; anywhere else closes the menu
   document.addEventListener("click", (e) => {
     if (!(e.target as Element).closest("#menu-btn")) closeMenu();

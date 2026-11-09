@@ -18,7 +18,7 @@ export interface SolveInfo {
   pencil?: boolean;
   /** Deepest nesting of guesses */
   guessDepth?: number;
-  /** Reached the state where only the cells of one digit (at least 4) were left */
+  /** Reached the state where all nine cells of one digit were left, all the others were done */
   digitLast?: boolean;
 }
 
@@ -32,6 +32,7 @@ export interface Achievement {
 
 const TOP_LEVEL = LEVEL_COUNT - 1;
 const HOUR = 3600;
+const FAST_SECONDS = 5 * 60;
 
 /** All achievements, in the order of the list (the open ones are shown from the top) */
 export const ACHIEVEMENTS: Achievement[] = [
@@ -40,6 +41,12 @@ export const ACHIEVEMENTS: Achievement[] = [
     title: () => t("ach.level.title", { level: levelName(level) }),
     text: () => t("ach.level.text", { level: levelName(level) }),
     earned: (s) => s.level === level,
+  })),
+  ...Array.from({ length: LEVEL_COUNT }, (_, level): Achievement => ({
+    id: `fast-${level}`,
+    title: () => t("ach.fast.title", { level: levelName(level) }),
+    text: () => t("ach.fast.text", { level: levelName(level) }),
+    earned: (s) => s.level === level && s.seconds < FAST_SECONDS,
   })),
   {
     id: "no-pencil",
@@ -52,12 +59,6 @@ export const ACHIEVEMENTS: Achievement[] = [
     title: () => t("ach.no-pencil-top.title"),
     text: () => t("ach.no-pencil-top.text", { level: levelName(TOP_LEVEL) }),
     earned: (s) => s.pencil === false && s.level === TOP_LEVEL,
-  },
-  {
-    id: "lightning",
-    title: () => t("ach.lightning.title"),
-    text: () => t("ach.lightning.text", { level: levelName(TOP_LEVEL) }),
-    earned: (s) => s.level === TOP_LEVEL && s.seconds < 5 * 60,
   },
   {
     id: "marathon",
@@ -78,6 +79,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     earned: (s) => s.digitLast === true,
   },
 ];
+
+export const achievementById = (id: string): Achievement | undefined =>
+  ACHIEVEMENTS.find((a) => a.id === id);
 
 /** The achievements that a solve earns (none for practice solves and solves with help) */
 export function earnedBy(s: SolveInfo): Achievement[] {
