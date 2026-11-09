@@ -12,6 +12,27 @@ export const ACHIEVEMENTS = [
         text: () => t("ach.level.text", { level: levelName(level) }),
         earned: (s) => s.level === level,
     })),
+    {
+        id: "practice",
+        title: () => t("ach.practice.title"),
+        text: () => t("ach.practice.text"),
+        earned: (s) => s.practice,
+        anySolve: true,
+    },
+    {
+        id: "wand",
+        title: () => t("ach.wand.title"),
+        text: () => t("ach.wand.text"),
+        earned: (s) => s.fill === true,
+        anySolve: true,
+    },
+    {
+        id: "detective",
+        title: () => t("ach.detective.title"),
+        text: () => t("ach.detective.text"),
+        earned: (s) => s.mistakes === true,
+        anySolve: true,
+    },
     ...Array.from({ length: LEVEL_COUNT }, (_, level) => ({
         id: `fast-${level}`,
         title: () => t("ach.fast.title", { level: levelName(level) }),
@@ -51,13 +72,16 @@ export const ACHIEVEMENTS = [
 ];
 export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id);
 export function earnedBy(s) {
-    return s.practice || s.helped ? [] : ACHIEVEMENTS.filter((a) => a.earned(s));
+    const clean = !s.practice && !s.helped;
+    return ACHIEVEMENTS.filter((a) => (clean || a.anySolve) && a.earned(s));
 }
 export const infoOfEntry = (e) => ({
     level: e.level,
     seconds: e.seconds,
     practice: e.practice === true,
     helped: usedHelp(e),
+    fill: e.autoFill === true,
+    mistakes: e.mistakes === true,
 });
 const ACHIEVEMENTS_KEY = "serious-sudoku-dev:achievements:v1";
 let loading = null;
@@ -76,7 +100,7 @@ export function importEntries(store, entries) {
 }
 function loadStore() {
     return (loading ?? (loading = (async () => {
-        const store = { unlocked: {}, imported: false };
+        const store = { unlocked: {} };
         try {
             const raw = await storageGet(ACHIEVEMENTS_KEY);
             const parsed = raw ? JSON.parse(raw) : null;
@@ -85,16 +109,12 @@ function loadStore() {
                     if (typeof parsed.unlocked[a.id] === "string")
                         store.unlocked[a.id] = parsed.unlocked[a.id];
                 }
-                store.imported = parsed.imported === true;
             }
         }
         catch (e) {
         }
-        if (!store.imported) {
-            importEntries(store, await loadHistory());
-            store.imported = true;
+        if (importEntries(store, await loadHistory()))
             save(store);
-        }
         return store;
     })()));
 }

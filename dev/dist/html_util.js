@@ -544,6 +544,8 @@ function showSolveTime() {
         seconds,
         practice,
         helped,
+        fill: autoFillUsed,
+        mistakes: mistakesUsed,
         pencil: pencilUsed,
         guessDepth,
         digitLast,
