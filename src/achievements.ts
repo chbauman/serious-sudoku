@@ -25,6 +25,8 @@ export interface SolveInfo {
   guessDepth?: number;
   /** Reached the state where all nine cells of one digit were left, all the others were done */
   digitLast?: boolean;
+  /** Reached the state where only one 3x3 square without a digit of the player was left */
+  squareLast?: boolean;
 }
 
 export interface Achievement {
@@ -105,6 +107,12 @@ export const ACHIEVEMENTS: Achievement[] = [
     title: () => t("ach.one-digit.title"),
     text: () => t("ach.one-digit.text"),
     earned: (s) => s.digitLast === true,
+  },
+  {
+    id: "empty-square",
+    title: () => t("ach.empty-square.title"),
+    text: () => t("ach.empty-square.text"),
+    earned: (s) => s.squareLast === true,
   },
 ];
 

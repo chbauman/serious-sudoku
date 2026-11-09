@@ -124,6 +124,8 @@ export const en = {
   "ach.deep.text": "Solve a sudoku after guessing 4 levels deep.",
   "ach.one-digit.title": "One digit last",
   "ach.one-digit.text": "Solve a sudoku by setting all nine cells of one digit last, after all the other digits are complete.",
+  "ach.empty-square.title": "Empty square",
+  "ach.empty-square.text": "Solve a sudoku by leaving one 3×3 square empty (only its given digits) until the rest of the board is complete.",
 
   "settings.language": "Language",
   "settings.language.auto": "System",

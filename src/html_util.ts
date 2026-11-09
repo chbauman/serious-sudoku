@@ -1,6 +1,7 @@
 // Import sudoku module
 import {
   levelNames,
+  squareLeftEmpty,
   MAX_LEVEL,
   levelName,
   congratulation,
@@ -50,10 +51,12 @@ let mistakesUsed = false;
 let pencilUsed = false; // a pencil mark was set (or all were filled in)
 let guessDepth = 0; // deepest nesting of guesses
 let digitLast = false; // all nine cells of one digit were left at some point
+let squareLast = false; // one 3x3 square without a digit of the player was left at some point
 const resetGameFacts = () => {
   pencilUsed = false;
   guessDepth = 0;
   digitLast = false;
+  squareLast = false;
 };
 let timing = false;
 let elapsedMs = 0;
@@ -703,6 +706,7 @@ function showSolveTime() {
     pencil: pencilUsed,
     guessDepth,
     digitLast,
+    squareLast,
   })
     .then(showAchievements)
     .then(() => recordSolve(entry, settings.countAutoFill))
@@ -886,6 +890,7 @@ interface SavedGame extends Snapshot {
   pencil?: boolean;
   guessDepth?: number;
   digitLast?: boolean;
+  squareLast?: boolean;
   elapsed: number;
   winShown?: boolean;
 }
@@ -911,6 +916,7 @@ function saveGame() {
       pencil: pencilUsed,
       guessDepth,
       digitLast,
+      squareLast,
       elapsed: elapsedMs,
       winShown,
     };
@@ -960,6 +966,7 @@ async function loadGame(): Promise<boolean> {
     pencilUsed = g.pencil === undefined || g.pencil === true;
     guessDepth = Number.isInteger(g.guessDepth) ? (g.guessDepth as number) : 0;
     digitLast = g.digitLast === true;
+    squareLast = g.squareLast === true;
     elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
     winShown = g.winShown === true;
     timing = puzzleId !== null && sudLvl >= 0;
@@ -1186,6 +1193,7 @@ function updateDigitCounts() {
   // All the other digits are complete and none of this one is set (achievement)
   const open = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => counts[d] !== 9);
   if (timing && open.length === 1 && counts[open[0]] === 0) digitLast = true;
+  if (timing && !squareLast && squareLeftEmpty(T, Tinit)) squareLast = true;
   for (let d = 1; d <= 9; d++) {
     const btn = digits[d];
     if (!btn) continue;

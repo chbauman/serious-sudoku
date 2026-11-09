@@ -6,7 +6,7 @@ import {
   SolveInfo,
 } from "../src/achievements";
 import { HistoryEntry } from "../src/history";
-import { LEVEL_COUNT } from "../src/sudoku";
+import { LEVEL_COUNT, squareLeftEmpty } from "../src/sudoku";
 
 const solve = (extra: Partial<SolveInfo> = {}): SolveInfo => ({
   level: 2,
@@ -50,6 +50,36 @@ test("guesses and the last digit", () => {
   expect(ids(solve({ guessDepth: 4 }))).toContain("deep");
   expect(ids(solve({ digitLast: false }))).not.toContain("one-digit");
   expect(ids(solve({ digitLast: true }))).toContain("one-digit");
+  expect(ids(solve({ squareLast: false }))).not.toContain("empty-square");
+  expect(ids(solve({ squareLast: true }))).toContain("empty-square");
+});
+
+test("one square left empty", () => {
+  const full = (): number[][] => Array.from({ length: 9 }, () => new Array(9).fill(5));
+  const given = full();
+  // the square at the top left: two given digits, the other 7 cells are for the player
+  const init = full().map((r) => r.map(() => 0));
+  const board = full();
+  for (let y = 0; y < 3; y++) {
+    for (let x = 0; x < 3; x++) board[y][x] = 0;
+  }
+  board[0][0] = 5;
+  board[1][1] = 5;
+  init[0][0] = 5;
+  init[1][1] = 5;
+  expect(squareLeftEmpty(board, init)).toBe(true);
+  // the player set a digit in the square
+  const touched = board.map((r) => r.slice());
+  touched[2][2] = 5;
+  expect(squareLeftEmpty(touched, init)).toBe(false);
+  // another cell of the rest is still empty
+  const open = board.map((r) => r.slice());
+  open[8][8] = 0;
+  expect(squareLeftEmpty(open, init)).toBe(false);
+  // too few empty cells (a trivial last square), the board is complete
+  expect(squareLeftEmpty(board, init, 7)).toBe(true);
+  expect(squareLeftEmpty(board, init, 8)).toBe(false);
+  expect(squareLeftEmpty(given, init)).toBe(false);
 });
 
 test("practice solves and solves with help only earn their own achievements", () => {
