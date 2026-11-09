@@ -442,11 +442,13 @@ h1 {
 #help,
 #history,
 #settings,
-#about {
+#about,
+#achievements {
     text-align: left;
 }
 
 #history > p,
+#achievements > p,
 #history-content > p {
     font-weight: bold;
     font-size: 16px;
@@ -830,7 +832,8 @@ li {
 }
 
 #help > p.help-text,
-#about > p.help-text {
+#about > p.help-text,
+#achievements > p.help-text {
     font-weight: normal;
     font-size: 15px;
     line-height: 1.45;
@@ -921,4 +924,40 @@ kbd {
     font-size: 18px;
     font-variant-numeric: tabular-nums;
     color: var(--disabled);
+}
+
+/* Achievements page */
+.ach-list {
+    margin: 0 0 8px;
+}
+
+.ach {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--grid-line-thin);
+    font-size: 16px;
+    line-height: 1.35;
+    text-align: left;
+}
+
+.ach .icon {
+    flex: none;
+    margin: 2px 0 0;
+    color: var(--accent);
+}
+
+.ach.open {
+    color: var(--pencil);
+}
+
+.ach.open .icon {
+    color: var(--disabled);
+}
+
+.ach-date,
+.ach-empty {
+    font-size: 14px;
+    color: var(--pencil);
 }

@@ -1,8 +1,8 @@
 // Service worker: makes the app installable and playable offline.
 // Only used in the deployed layout (see .github/workflows/deploy.yml), where
-// index.html, dist/ and assets/ are siblings of this file. 29c82e3c6c is
+// index.html, dist/ and assets/ are siblings of this file. 514f186231 is
 // replaced with the commit hash on deploy, so every release gets a new cache.
-const CACHE = "dev-sudoku-29c82e3c6c";
+const CACHE = "dev-sudoku-514f186231";
 // Only the caches of this kind of build are deleted: the test builds (see
 // scripts/assemble-site.mjs) are served from the same origin and have their own
 // ones ("dev-sudoku-...").
@@ -20,6 +20,7 @@ const PRECACHE = [
   "dist/settings.js",
   "dist/pages.js",
   "dist/history.js",
+  "dist/achievements.js",
   "dist/i18n.js",
   "dist/messages_en.js",
   "dist/messages_de.js",

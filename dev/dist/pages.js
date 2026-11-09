@@ -1,5 +1,6 @@
 import { loadHistory, bestEntry, usedHelp, solveStats, formatTime, } from "./history.js";
 import { levelName, levelNames } from "./sudoku.js";
+import { achievementStatus } from "./achievements.js";
 import { t, dateLocale, onLanguageChange, setLanguage, resolveLanguage, } from "./i18n.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
 const TITLES = {
@@ -7,6 +8,7 @@ const TITLES = {
     help: "menu.help",
     settings: "menu.settings",
     history: "menu.history",
+    achievements: "menu.achievements",
     about: "menu.about",
 };
 const RECENT_ENTRIES = 10;
@@ -33,6 +35,22 @@ function showPage() {
     window.scrollTo(0, 0);
     if (page === "history")
         renderHistory();
+    if (page === "achievements")
+        renderAchievements();
+}
+const TROPHY = '<svg class="icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg>';
+const achievementItem = (a, date, open = false) => `<div class="ach${open ? " open" : ""}">${TROPHY}<div><b>${a.title()}</b><br>${a.text()}` +
+    (date ? `<br><span class="ach-date">${shortDate(date)}</span>` : "") +
+    "</div></div>";
+async function renderAchievements() {
+    const { done, next, total } = await achievementStatus();
+    byId("ach-done-h").textContent = t("ach.done.h", { n: done.length, total });
+    byId("ach-done").innerHTML = done.length
+        ? done.map((d) => achievementItem(d.achievement, d.date)).join("")
+        : `<p class="ach-empty">${t("ach.none")}</p>`;
+    byId("ach-next").innerHTML = next.length
+        ? next.map((a) => achievementItem(a, undefined, true)).join("")
+        : `<p class="ach-empty">${t("ach.all")}</p>`;
 }
 let shownEntries = [];
 let replayHandler = () => false;
@@ -246,6 +264,8 @@ function setupSettings() {
         byId("page-title").textContent = t(TITLES[currentPage()]);
         if (currentPage() === "history")
             renderHistory();
+        if (currentPage() === "achievements")
+            renderAchievements();
     });
     theme.addEventListener("change", () => {
         settings.theme = theme.value;

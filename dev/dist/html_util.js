@@ -4,6 +4,7 @@ import { settings, loadSettings } from "./settings.js";
 import { currentPage } from "./pages.js";
 import { t, onLanguageChange } from "./i18n.js";
 import { color } from "./colors.js";
+import { awardAchievements } from "./achievements.js";
 import { recordSolve, formatTime } from "./history.js";
 let large = true;
 let smallDigsEnabled = true;
@@ -16,6 +17,14 @@ let puzzleId = null;
 let puzzleStr = null;
 let autoFillUsed = false;
 let mistakesUsed = false;
+let pencilUsed = false;
+let guessDepth = 0;
+let digitLast = false;
+const resetGameFacts = () => {
+    pencilUsed = false;
+    guessDepth = 0;
+    digitLast = false;
+};
 let timing = false;
 let elapsedMs = 0;
 let winShown = false;
@@ -291,6 +300,7 @@ function setButtons() {
         closeDialog("tools");
         confirmAction(t("confirm.fill.title"), t("confirm.fill.text"), () => {
             autoFillUsed = true;
+            pencilUsed = true;
             withUndo(fillSmallDigits);
         });
     });
@@ -503,9 +513,18 @@ function check(solution = null) {
     }
     saveGame();
 }
+function showAchievements(unlocked) {
+    const el = getAssertedButton("win-achievements");
+    el.hidden = unlocked.length === 0;
+    el.innerHTML = unlocked
+        .map((a) => '<svg class="icon inline-icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg> ' +
+        t("ach.unlocked", { title: a.title() }))
+        .join("<br>");
+}
 function showSolveTime() {
     const text = getAssertedButton("log-txt");
     text.textContent = "";
+    showAchievements([]);
     if (!timing || puzzleId === null || sudLvl < 0)
         return;
     timing = false;
@@ -523,7 +542,18 @@ function showSolveTime() {
         seconds,
         date: new Date().toISOString(),
     };
-    recordSolve(entry, settings.countAutoFill).then(({ previousBest, isBest, counted }) => {
+    awardAchievements({
+        level: sudLvl,
+        seconds,
+        practice,
+        helped,
+        pencil: pencilUsed,
+        guessDepth,
+        digitLast,
+    })
+        .then(showAchievements)
+        .then(() => recordSolve(entry, settings.countAutoFill))
+        .then(({ previousBest, isBest, counted }) => {
         if (practice) {
             text.textContent =
                 (settings.showTime ? t("win.time", { time: formatTime(seconds) }) + " - " : "") +
@@ -673,6 +703,9 @@ function saveGame() {
             puzzle: puzzleStr,
             autoFill: autoFillUsed,
             mistakes: mistakesUsed,
+            pencil: pencilUsed,
+            guessDepth,
+            digitLast,
             elapsed: elapsedMs,
             winShown,
         };
@@ -715,6 +748,9 @@ async function loadGame() {
         puzzleStr = typeof g.puzzle === "string" ? g.puzzle : null;
         autoFillUsed = g.autoFill === true;
         mistakesUsed = g.mistakes === true;
+        pencilUsed = g.pencil === true;
+        guessDepth = Number.isInteger(g.guessDepth) ? g.guessDepth : 0;
+        digitLast = g.digitLast === true;
         elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
         winShown = g.winShown === true;
         timing = puzzleId !== null && sudLvl >= 0;
@@ -815,6 +851,8 @@ function clickCell(cell) {
                                 Tref[y][x].style.color = color.accent;
                             }
                         }
+                        if (!large && v != 0)
+                            pencilUsed = true;
                         setCell(y, x, v, large, true, true);
                         if (v == 0) {
                             clickCell(Tref[y][x]);
@@ -838,6 +876,7 @@ function clickCell(cell) {
                         const tSubBinaryTablesCopy = deepCopy3D(TsubBinaryTables);
                         const hypTuple = [[y, x], tCopy, tSubBinaryTablesCopy];
                         hyps.push(hypTuple);
+                        guessDepth = Math.max(guessDepth, hyps.length);
                         setClickableTrefT();
                         T[y][x] = v;
                         Tref[y][x].style.color = color.guess;
@@ -929,6 +968,11 @@ function updateDigitCounts() {
     for (const row of T)
         for (const v of row)
             counts[v]++;
+    const open = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => counts[d] < 9);
+    if (timing && open.length === 1 && counts[open[0]] <= 5) {
+        if ([1, 2, 3, 4, 5, 6, 7, 8, 9].every((d) => counts[d] <= 9))
+            digitLast = true;
+    }
     for (let d = 1; d <= 9; d++) {
         const btn = digits[d];
         if (!btn)
@@ -977,6 +1021,7 @@ function setSudFromStr(retSud, index) {
     puzzleStr = gridToString(sud);
     autoFillUsed = false;
     mistakesUsed = false;
+    resetGameFacts();
     winShown = false;
     enlarge();
     permuteSuds(T, Tsol);
@@ -1127,6 +1172,7 @@ function restart() {
     winShown = false;
     autoFillUsed = false;
     mistakesUsed = false;
+    resetGameFacts();
     timing = puzzleId !== null && sudLvl >= 0;
     updateTimer();
     elsewhere();

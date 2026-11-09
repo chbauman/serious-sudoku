@@ -83,6 +83,7 @@
     <symbol id="i-settings-outline" viewBox="0 0 512 512"><path d="M262.29,192.31a64,64,0,1,0,57.4,57.4A64.13,64.13,0,0,0,262.29,192.31ZM416.39,256a154.34,154.34,0,0,1-1.53,20.79l45.21,35.46A10.81,10.81,0,0,1,462.52,326l-42.77,74a10.81,10.81,0,0,1-13.14,4.59l-44.9-18.08a16.11,16.11,0,0,0-15.17,1.75A164.48,164.48,0,0,1,325,400.8a15.94,15.94,0,0,0-8.82,12.14l-6.73,47.89A11.08,11.08,0,0,1,298.77,470H213.23a11.11,11.11,0,0,1-10.69-8.87l-6.72-47.82a16.07,16.07,0,0,0-9-12.22,155.3,155.3,0,0,1-21.46-12.57,16,16,0,0,0-15.11-1.71l-44.89,18.07a10.81,10.81,0,0,1-13.14-4.58l-42.77-74a10.8,10.8,0,0,1,2.45-13.75l38.21-30a16.05,16.05,0,0,0,6-14.08c-.36-4.17-.58-8.33-.58-12.5s.21-8.27.58-12.35a16,16,0,0,0-6.07-13.94l-38.19-30A10.81,10.81,0,0,1,49.48,186l42.77-74a10.81,10.81,0,0,1,13.14-4.59l44.9,18.08a16.11,16.11,0,0,0,15.17-1.75A164.48,164.48,0,0,1,187,111.2a15.94,15.94,0,0,0,8.82-12.14l6.73-47.89A11.08,11.08,0,0,1,213.23,42h85.54a11.11,11.11,0,0,1,10.69,8.87l6.72,47.82a16.07,16.07,0,0,0,9,12.22,155.3,155.3,0,0,1,21.46,12.57,16,16,0,0,0,15.11,1.71l44.89-18.07a10.81,10.81,0,0,1,13.14,4.58l42.77,74a10.8,10.8,0,0,1-2.45,13.75l-38.21,30a16.05,16.05,0,0,0-6.05,14.08C416.17,247.67,416.39,251.83,416.39,256Z" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
     <symbol id="i-information-circle-outline" viewBox="0 0 512 512"><path d="M248,64C146.39,64,64,146.39,64,248s82.39,184,184,184,184-82.39,184-184S349.61,64,248,64Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><polyline points="220 220 252 220 252 336" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="208" y1="340" x2="296" y2="340" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"/><path d="M248,130a26,26,0,1,0,26,26A26,26,0,0,0,248,130Z"/></symbol>
     <symbol id="i-practice-outline" viewBox="0 0 512 512"><path d="M256,64C150,64,64,150,64,256s86,192,192,192,192-86,192-192S362,64,256,64Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><polyline points="256 128 256 272 352 272" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/><line x1="96" y1="416" x2="416" y2="96" style="stroke:currentColor;stroke-linecap:round;stroke-width:40px"/></symbol>
+    <symbol id="i-trophy-outline" viewBox="0 0 512 512"><g style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"><path d="M160,64H352V160a96,96,0,0,1-192,0Z"/><path d="M160,96H96v32a64,64,0,0,0,64,64"/><path d="M352,96h64v32a64,64,0,0,1-64,64"/><line x1="256" y1="256" x2="256" y2="376"/><path d="M176,448h160"/><path d="M208,448V376h96v72"/></g></symbol>
     <symbol id="i-time-outline" viewBox="0 0 512 512"><path d="M256,64C150,64,64,150,64,256s86,192,192,192,192-86,192-192S362,64,256,64Z" style="fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:32px"/><polyline points="256 128 256 272 352 272" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/></symbol>
     </svg>
 
@@ -99,6 +100,7 @@
           <a href="#help"><svg class="icon" aria-hidden="true"><use href="#i-help-circle-outline" /></svg><span data-i18n="menu.help">Help</span></a>
           <a href="#settings"><svg class="icon" aria-hidden="true"><use href="#i-settings-outline" /></svg><span data-i18n="menu.settings">Settings</span></a>
           <a href="#history"><svg class="icon" aria-hidden="true"><use href="#i-time-outline" /></svg><span data-i18n="menu.history">History</span></a>
+          <a href="#achievements"><svg class="icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg><span data-i18n="menu.achievements">Achievements</span></a>
           <a href="#about"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg><span data-i18n="menu.about">About</span></a>
         </nav>
       </header>
@@ -214,6 +216,14 @@
         </div>
       </section>
 
+      <section id="achievements" data-page="achievements" hidden>
+        <p id="ach-done-h"></p>
+        <div id="ach-done" class="ach-list"></div>
+        <p data-i18n="ach.next.h">Next</p>
+        <div id="ach-next" class="ach-list"></div>
+        <p class="help-text" data-i18n="ach.note">Only solved sudokus count that were not solved in practice mode or with help.</p>
+      </section>
+
       <section id="about" data-page="about" hidden>
         <p data-i18n="app.name">Serious Sudoku (dev)</p>
         <p class="help-text" data-i18n="about.desc">A sudoku game focusing on hard puzzles, with guessing and backtracking. Free, without ads, and it works offline.</p>
@@ -222,7 +232,7 @@
         <p class="help-text" data-i18n="about.open">The <a href="https://github.com/chbauman/serious-sudoku" target="_blank" rel="noopener">sources are on GitHub</a>. Based on <a href="https://github.com/baruchel/sudoku-js" target="_blank" rel="noopener">sudoku-js</a> by Thomas Baruchel. Icons from <a href="https://ionicons.com/" target="_blank" rel="noopener">Ionicons</a>.</p>
 
         <p data-i18n="about.version.h">Version</p>
-        <p class="help-text">1.1.0 (build 29c82e3c6c, test build)</p>
+        <p class="help-text">1.1.0 (build 514f186231, test build)</p>
 
         <p data-i18n="about.author.h">Author</p>
         <p class="help-text" data-i18n="about.author">Made by <a href="https://chrisbaumann.ch/" target="_blank" rel="noopener">chrisbaumann.ch</a>.</p>
@@ -343,6 +353,7 @@
         <h2 id="solved-h" data-i18n="win.h">Solved!</h2>
         <p id="solved-text"></p>
         <p id="log-txt"></p>
+        <p id="win-achievements" hidden></p>
         <button class="dialog-x" data-close data-i18n-label="close"><svg class="icon" aria-hidden="true"><use href="#i-close-outline" /></svg></button>
       </dialog>
 
