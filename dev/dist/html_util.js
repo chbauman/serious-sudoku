@@ -1,4 +1,4 @@
-import { levelNames, MAX_LEVEL, levelName, congratulation, T, DEBUG, Marked, readSudokuFromFile, Tsol, Tinit, permuteSuds, parseSudokuLine, puzzleToLine, gridToString, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy2D, deepCopy3D, } from "./sudoku.js";
+import { levelNames, squareLeftEmpty, MAX_LEVEL, levelName, congratulation, T, DEBUG, Marked, readSudokuFromFile, Tsol, Tinit, permuteSuds, parseSudokuLine, puzzleToLine, gridToString, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy2D, deepCopy3D, } from "./sudoku.js";
 import { storageGet, storageSet, storageRemove } from "./storage.js";
 import { settings, loadSettings } from "./settings.js";
 import { currentPage, achievementItem } from "./pages.js";
@@ -20,10 +20,12 @@ let mistakesUsed = false;
 let pencilUsed = false;
 let guessDepth = 0;
 let digitLast = false;
+let squareLast = false;
 const resetGameFacts = () => {
     pencilUsed = false;
     guessDepth = 0;
     digitLast = false;
+    squareLast = false;
 };
 let timing = false;
 let elapsedMs = 0;
@@ -553,6 +555,7 @@ function showSolveTime() {
         pencil: pencilUsed,
         guessDepth,
         digitLast,
+        squareLast,
     })
         .then(showAchievements)
         .then(() => recordSolve(entry, settings.countAutoFill))
@@ -709,6 +712,7 @@ function saveGame() {
             pencil: pencilUsed,
             guessDepth,
             digitLast,
+            squareLast,
             elapsed: elapsedMs,
             winShown,
         };
@@ -754,6 +758,7 @@ async function loadGame() {
         pencilUsed = g.pencil === undefined || g.pencil === true;
         guessDepth = Number.isInteger(g.guessDepth) ? g.guessDepth : 0;
         digitLast = g.digitLast === true;
+        squareLast = g.squareLast === true;
         elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
         winShown = g.winShown === true;
         timing = puzzleId !== null && sudLvl >= 0;
@@ -974,6 +979,8 @@ function updateDigitCounts() {
     const open = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => counts[d] !== 9);
     if (timing && open.length === 1 && counts[open[0]] === 0)
         digitLast = true;
+    if (timing && !squareLast && squareLeftEmpty(T, Tinit))
+        squareLast = true;
     for (let d = 1; d <= 9; d++) {
         const btn = digits[d];
         if (!btn)

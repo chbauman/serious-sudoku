@@ -112,6 +112,8 @@ export const de = {
     "ach.deep.text": "Löse ein Sudoku, nachdem du 4 Ebenen tief geraten hast.",
     "ach.one-digit.title": "Eine Ziffer zuletzt",
     "ach.one-digit.text": "Löse ein Sudoku, indem du zuletzt alle neun Felder einer Ziffer setzt, nachdem alle anderen Ziffern vollständig sind.",
+    "ach.empty-square.title": "Leeres Quadrat",
+    "ach.empty-square.text": "Löse ein Sudoku, indem du ein 3×3-Quadrat leer lässt (nur seine vorgegebenen Ziffern), bis der Rest des Rasters vollständig ist.",
     "settings.language": "Sprache",
     "settings.language.auto": "System",
     "settings.level": "Standardstufe",

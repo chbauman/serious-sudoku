@@ -87,6 +87,32 @@ function readSudokuFromFile(callback, lvl = MAX_LEVEL) {
         callback(items[sInd], sInd);
     });
 }
+function squareLeftEmpty(T, Tinit, minEmpty = 5) {
+    for (let b = 0; b < 9; b++) {
+        const y0 = 3 * Math.floor(b / 3);
+        const x0 = 3 * (b % 3);
+        let empty = 0;
+        let untouched = true;
+        let restDone = true;
+        for (let y = 0; y < 9 && untouched && restDone; y++) {
+            for (let x = 0; x < 9; x++) {
+                const inside = y >= y0 && y < y0 + 3 && x >= x0 && x < x0 + 3;
+                if (inside) {
+                    if (T[y][x] === 0)
+                        empty++;
+                    else if (Tinit[y][x] === 0)
+                        untouched = false;
+                }
+                else if (T[y][x] === 0) {
+                    restDone = false;
+                }
+            }
+        }
+        if (untouched && restDone && empty >= minEmpty)
+            return true;
+    }
+    return false;
+}
 function gridToString(g) {
     return g.map((r) => r.join("")).join("");
 }
@@ -225,5 +251,5 @@ function permuteSuds(s, sudokuSol) {
         }
     }
 }
-export { LEVEL_COUNT, MAX_LEVEL, levelName, levelNames, congratulation, T, Tsol, Tinit, DEBUG, Marked, range, shuffle, deepCopy2D, readSudokuFromFile, parseSudokuLine, puzzleToLine, gridToString, permuteSuds, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy3D, };
+export { LEVEL_COUNT, MAX_LEVEL, levelName, levelNames, squareLeftEmpty, congratulation, T, Tsol, Tinit, DEBUG, Marked, range, shuffle, deepCopy2D, readSudokuFromFile, parseSudokuLine, puzzleToLine, gridToString, permuteSuds, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy3D, };
 //# sourceMappingURL=sudoku.js.map

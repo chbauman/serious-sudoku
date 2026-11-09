@@ -69,6 +69,12 @@ export const ACHIEVEMENTS = [
         text: () => t("ach.one-digit.text"),
         earned: (s) => s.digitLast === true,
     },
+    {
+        id: "empty-square",
+        title: () => t("ach.empty-square.title"),
+        text: () => t("ach.empty-square.text"),
+        earned: (s) => s.squareLast === true,
+    },
 ];
 export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id);
 export function earnedBy(s) {
