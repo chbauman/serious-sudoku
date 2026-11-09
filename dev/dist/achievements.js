@@ -4,12 +4,19 @@ import { t } from "./i18n.js";
 import { LEVEL_COUNT, levelName } from "./sudoku.js";
 const TOP_LEVEL = LEVEL_COUNT - 1;
 const HOUR = 3600;
+const FAST_SECONDS = 5 * 60;
 export const ACHIEVEMENTS = [
     ...Array.from({ length: LEVEL_COUNT }, (_, level) => ({
         id: `level-${level}`,
         title: () => t("ach.level.title", { level: levelName(level) }),
         text: () => t("ach.level.text", { level: levelName(level) }),
         earned: (s) => s.level === level,
+    })),
+    ...Array.from({ length: LEVEL_COUNT }, (_, level) => ({
+        id: `fast-${level}`,
+        title: () => t("ach.fast.title", { level: levelName(level) }),
+        text: () => t("ach.fast.text", { level: levelName(level) }),
+        earned: (s) => s.level === level && s.seconds < FAST_SECONDS,
     })),
     {
         id: "no-pencil",
@@ -22,12 +29,6 @@ export const ACHIEVEMENTS = [
         title: () => t("ach.no-pencil-top.title"),
         text: () => t("ach.no-pencil-top.text", { level: levelName(TOP_LEVEL) }),
         earned: (s) => s.pencil === false && s.level === TOP_LEVEL,
-    },
-    {
-        id: "lightning",
-        title: () => t("ach.lightning.title"),
-        text: () => t("ach.lightning.text", { level: levelName(TOP_LEVEL) }),
-        earned: (s) => s.level === TOP_LEVEL && s.seconds < 5 * 60,
     },
     {
         id: "marathon",
@@ -48,6 +49,7 @@ export const ACHIEVEMENTS = [
         earned: (s) => s.digitLast === true,
     },
 ];
+export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id);
 export function earnedBy(s) {
     return s.practice || s.helped ? [] : ACHIEVEMENTS.filter((a) => a.earned(s));
 }

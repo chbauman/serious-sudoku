@@ -1,8 +1,8 @@
 // Service worker: makes the app installable and playable offline.
 // Only used in the deployed layout (see .github/workflows/deploy.yml), where
-// index.html, dist/ and assets/ are siblings of this file. 514f186231 is
+// index.html, dist/ and assets/ are siblings of this file. d6d24fb283 is
 // replaced with the commit hash on deploy, so every release gets a new cache.
-const CACHE = "dev-sudoku-514f186231";
+const CACHE = "dev-sudoku-d6d24fb283";
 // Only the caches of this kind of build are deleted: the test builds (see
 // scripts/assemble-site.mjs) are served from the same origin and have their own
 // ones ("dev-sudoku-...").

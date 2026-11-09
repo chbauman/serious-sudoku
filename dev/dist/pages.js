@@ -1,6 +1,6 @@
 import { loadHistory, bestEntry, usedHelp, solveStats, formatTime, } from "./history.js";
 import { levelName, levelNames } from "./sudoku.js";
-import { achievementStatus } from "./achievements.js";
+import { achievementStatus, achievementById } from "./achievements.js";
 import { t, dateLocale, onLanguageChange, setLanguage, resolveLanguage, } from "./i18n.js";
 import { settings, loadSettings, saveSettings, applyTheme, } from "./settings.js";
 const TITLES = {
@@ -39,17 +39,31 @@ function showPage() {
         renderAchievements();
 }
 const TROPHY = '<svg class="icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg>';
-const achievementItem = (a, date, open = false) => `<div class="ach${open ? " open" : ""}">${TROPHY}<div><b>${a.title()}</b><br>${a.text()}` +
-    (date ? `<br><span class="ach-date">${shortDate(date)}</span>` : "") +
-    "</div></div>";
+export const achievementItem = (a, open = false) => `<button type="button" class="ach${open ? " open" : ""}" data-ach="${a.id}">` +
+    `<span class="ach-icon">${TROPHY}</span><span class="ach-name">${a.title()}</span></button>`;
+async function showAchievement(id) {
+    const a = achievementById(id);
+    if (!a)
+        return;
+    const { done } = await achievementStatus();
+    const date = done.find((d) => d.achievement.id === id)?.date;
+    byId("info-title").textContent = a.title();
+    byId("info-desc").innerHTML =
+        `${a.text()}<br><span class="ach-date">` +
+            (date
+                ? t("ach.date", { date: new Date(date).toLocaleDateString(dateLocale()) })
+                : t("ach.locked")) +
+            "</span>";
+    openDialogById("info");
+}
 async function renderAchievements() {
     const { done, next, total } = await achievementStatus();
     byId("ach-done-h").textContent = t("ach.done.h", { n: done.length, total });
     byId("ach-done").innerHTML = done.length
-        ? done.map((d) => achievementItem(d.achievement, d.date)).join("")
+        ? done.map((d) => achievementItem(d.achievement)).join("")
         : `<p class="ach-empty">${t("ach.none")}</p>`;
     byId("ach-next").innerHTML = next.length
-        ? next.map((a) => achievementItem(a, undefined, true)).join("")
+        ? next.map((a) => achievementItem(a, true)).join("")
         : `<p class="ach-empty">${t("ach.all")}</p>`;
 }
 let shownEntries = [];
@@ -326,6 +340,11 @@ export function setupPages(replay) {
         }
     });
     byId("menu-btn").addEventListener("click", toggleMenu);
+    document.addEventListener("click", (e) => {
+        const item = e.target.closest("[data-ach]");
+        if (item)
+            showAchievement(item.dataset.ach);
+    });
     document.addEventListener("click", (e) => {
         if (!e.target.closest("#menu-btn"))
             closeMenu();

@@ -1,7 +1,7 @@
 import { levelNames, MAX_LEVEL, levelName, congratulation, T, DEBUG, Marked, readSudokuFromFile, Tsol, Tinit, permuteSuds, parseSudokuLine, puzzleToLine, gridToString, copyTo2d, allowed, solveSudoku, checkSolved, deepCopy2D, deepCopy3D, } from "./sudoku.js";
 import { storageGet, storageSet, storageRemove } from "./storage.js";
 import { settings, loadSettings } from "./settings.js";
-import { currentPage } from "./pages.js";
+import { currentPage, achievementItem } from "./pages.js";
 import { t, onLanguageChange } from "./i18n.js";
 import { color } from "./colors.js";
 import { awardAchievements } from "./achievements.js";
@@ -516,10 +516,7 @@ function check(solution = null) {
 function showAchievements(unlocked) {
     const el = getAssertedButton("win-achievements");
     el.hidden = unlocked.length === 0;
-    el.innerHTML = unlocked
-        .map((a) => '<svg class="icon inline-icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg> ' +
-        t("ach.unlocked", { title: a.title() }))
-        .join("<br>");
+    el.innerHTML = unlocked.map((a) => achievementItem(a)).join("");
 }
 function showSolveTime() {
     const text = getAssertedButton("log-txt");
@@ -968,11 +965,9 @@ function updateDigitCounts() {
     for (const row of T)
         for (const v of row)
             counts[v]++;
-    const open = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => counts[d] < 9);
-    if (timing && open.length === 1 && counts[open[0]] <= 5) {
-        if ([1, 2, 3, 4, 5, 6, 7, 8, 9].every((d) => counts[d] <= 9))
-            digitLast = true;
-    }
+    const open = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => counts[d] !== 9);
+    if (timing && open.length === 1 && counts[open[0]] === 0)
+        digitLast = true;
     for (let d = 1; d <= 9; d++) {
         const btn = digits[d];
         if (!btn)
