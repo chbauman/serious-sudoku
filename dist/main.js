@@ -50,6 +50,7 @@ export function init() {
         "log-txt",
         "solved-text",
         "solved-h",
+        "win-achievements",
     ];
     for (const bId of butIds) {
         htmlButtonDict.set(bId, getDocEl(bId));
