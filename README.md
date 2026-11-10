@@ -136,7 +136,8 @@ solves with help only earn the three that are for them (`src/achievements.ts` ha
 are checked when a sudoku is solved and shown in the same style in the win dialog. The ones
 that only need what the history has (level, time, practice mode, help) are also given for the
 solves that are already in the history, when the page is loaded, with the date of the solve.
-For the others the game keeps a few facts (the total of solves without help, pencil marks used, deepest guess, a rejected guess, started with Replay, last digit, last square),
+The total of solves without help is counted from the history and kept with the achievements
+(the history keeps only the last 500 solves). For the others the game keeps a few facts (pencil marks used, deepest guess, a rejected guess, started with Replay, last digit, last square),
 saved with the game (a game saved by an older version counts as "pencil marks used").
 The latest ones are listed first, and among the ones of one solve the harder first.
 They are stored with the history (`serious-sudoku:achievements:v1`).
