@@ -142,13 +142,15 @@ test("awarding: only new achievements, once", async () => {
   expect(status.total).toBe(m.ACHIEVEMENTS.length);
 });
 
-test("the unlocked ones: the latest first, the harder one first for the same solve", async () => {
+test("the unlocked ones: the hardest first, not by date", async () => {
   jest.resetModules();
   const m = await import("../src/achievements");
-  await m.awardAchievements(solve({ level: 1, seconds: 100 }), "2026-03-01T00:00:00.000Z");
-  await m.awardAchievements(solve({ level: 3, seconds: 200 }), "2026-03-02T00:00:00.000Z");
+  await m.awardAchievements(solve({ level: 3, seconds: 200 }), "2026-03-01T00:00:00.000Z");
+  await m.awardAchievements(solve({ level: 1, seconds: 100 }), "2026-03-02T00:00:00.000Z");
   const status = await m.achievementStatus();
-  expect(status.done.map((d) => d.achievement.id)).toEqual(["fast-3", "level-3", "fast-1", "level-1"]);
+  // the order of the list reversed (levels, then the under 5 minutes ones), whatever the dates
+  expect(status.done.map((d) => d.achievement.id)).toEqual(["fast-3", "fast-1", "level-3", "level-1"]);
+  expect(status.done[0].date).toBe("2026-03-01T00:00:00.000Z");
 });
 
 test("guesses: none on a high level, the first one, a rejected one", () => {
