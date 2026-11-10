@@ -123,22 +123,23 @@ are kept.
 
 ## Achievements
 
-The menu has an Achievements page (28 of them: a sudoku of every level solved, and every level
+The menu has an Achievements page (32 of them: a sudoku of every level solved, and every level
 in under 5 minutes, solved in practice mode, after filling in the pencil marks, after finding the
 mistakes, with a guess, after rejecting a guess, a sudoku started with Replay, a sudoku you entered
-yourself (without help), Hard or higher without any guess, without any pencil mark, the top level without pencil marks, more than an
+yourself (without help), 10, 20, 50 and 100 sudokus solved in total (without help), Hard or higher without any guess, without any pencil mark, the top level without pencil marks, more than an
 hour for a sudoku, guessing 4 levels deep, and finishing with all nine cells of one digit set last,
 after all the other digits are complete, and leaving one 3×3 square empty, with only its given
-digits, until the rest of the board is complete (at least 5 empty cells). The page lists the ones that are done (the latest
+digits, until the rest of the board is complete (at least 5 empty cells). The page lists the ones that are done (the hardest
 first) and the next 3 open ones, each as a round trophy (blue if done, grey if open) with its
 name; tapping it opens the details (what to do, and when it was unlocked). Practice solves and
 solves with help only earn the three that are for them (`src/achievements.ts` has the rules). They
 are checked when a sudoku is solved and shown in the same style in the win dialog. The ones
 that only need what the history has (level, time, practice mode, help) are also given for the
 solves that are already in the history, when the page is loaded, with the date of the solve.
-For the others the game keeps a few facts (pencil marks used, deepest guess, a rejected guess, started with Replay, last digit, last square),
+The total of solves without help is counted from the history and kept with the achievements
+(the history keeps only the last 500 solves). For the others the game keeps a few facts (pencil marks used, deepest guess, a rejected guess, started with Replay, last digit, last square),
 saved with the game (a game saved by an older version counts as "pencil marks used").
-The latest ones are listed first, and among the ones of one solve the harder first.
+The done ones are listed the hardest first (not by date), the open ones the easiest first.
 They are stored with the history (`serious-sudoku:achievements:v1`).
 
 Custom sudokus (Tools, "Input own sudoku"): any sudoku can be entered. It is only
@@ -240,14 +241,14 @@ maintain; the app works offline because all files are bundled.
 The workflow `.github/workflows/android.yml` builds a debug APK on every push
 to `main` and for pull requests that touch the app (Actions run -> Artifacts ->
 `serious-sudoku-debug-apk`). The APK is named after the app and the build, e.g.
-`serious-sudoku-1.1-build57-1a2b3c4-debug.apk`. To install it, copy it to the phone and open
+`serious-sudoku-1.2-build57-1a2b3c4-debug.apk`. To install it, copy it to the phone and open
 it (allow installing from unknown sources). To build locally you need Node 22,
 JDK 21 and the Android SDK:
 
 ```
 $ npm run assemble
 $ npx cap sync android
-$ cd android && ./gradlew assembleDebug   # android/app/build/outputs/apk/debug/serious-sudoku-1.1-local-debug.apk
+$ cd android && ./gradlew assembleDebug   # android/app/build/outputs/apk/debug/serious-sudoku-1.2-local-debug.apk
 ```
 
 All debug APKs (CI and local) are signed with the same debug key,
@@ -261,7 +262,7 @@ The data in the browser and in the app is stored under the keys `serious-sudoku:
 `serious-sudoku:history:v1` and `serious-sudoku:game:v1`.
 
 In CI the version code of the APK is the run number of the workflow and the
-version name shows it with the commit (`1.1 (build 57, 1a2b3c4)`, see the app
+version name shows it with the commit (`1.2 (build 57, 1a2b3c4)`, see the app
 info of the phone), so each CI build is newer than the one before. Local
 builds have the version code 1; installing one over a CI build is a downgrade
 and needs `adb install -r -d serious-sudoku-*-debug.apk`.
