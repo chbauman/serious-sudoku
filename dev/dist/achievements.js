@@ -5,6 +5,7 @@ import { LEVEL_COUNT, levelName } from "./sudoku.js";
 const TOP_LEVEL = LEVEL_COUNT - 1;
 const HOUR = 3600;
 const FAST_SECONDS = 5 * 60;
+const TOTALS = [10, 20, 50, 100];
 const NO_GUESS_LEVEL = 3;
 export const ACHIEVEMENTS = [
     ...Array.from({ length: LEVEL_COUNT }, (_, level) => ({
@@ -52,6 +53,12 @@ export const ACHIEVEMENTS = [
         text: () => t("ach.replay.text"),
         earned: (s) => s.replayed === true,
     },
+    ...TOTALS.map((n) => ({
+        id: `total-${n}`,
+        title: () => t("ach.total.title", { n }),
+        text: () => t("ach.total.text", { n }),
+        earned: (s) => (s.total ?? 0) >= n,
+    })),
     {
         id: "own",
         title: () => t("ach.own.title"),
@@ -122,24 +129,33 @@ export const infoOfEntry = (e) => ({
     fill: e.autoFill === true,
     mistakes: e.mistakes === true,
 });
+const countsForTotal = (s) => !s.practice && !s.helped && s.own !== true;
 const ACHIEVEMENTS_KEY = "serious-sudoku-dev:achievements:v1";
 let loading = null;
 const save = (store) => storageSet(ACHIEVEMENTS_KEY, JSON.stringify(store));
 export function importEntries(store, entries) {
     let changed = false;
+    let total = 0;
     for (const e of entries) {
-        for (const a of earnedBy(infoOfEntry(e))) {
+        const info = infoOfEntry(e);
+        if (countsForTotal(info))
+            total++;
+        for (const a of earnedBy({ ...info, total })) {
             if (!(a.id in store.unlocked)) {
                 store.unlocked[a.id] = e.date;
                 changed = true;
             }
         }
     }
+    if (total > store.solved) {
+        store.solved = total;
+        changed = true;
+    }
     return changed;
 }
 function loadStore() {
     return (loading ?? (loading = (async () => {
-        const store = { unlocked: {} };
+        const store = { unlocked: {}, solved: 0 };
         try {
             const raw = await storageGet(ACHIEVEMENTS_KEY);
             const parsed = raw ? JSON.parse(raw) : null;
@@ -148,6 +164,8 @@ function loadStore() {
                     if (typeof parsed.unlocked[a.id] === "string")
                         store.unlocked[a.id] = parsed.unlocked[a.id];
                 }
+                if (Number.isInteger(parsed.solved) && parsed.solved > 0)
+                    store.solved = parsed.solved;
             }
         }
         catch (e) {
@@ -159,12 +177,15 @@ function loadStore() {
 }
 export async function awardAchievements(info, date = new Date().toISOString()) {
     const store = await loadStore();
-    const fresh = earnedBy(info).filter((a) => !(a.id in store.unlocked));
-    if (fresh.length > 0) {
-        for (const a of fresh)
-            store.unlocked[a.id] = date;
+    const counts = countsForTotal(info);
+    const total = store.solved + (counts ? 1 : 0);
+    const fresh = earnedBy({ ...info, total }).filter((a) => !(a.id in store.unlocked));
+    for (const a of fresh)
+        store.unlocked[a.id] = date;
+    if (counts)
+        store.solved = total;
+    if (fresh.length > 0 || counts)
         save(store);
-    }
     return fresh;
 }
 export const NEXT_COUNT = 3;

@@ -110,6 +110,8 @@ export const de = {
     "ach.reject.text": "Verwirf eine Vermutung und löse das Sudoku trotzdem.",
     "ach.replay.title": "Zugabe",
     "ach.replay.text": "Löse ein Sudoku noch einmal, das du im Verlauf mit «Wiederholen» gestartet hast.",
+    "ach.total.title": "{n} gelöst",
+    "ach.total.text": "Löse insgesamt {n} Sudokus ohne Hilfe (der Übungsmodus zählt nicht).",
     "ach.own.title": "Dein eigenes",
     "ach.own.text": "Löse ein Sudoku, das du selbst eingegeben hast, ohne Hilfe.",
     "ach.fast.title": "{level} unter 5 Min",

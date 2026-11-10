@@ -110,6 +110,8 @@ export const en = {
     "ach.reject.text": "Reject a guess and still solve the sudoku.",
     "ach.replay.title": "Encore",
     "ach.replay.text": "Solve a sudoku again that you started with Replay in the history.",
+    "ach.total.title": "{n} solved",
+    "ach.total.text": "Solve {n} sudokus in total, without help (practice mode does not count).",
     "ach.own.title": "Your own",
     "ach.own.text": "Solve a sudoku that you entered yourself, without help.",
     "ach.fast.title": "{level} under 5 min",
