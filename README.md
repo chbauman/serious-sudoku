@@ -129,7 +129,7 @@ mistakes, with a guess, after rejecting a guess, a sudoku started with Replay, a
 yourself (without help), 10, 20, 50 and 100 sudokus solved in total (without help), Hard or higher without any guess, without any pencil mark, the top level without pencil marks, more than an
 hour for a sudoku, guessing 4 levels deep, and finishing with all nine cells of one digit set last,
 after all the other digits are complete, and leaving one 3×3 square empty, with only its given
-digits, until the rest of the board is complete (at least 5 empty cells). The page lists the ones that are done (the latest
+digits, until the rest of the board is complete (at least 5 empty cells). The page lists the ones that are done (the hardest
 first) and the next 3 open ones, each as a round trophy (blue if done, grey if open) with its
 name; tapping it opens the details (what to do, and when it was unlocked). Practice solves and
 solves with help only earn the three that are for them (`src/achievements.ts` has the rules). They
@@ -139,7 +139,7 @@ solves that are already in the history, when the page is loaded, with the date o
 The total of solves without help is counted from the history and kept with the achievements
 (the history keeps only the last 500 solves). For the others the game keeps a few facts (pencil marks used, deepest guess, a rejected guess, started with Replay, last digit, last square),
 saved with the game (a game saved by an older version counts as "pencil marks used").
-The latest ones are listed first, and among the ones of one solve the harder first.
+The done ones are listed the hardest first (not by date), the open ones the easiest first.
 They are stored with the history (`serious-sudoku:achievements:v1`).
 
 Custom sudokus (Tools, "Input own sudoku"): any sudoku can be entered. It is only
