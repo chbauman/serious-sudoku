@@ -29,6 +29,8 @@ export interface SolveInfo {
   replayed?: boolean;
   /** A sudoku that the player entered (no level, no time) */
   own?: boolean;
+  /** How many sudokus were solved in total without help (not in practice mode), this one included */
+  total?: number;
   /** Reached the state where all nine cells of one digit were left, all the others were done */
   digitLast?: boolean;
   /** Reached the state where only one 3x3 square without a digit of the player was left */
@@ -50,6 +52,8 @@ export interface Achievement {
 const TOP_LEVEL = LEVEL_COUNT - 1;
 const HOUR = 3600;
 const FAST_SECONDS = 5 * 60;
+/** The numbers of solved sudokus (without help) that are achievements */
+const TOTALS = [10, 20, 50, 100];
 /** The level from which a solve without a guess is an achievement */
 const NO_GUESS_LEVEL = 3;
 
@@ -100,6 +104,14 @@ export const ACHIEVEMENTS: Achievement[] = [
     text: () => t("ach.replay.text"),
     earned: (s) => s.replayed === true,
   },
+  ...TOTALS.map(
+    (n): Achievement => ({
+      id: `total-${n}`,
+      title: () => t("ach.total.title", { n }),
+      text: () => t("ach.total.text", { n }),
+      earned: (s) => (s.total ?? 0) >= n,
+    })
+  ),
   {
     id: "own",
     title: () => t("ach.own.title"),
@@ -185,7 +197,12 @@ type Unlocked = { [id: string]: string };
 
 interface Store {
   unlocked: Unlocked;
+  /** How many sudokus were solved without help (not in practice mode); the history keeps only the last ones */
+  solved: number;
 }
+
+/** Whether a solve counts for the total: not in practice mode, not with help */
+const countsForTotal = (s: SolveInfo) => !s.practice && !s.helped && s.own !== true;
 
 const ACHIEVEMENTS_KEY = "serious-sudoku:achievements:v1";
 
@@ -196,20 +213,28 @@ const save = (store: Store) => storageSet(ACHIEVEMENTS_KEY, JSON.stringify(store
 /** Unlocks what the entries (oldest first) earn and are not unlocked yet, returns whether something is new */
 export function importEntries(store: Store, entries: HistoryEntry[]): boolean {
   let changed = false;
+  let total = 0;
   for (const e of entries) {
-    for (const a of earnedBy(infoOfEntry(e))) {
+    const info = infoOfEntry(e);
+    if (countsForTotal(info)) total++;
+    for (const a of earnedBy({ ...info, total })) {
       if (!(a.id in store.unlocked)) {
         store.unlocked[a.id] = e.date;
         changed = true;
       }
     }
   }
+  // The history keeps only the last solves: what was counted before stays
+  if (total > store.solved) {
+    store.solved = total;
+    changed = true;
+  }
   return changed;
 }
 
 function loadStore(): Promise<Store> {
   return (loading ??= (async () => {
-    const store: Store = { unlocked: {} };
+    const store: Store = { unlocked: {}, solved: 0 };
     try {
       const raw = await storageGet(ACHIEVEMENTS_KEY);
       const parsed = raw ? JSON.parse(raw) : null;
@@ -217,6 +242,7 @@ function loadStore(): Promise<Store> {
         for (const a of ACHIEVEMENTS) {
           if (typeof parsed.unlocked[a.id] === "string") store.unlocked[a.id] = parsed.unlocked[a.id];
         }
+        if (Number.isInteger(parsed.solved) && parsed.solved > 0) store.solved = parsed.solved;
       }
     } catch (e) {
       // start without
@@ -238,11 +264,12 @@ export async function awardAchievements(
   date = new Date().toISOString()
 ): Promise<Achievement[]> {
   const store = await loadStore();
-  const fresh = earnedBy(info).filter((a) => !(a.id in store.unlocked));
-  if (fresh.length > 0) {
-    for (const a of fresh) store.unlocked[a.id] = date;
-    save(store);
-  }
+  const counts = countsForTotal(info);
+  const total = store.solved + (counts ? 1 : 0);
+  const fresh = earnedBy({ ...info, total }).filter((a) => !(a.id in store.unlocked));
+  for (const a of fresh) store.unlocked[a.id] = date;
+  if (counts) store.solved = total;
+  if (fresh.length > 0 || counts) save(store);
   return fresh;
 }
 

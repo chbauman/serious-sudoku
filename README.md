@@ -123,10 +123,10 @@ are kept.
 
 ## Achievements
 
-The menu has an Achievements page (28 of them: a sudoku of every level solved, and every level
+The menu has an Achievements page (32 of them: a sudoku of every level solved, and every level
 in under 5 minutes, solved in practice mode, after filling in the pencil marks, after finding the
 mistakes, with a guess, after rejecting a guess, a sudoku started with Replay, a sudoku you entered
-yourself (without help), Hard or higher without any guess, without any pencil mark, the top level without pencil marks, more than an
+yourself (without help), 10, 20, 50 and 100 sudokus solved in total (without help), Hard or higher without any guess, without any pencil mark, the top level without pencil marks, more than an
 hour for a sudoku, guessing 4 levels deep, and finishing with all nine cells of one digit set last,
 after all the other digits are complete, and leaving one 3×3 square empty, with only its given
 digits, until the rest of the board is complete (at least 5 empty cells). The page lists the ones that are done (the latest
@@ -136,7 +136,7 @@ solves with help only earn the three that are for them (`src/achievements.ts` ha
 are checked when a sudoku is solved and shown in the same style in the win dialog. The ones
 that only need what the history has (level, time, practice mode, help) are also given for the
 solves that are already in the history, when the page is loaded, with the date of the solve.
-For the others the game keeps a few facts (pencil marks used, deepest guess, a rejected guess, started with Replay, last digit, last square),
+For the others the game keeps a few facts (the total of solves without help, pencil marks used, deepest guess, a rejected guess, started with Replay, last digit, last square),
 saved with the game (a game saved by an older version counts as "pencil marks used").
 The latest ones are listed first, and among the ones of one solve the harder first.
 They are stored with the history (`serious-sudoku:achievements:v1`).

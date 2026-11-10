@@ -105,7 +105,7 @@ test("the solves of the history give the achievements that their facts allow, wi
     date,
     ...extra,
   });
-  const store = { unlocked: {} as { [id: string]: string } };
+  const store = { unlocked: {} as { [id: string]: string }, solved: 0 };
   const changed = importEntries(store, [
     entry(1, 250, "2026-01-01T00:00:00.000Z"),
     entry(1, 4000, "2026-01-02T00:00:00.000Z"),
@@ -189,4 +189,62 @@ test("an own sudoku only earns its achievement, and only without help", () => {
   expect(ids(own({ helped: true, fill: true }))).toEqual([]);
   // the normal solves never earn it
   expect(ids(solve({ pencil: false }))).not.toContain("own");
+});
+
+test("the total of solved sudokus without help: 10, 20, 50, 100", () => {
+  for (const [total, expected] of [
+    [9, []],
+    [10, ["total-10"]],
+    [20, ["total-10", "total-20"]],
+    [49, ["total-10", "total-20"]],
+    [50, ["total-10", "total-20", "total-50"]],
+    [100, ["total-10", "total-20", "total-50", "total-100"]],
+  ] as [number, string[]][]) {
+    expect(ids(solve({ total })).filter((id) => id.startsWith("total-"))).toEqual(expected);
+  }
+  expect(ids(solve({}))).not.toContain("total-10"); // unknown
+  // practice and help: only if they are counted as solved without help, and they are not
+  expect(ids(solve({ total: 10, practice: true }))).not.toContain("total-10");
+  expect(ids(solve({ total: 10, helped: true }))).not.toContain("total-10");
+});
+
+test("the history counts the solves without help, the date is the one of the 10th", () => {
+  const entries: HistoryEntry[] = [];
+  for (let i = 0; i < 14; i++) {
+    const day = String(i + 1).padStart(2, "0");
+    entries.push({
+      id: `1-${i}`,
+      level: 1,
+      seconds: 400,
+      date: `2026-01-${day}T00:00:00.000Z`,
+      // the 3rd and the 5th are with help, the 7th in practice mode: not counted
+      ...(i === 2 || i === 4 ? { autoFill: true } : {}),
+      ...(i === 6 ? { practice: true } : {}),
+    });
+  }
+  const store = { unlocked: {} as { [id: string]: string }, solved: 0 };
+  importEntries(store, entries);
+  // 14 - 3 = 11 count, the 10th of them is the 13th entry
+  expect(store.solved).toBe(11);
+  expect(store.unlocked["total-10"]).toBe("2026-01-13T00:00:00.000Z");
+  expect(store.unlocked["total-20"]).toBeUndefined();
+  // what was counted before stays when the history has fewer (it keeps only the last ones)
+  store.solved = 30;
+  importEntries(store, entries.slice(0, 3));
+  expect(store.solved).toBe(30);
+});
+
+test("awarding counts the solves, also when the history is empty", async () => {
+  jest.resetModules();
+  const m = await import("../src/achievements");
+  let last: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    last = (await m.awardAchievements(solve({ level: 1 }), `2026-04-${String(i + 1).padStart(2, "0")}T00:00:00.000Z`)).map((a) => a.id);
+  }
+  expect(last).toContain("total-10");
+  // a practice solve is not counted, 10 more are
+  await m.awardAchievements(solve({ practice: true }));
+  let res: string[] = [];
+  for (let i = 0; i < 10; i++) res = (await m.awardAchievements(solve({ level: 1 }))).map((a) => a.id);
+  expect(res).toEqual(["total-20"]);
 });
