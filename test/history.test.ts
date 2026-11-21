@@ -3,6 +3,7 @@ import {
   bestEntry,
   bestTime,
   solveStats,
+  overallStats,
   isCounted,
   usedHelp,
   recordSolve,
@@ -105,15 +106,12 @@ test("best entry and the numbers of solves of a level", () => {
   expect(bestTime(all, 4, false)).toBe(200);
   // without the practice solves: 2 without help (300 and 200), 1 with the wand (100)
   expect(solveStats(all, 4)).toEqual({
-    unassisted: { count: 2, average: 250 },
-    assisted: { count: 1, average: 100 },
-    all: { count: 3, average: 200 },
+    unassisted: { count: 2, average: 250, fastest: 200, slowest: 300 },
+    assisted: { count: 1, average: 100, fastest: 100, slowest: 100 },
+    all: { count: 3, average: 200, fastest: 100, slowest: 300 },
   });
-  expect(solveStats(all, 5)).toEqual({
-    unassisted: { count: 0, average: null },
-    assisted: { count: 0, average: null },
-    all: { count: 0, average: null },
-  });
+  const none = { count: 0, average: null, fastest: null, slowest: null };
+  expect(solveStats(all, 5)).toEqual({ unassisted: none, assisted: none, all: none });
   // only wand solves of the level: its best solve is a wand solve
   expect(bestEntry([wand], 4, false)).toBe(wand);
 });
@@ -128,4 +126,18 @@ test("finding the mistakes counts as help like the filled-in pencil marks", () =
   expect(bestEntry([clean, found], 1, true)).toBe(found);
   // the only solve of the level: counts anyway, with its help shown
   expect(solveStats([clean, found], 1).assisted.count).toBe(1);
+});
+
+test("overall numbers: solved, without help, practice, fastest and slowest", () => {
+  const fast = entry(0, 30);
+  const slow = entry(5, 4000);
+  const wand = entry(2, 10, true); // the fastest, with help
+  const practice = entry(3, 1, false, true); // never counted
+  expect(overallStats([])).toEqual({ solved: 0, withoutHelp: 0, practice: 0, fastest: null, slowest: null });
+  const stats = overallStats([slow, fast, wand, entry(3, 900), practice]);
+  expect(stats.solved).toBe(4);
+  expect(stats.withoutHelp).toBe(3);
+  expect(stats.practice).toBe(1);
+  expect(stats.fastest).toBe(wand);
+  expect(stats.slowest).toBe(slow);
 });

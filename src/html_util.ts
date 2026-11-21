@@ -52,6 +52,7 @@ let pencilUsed = false; // a pencil mark was set (or all were filled in)
 let guessDepth: number | undefined = 0; // deepest nesting of guesses (undefined: unknown)
 let rejectedGuess = false; // a guess was rejected
 let replayed = false; // the sudoku came from the history (Replay)
+let restarted = false; // the sudoku was restarted (no achievements for it)
 let digitLast = false; // all nine cells of one digit were left at some point
 let squareLast = false; // one 3x3 square without a digit of the player was left at some point
 const resetGameFacts = () => {
@@ -689,6 +690,7 @@ function showSolveTime() {
       seconds: 0,
       practice: false,
       helped: autoFillUsed || mistakesUsed,
+      restarted,
       own: true,
     }).then(showAchievements);
     return;
@@ -705,6 +707,7 @@ function showSolveTime() {
     ...(puzzleStr ? { puzzle: puzzleStr } : {}),
     ...(autoFillUsed ? { autoFill: true } : {}),
     ...(mistakesUsed ? { mistakes: true } : {}),
+    ...(restarted ? { restarted: true } : {}),
     ...(practice ? { practice: true } : {}),
     seconds,
     date: new Date().toISOString(),
@@ -716,6 +719,7 @@ function showSolveTime() {
     seconds,
     practice,
     helped,
+    restarted,
     fill: autoFillUsed,
     mistakes: mistakesUsed,
     pencil: pencilUsed,
@@ -908,6 +912,7 @@ interface SavedGame extends Snapshot {
   guessDepth?: number;
   rejected?: boolean;
   replayed?: boolean;
+  restarted?: boolean;
   digitLast?: boolean;
   squareLast?: boolean;
   elapsed: number;
@@ -936,6 +941,7 @@ function saveGame() {
       guessDepth,
       rejected: rejectedGuess,
       replayed,
+      restarted,
       digitLast,
       squareLast,
       elapsed: elapsedMs,
@@ -988,6 +994,7 @@ async function loadGame(): Promise<boolean> {
     guessDepth = Number.isInteger(g.guessDepth) ? (g.guessDepth as number) : undefined;
     rejectedGuess = g.rejected === true;
     replayed = g.replayed === true;
+    restarted = g.restarted === true;
     digitLast = g.digitLast === true;
     squareLast = g.squareLast === true;
     elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
@@ -1273,6 +1280,7 @@ function setSudFromStr(retSud: string, index: number) {
   mistakesUsed = false;
   resetGameFacts();
   replayed = false;
+  restarted = false;
   winShown = false;
   enlarge(); // digits, not pencil marks, in a new sudoku
 
@@ -1334,6 +1342,7 @@ function inputCustomSudoku(keepGrid = false) {
     mistakesUsed = false;
     resetGameFacts();
     replayed = false;
+    restarted = false;
     timing = false;
     updateTimer();
     elsewhere();
@@ -1454,6 +1463,7 @@ function restart() {
     inputCustomSudoku();
   }
   log("Restarting");
+  restarted = true;
   elapsedMs = 0;
   winShown = false;
   autoFillUsed = false;

@@ -130,11 +130,11 @@ function readSudokuFromFile(
 /**
  * Whether the whole board is filled in except for one 3x3 square in which the
  * player has set nothing yet (only the given digits are there) and that has at
- * least `minEmpty` empty cells.
+ * least `minEmpty` empty cells (all nine by default: a square without a given digit).
  * @param T The board
  * @param Tinit The given digits of the sudoku
  */
-function squareLeftEmpty(T: number[][], Tinit: number[][], minEmpty = 5): boolean {
+function squareLeftEmpty(T: number[][], Tinit: number[][], minEmpty = 9): boolean {
   for (let b = 0; b < 9; b++) {
     const y0 = 3 * Math.floor(b / 3);
     const x0 = 3 * (b % 3);

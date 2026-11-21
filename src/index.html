@@ -98,10 +98,10 @@
           <svg class="icon" aria-hidden="true"><use href="#i-menu-outline" /></svg>
         </button>
         <nav id="menu" hidden>
+          <a href="#achievements"><svg class="icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg><span data-i18n="menu.achievements"></span></a>
+          <a href="#history"><svg class="icon" aria-hidden="true"><use href="#i-time-outline" /></svg><span data-i18n="menu.history"></span></a>
           <a href="#help"><svg class="icon" aria-hidden="true"><use href="#i-help-circle-outline" /></svg><span data-i18n="menu.help"></span></a>
           <a href="#settings"><svg class="icon" aria-hidden="true"><use href="#i-settings-outline" /></svg><span data-i18n="menu.settings"></span></a>
-          <a href="#history"><svg class="icon" aria-hidden="true"><use href="#i-time-outline" /></svg><span data-i18n="menu.history"></span></a>
-          <a href="#achievements"><svg class="icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg><span data-i18n="menu.achievements"></span></a>
           <a href="#about"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg><span data-i18n="menu.about"></span></a>
         </nav>
       </header>
@@ -245,6 +245,8 @@
       <section id="history" data-page="history" hidden>
         <p id="history-empty" data-i18n="history.empty"></p>
         <div id="history-content" hidden>
+          <p data-i18n="history.stats.h"></p>
+          <table class="stats" id="history-stats"></table>
           <p data-i18n="history.best.h"></p>
           <table class="stats" id="history-levels"></table>
           <p data-i18n="history.recent.h"></p>
