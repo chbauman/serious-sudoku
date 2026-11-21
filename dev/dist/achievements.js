@@ -7,7 +7,7 @@ const HOUR = 3600;
 const FAST_SECONDS = 5 * 60;
 const TOTALS = [10, 20, 50, 100];
 const NO_GUESS_LEVEL = 3;
-export const ACHIEVEMENTS = [
+const DEFINITIONS = [
     ...Array.from({ length: LEVEL_COUNT }, (_, level) => ({
         id: `level-${level}`,
         title: () => t("ach.level.title", { level: levelName(level) }),
@@ -115,9 +115,52 @@ export const ACHIEVEMENTS = [
         earned: (s) => s.squareLast === true,
     },
 ];
+const ORDER = [
+    "level-0",
+    "practice",
+    "wand",
+    "detective",
+    "first-guess",
+    "level-1",
+    "replay",
+    "reject",
+    "total-10",
+    "level-2",
+    "own",
+    "fast-0",
+    "fast-1",
+    "level-3",
+    "marathon",
+    "total-20",
+    "fast-2",
+    "no-pencil",
+    "level-4",
+    "fast-3",
+    "no-guess",
+    "level-5",
+    "total-50",
+    "deep",
+    "fast-4",
+    "level-6",
+    "total-100",
+    "fast-5",
+    "no-pencil-top",
+    "fast-6",
+    "empty-square",
+    "one-digit",
+];
+if (ORDER.length !== DEFINITIONS.length || new Set(ORDER).size !== ORDER.length) {
+    throw new Error("The order has to list every achievement once");
+}
+export const ACHIEVEMENTS = ORDER.map((id) => {
+    const a = DEFINITIONS.find((d) => d.id === id);
+    if (!a)
+        throw new Error(`No achievement ${id}`);
+    return a;
+});
 export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id);
 export function earnedBy(s) {
-    const clean = !s.practice && !s.helped;
+    const clean = !s.practice && !s.helped && !s.restarted;
     const own = s.own === true;
     return ACHIEVEMENTS.filter((a) => (a.forOwn === true) === own && (clean || a.anySolve) && a.earned(s));
 }
@@ -128,8 +171,9 @@ export const infoOfEntry = (e) => ({
     helped: usedHelp(e),
     fill: e.autoFill === true,
     mistakes: e.mistakes === true,
+    restarted: e.restarted === true,
 });
-const countsForTotal = (s) => !s.practice && !s.helped && s.own !== true;
+const countsForTotal = (s) => !s.practice && !s.helped && !s.restarted && s.own !== true;
 const ACHIEVEMENTS_KEY = "serious-sudoku-dev:achievements:v1";
 let loading = null;
 const save = (store) => storageSet(ACHIEVEMENTS_KEY, JSON.stringify(store));

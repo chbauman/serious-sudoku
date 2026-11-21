@@ -7,6 +7,7 @@ const isEntry = (e) => typeof e?.id === "string" &&
     (e.puzzle === undefined || typeof e.puzzle === "string") &&
     (e.autoFill === undefined || typeof e.autoFill === "boolean") &&
     (e.mistakes === undefined || typeof e.mistakes === "boolean") &&
+    (e.restarted === undefined || typeof e.restarted === "boolean") &&
     (e.practice === undefined || typeof e.practice === "boolean") &&
     typeof e.seconds === "number" &&
     typeof e.date === "string";
@@ -41,6 +42,8 @@ export function bestTime(entries, level, countAutoFill = true) {
 const statsOf = (solves) => ({
     count: solves.length,
     average: solves.length ? solves.reduce((a, e) => a + e.seconds, 0) / solves.length : null,
+    fastest: solves.length ? Math.min(...solves.map((e) => e.seconds)) : null,
+    slowest: solves.length ? Math.max(...solves.map((e) => e.seconds)) : null,
 });
 export function solveStats(entries, level) {
     const solved = entries.filter((e) => e.level === level && !e.practice);
@@ -48,6 +51,17 @@ export function solveStats(entries, level) {
         unassisted: statsOf(solved.filter((e) => !usedHelp(e))),
         assisted: statsOf(solved.filter(usedHelp)),
         all: statsOf(solved),
+    };
+}
+export function overallStats(entries) {
+    const solved = entries.filter((e) => !e.practice);
+    const pick = (better) => solved.reduce((best, e) => (best === null || better(e.seconds, best.seconds) ? e : best), null);
+    return {
+        solved: solved.length,
+        withoutHelp: solved.filter((e) => !usedHelp(e)).length,
+        practice: entries.length - solved.length,
+        fastest: pick((a, b) => a < b),
+        slowest: pick((a, b) => a > b),
     };
 }
 export async function recordSolve(entry, countAutoFill = true) {

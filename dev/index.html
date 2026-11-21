@@ -97,10 +97,10 @@
           <svg class="icon" aria-hidden="true"><use href="#i-menu-outline" /></svg>
         </button>
         <nav id="menu" hidden>
+          <a href="#achievements"><svg class="icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg><span data-i18n="menu.achievements">Achievements</span></a>
+          <a href="#history"><svg class="icon" aria-hidden="true"><use href="#i-time-outline" /></svg><span data-i18n="menu.history">History</span></a>
           <a href="#help"><svg class="icon" aria-hidden="true"><use href="#i-help-circle-outline" /></svg><span data-i18n="menu.help">Help</span></a>
           <a href="#settings"><svg class="icon" aria-hidden="true"><use href="#i-settings-outline" /></svg><span data-i18n="menu.settings">Settings</span></a>
-          <a href="#history"><svg class="icon" aria-hidden="true"><use href="#i-time-outline" /></svg><span data-i18n="menu.history">History</span></a>
-          <a href="#achievements"><svg class="icon" aria-hidden="true"><use href="#i-trophy-outline" /></svg><span data-i18n="menu.achievements">Achievements</span></a>
           <a href="#about"><svg class="icon" aria-hidden="true"><use href="#i-information-circle-outline" /></svg><span data-i18n="menu.about">About</span></a>
         </nav>
       </header>
@@ -232,7 +232,7 @@
         <p class="help-text" data-i18n="about.open">The <a href="https://github.com/chbauman/serious-sudoku" target="_blank" rel="noopener">sources are on GitHub</a>. Based on <a href="https://github.com/baruchel/sudoku-js" target="_blank" rel="noopener">sudoku-js</a> by Thomas Baruchel. Icons from <a href="https://ionicons.com/" target="_blank" rel="noopener">Ionicons</a>.</p>
 
         <p data-i18n="about.version.h">Version</p>
-        <p class="help-text">1.2.0 (build ba873b4c1e, test build)</p>
+        <p class="help-text">1.2.0 (build c481fff292, test build)</p>
 
         <p data-i18n="about.author.h">Author</p>
         <p class="help-text" data-i18n="about.author">Made by <a href="https://chrisbaumann.ch/" target="_blank" rel="noopener">chrisbaumann.ch</a>.</p>
@@ -244,6 +244,8 @@
       <section id="history" data-page="history" hidden>
         <p id="history-empty" data-i18n="history.empty">No solved sudokus yet.</p>
         <div id="history-content" hidden>
+          <p data-i18n="history.stats.h">Statistics</p>
+          <table class="stats" id="history-stats"></table>
           <p data-i18n="history.best.h">Best solves</p>
           <table class="stats" id="history-levels"></table>
           <p data-i18n="history.recent.h">Recent</p>

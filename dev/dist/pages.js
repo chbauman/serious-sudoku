@@ -1,4 +1,4 @@
-import { loadHistory, bestEntry, usedHelp, solveStats, formatTime, } from "./history.js";
+import { loadHistory, bestEntry, usedHelp, solveStats, overallStats, formatTime, } from "./history.js";
 import { levelName, levelNames } from "./sudoku.js";
 import { achievementStatus, achievementById } from "./achievements.js";
 import { t, dateLocale, onLanguageChange, setLanguage, resolveLanguage, } from "./i18n.js";
@@ -111,7 +111,8 @@ function showLevel(level) {
     const count = settings.countAutoFill;
     const best = bestEntry(shownEntries, level, count);
     const stats = solveStats(shownEntries, level);
-    const statsRow = (name, s) => `<tr><td>${name}</td><td class="num">${s.count}</td><td class="num">${s.average === null ? "-" : formatTime(s.average)}</td></tr>`;
+    const time = (seconds) => (seconds === null ? "-" : formatTime(seconds));
+    const statsRow = (name, s) => `<tr><td>${name}</td><td class="num">${s.count}</td><td class="num">${time(s.average)}</td><td class="num">${time(s.fastest)}</td><td class="num">${time(s.slowest)}</td></tr>`;
     const indexes = shownEntries
         .map((e, i) => i)
         .filter((i) => shownEntries[i].level === level)
@@ -122,7 +123,7 @@ function showLevel(level) {
             (best ? solveDetails(shownEntries.indexOf(best)) : `<p>${t("history.none")}</p>`) +
             `<h3>${t("history.solves")}</h3>` +
             '<table class="stats">' +
-            `<tr><th></th><th class="num">${t("history.col.solved")}</th><th class="num">${t("history.col.average")}</th></tr>` +
+            `<tr><th></th><th class="num">${t("history.col.solved")}</th><th class="num">${t("history.col.average")}</th><th class="num">${t("history.col.fastest")}</th><th class="num">${t("history.col.slowest")}</th></tr>` +
             statsRow(t("history.row.nohelp"), stats.unassisted) +
             (stats.assisted.count > 0 ? statsRow(t("history.row.help"), stats.assisted) : "") +
             (stats.assisted.count > 0 && stats.unassisted.count > 0
@@ -148,6 +149,15 @@ async function renderHistory() {
             .map((c, i) => `<${tag}${i > 0 ? ' class="num"' : ""}>${c}</${tag}>`)
             .join("") +
         "</tr>";
+    const overall = overallStats(entries);
+    const statsRow = (name, value) => `<tr><td>${name}</td><td class="num">${value}</td></tr>`;
+    const withLevel = (e) => e === null ? "-" : `${helpIcons(e)}${formatTime(e.seconds)} · ${levelName(e.level)}`;
+    byId("history-stats").innerHTML =
+        statsRow(t("history.stats.solved"), String(overall.solved)) +
+            statsRow(t("history.row.nohelp"), String(overall.withoutHelp)) +
+            (overall.practice > 0 ? statsRow(t("history.stats.practice"), String(overall.practice)) : "") +
+            statsRow(t("history.stats.fastest"), withLevel(overall.fastest)) +
+            statsRow(t("history.stats.slowest"), withLevel(overall.slowest));
     const timed = entries.filter((e) => !e.practice);
     const levels = [...new Set(timed.map((e) => e.level))].sort((a, b) => a - b);
     byId("history-levels").innerHTML =

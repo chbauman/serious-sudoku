@@ -87,7 +87,7 @@ function readSudokuFromFile(callback, lvl = MAX_LEVEL) {
         callback(items[sInd], sInd);
     });
 }
-function squareLeftEmpty(T, Tinit, minEmpty = 5) {
+function squareLeftEmpty(T, Tinit, minEmpty = 9) {
     for (let b = 0; b < 9; b++) {
         const y0 = 3 * Math.floor(b / 3);
         const x0 = 3 * (b % 3);
