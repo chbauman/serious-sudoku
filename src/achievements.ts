@@ -29,8 +29,6 @@ export interface SolveInfo {
   replayed?: boolean;
   /** A sudoku that the player entered (no level, no time) */
   own?: boolean;
-  /** The sudoku was restarted (the time is the one since the restart) */
-  restarted?: boolean;
   /** How many sudokus were solved in total without help (not in practice mode), this one included */
   total?: number;
   /** Reached the state where all nine cells of one digit were left, all the others were done */
@@ -228,11 +226,11 @@ export const achievementById = (id: string): Achievement | undefined =>
   ACHIEVEMENTS.find((a) => a.id === id);
 
 /**
- * The achievements that a solve earns. Practice solves, solves with help and
- * restarted sudokus only earn the ones that are for them (anySolve).
+ * The achievements that a solve earns. Practice solves and solves with help
+ * only earn the ones that are for them (anySolve).
  */
 export function earnedBy(s: SolveInfo): Achievement[] {
-  const clean = !s.practice && !s.helped && !s.restarted;
+  const clean = !s.practice && !s.helped;
   const own = s.own === true;
   return ACHIEVEMENTS.filter((a) => (a.forOwn === true) === own && (clean || a.anySolve) && a.earned(s));
 }
@@ -245,7 +243,6 @@ export const infoOfEntry = (e: HistoryEntry): SolveInfo => ({
   helped: usedHelp(e),
   fill: e.autoFill === true,
   mistakes: e.mistakes === true,
-  restarted: e.restarted === true,
 });
 
 /** Achievement id -> ISO date it was unlocked */
@@ -258,8 +255,7 @@ interface Store {
 }
 
 /** Whether a solve counts for the total: not in practice mode, not with help */
-const countsForTotal = (s: SolveInfo) =>
-  !s.practice && !s.helped && !s.restarted && s.own !== true;
+const countsForTotal = (s: SolveInfo) => !s.practice && !s.helped && s.own !== true;
 
 const ACHIEVEMENTS_KEY = "serious-sudoku:achievements:v1";
 

@@ -253,27 +253,6 @@ test("awarding counts the solves, also when the history is empty", async () => {
   expect(res).toEqual(["total-20"]);
 });
 
-test("restarted sudokus earn nothing, only the ones for practice and help, and are not counted", () => {
-  expect(ids(solve({ restarted: true, level: 1, seconds: 100, pencil: false }))).toEqual([]);
-  expect(ids(solve({ restarted: true, total: 10 }))).toEqual([]);
-  expect(ids(solve({ restarted: true, practice: true }))).toEqual(["practice"]);
-  expect(ids(solve({ restarted: true, helped: true, fill: true }))).toEqual(["wand"]);
-  // in the history too
-  const store = { unlocked: {} as { [id: string]: string }, solved: 0 };
-  const entries: HistoryEntry[] = Array.from({ length: 12 }, (_, i) => ({
-    id: `1-${i}`,
-    level: 1,
-    seconds: 100,
-    date: `2026-02-${String(i + 1).padStart(2, "0")}T00:00:00.000Z`,
-    ...(i < 4 ? { restarted: true } : {}),
-  }));
-  importEntries(store, entries);
-  expect(store.solved).toBe(8);
-  expect(store.unlocked["total-10"]).toBeUndefined();
-  // the first not restarted one is the 5th: it gets the level and the under 5 minutes
-  expect(store.unlocked["level-1"]).toBe("2026-02-05T00:00:00.000Z");
-});
-
 test("the order is the order of difficulty: every achievement once, the first ones are the easy ones", () => {
   const order = ACHIEVEMENTS.map((a) => a.id);
   expect(new Set(order).size).toBe(order.length);

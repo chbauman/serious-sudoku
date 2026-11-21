@@ -100,7 +100,7 @@ digit buttons also react between them).
 ## History (personal leaderboard)
 
 The time to solve a sudoku (only the time the game page is visible, restarting
-the sudoku restarts the clock), the level, the puzzle ID (`<level>-<line in the
+the sudoku does not restart the clock, and what was used before, like the help, stays), the level, the puzzle ID (`<level>-<line in the
 level file>`), the sudoku itself as it is in the level file (81 digits, 0 =
 empty, before it is shuffled, so that the solves can be rated again if the
 levels change) and whether the pencil marks
@@ -170,17 +170,18 @@ unlocked).
 
 Rules:
 
-- Practice solves, solves with help (pencil marks filled in, mistakes found) and sudokus that were
-  restarted only earn the three that are for practice and the two tools; all the others need a
-  normal solve without help that was not restarted.
+- Practice solves and solves with help (pencil marks filled in, mistakes found) only earn the three
+  that are for practice and the two tools; all the others need a normal solve without help.
+  Restarting a sudoku keeps the time and what was used, so it does not help to get one.
+  A solve that was started with Replay counts normally (the sudoku is shuffled).
 - They are checked when a sudoku is solved and shown in the win dialog (same style as the page).
-  The ones that only need what the history has (level, time, practice mode, help, restarted, the
+  The ones that only need what the history has (level, time, practice mode, help, the
   number of solves) are also given for the solves that are already in the history, when the page is
   loaded, with the date of the solve.
 - The total of solves without help is counted from the history and kept with the achievements (the
   history keeps only the last 500 solves).
 - For the others the game keeps a few facts (pencil marks used, deepest guess, a rejected guess,
-  started with Replay, restarted, last digit, last square), saved with the game (a game saved by an
+  started with Replay, last digit, last square), saved with the game (a game saved by an
   older version counts as "pencil marks used").
 - They are stored with the history (`serious-sudoku:achievements:v1`).
 

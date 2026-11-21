@@ -15,8 +15,6 @@ export interface HistoryEntry {
   autoFill?: boolean;
   /** "Find mistakes" was used (marks the digits that differ from the solution) */
   mistakes?: boolean;
-  /** The sudoku was restarted: the time is of the restarted game (no achievements for it) */
-  restarted?: boolean;
   /** Solved in practice mode: shown in the history, but without time for the leaderboard */
   practice?: boolean;
   seconds: number;
@@ -35,7 +33,6 @@ const isEntry = (e: any): e is HistoryEntry =>
   (e.puzzle === undefined || typeof e.puzzle === "string") &&
   (e.autoFill === undefined || typeof e.autoFill === "boolean") &&
   (e.mistakes === undefined || typeof e.mistakes === "boolean") &&
-  (e.restarted === undefined || typeof e.restarted === "boolean") &&
   (e.practice === undefined || typeof e.practice === "boolean") &&
   typeof e.seconds === "number" &&
   typeof e.date === "string";
