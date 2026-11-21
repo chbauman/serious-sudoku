@@ -160,7 +160,7 @@ export const ACHIEVEMENTS = ORDER.map((id) => {
 });
 export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id);
 export function earnedBy(s) {
-    const clean = !s.practice && !s.helped && !s.restarted;
+    const clean = !s.practice && !s.helped;
     const own = s.own === true;
     return ACHIEVEMENTS.filter((a) => (a.forOwn === true) === own && (clean || a.anySolve) && a.earned(s));
 }
@@ -171,9 +171,8 @@ export const infoOfEntry = (e) => ({
     helped: usedHelp(e),
     fill: e.autoFill === true,
     mistakes: e.mistakes === true,
-    restarted: e.restarted === true,
 });
-const countsForTotal = (s) => !s.practice && !s.helped && !s.restarted && s.own !== true;
+const countsForTotal = (s) => !s.practice && !s.helped && s.own !== true;
 const ACHIEVEMENTS_KEY = "serious-sudoku-dev:achievements:v1";
 let loading = null;
 const save = (store) => storageSet(ACHIEVEMENTS_KEY, JSON.stringify(store));

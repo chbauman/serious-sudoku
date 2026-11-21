@@ -7,7 +7,6 @@ const isEntry = (e) => typeof e?.id === "string" &&
     (e.puzzle === undefined || typeof e.puzzle === "string") &&
     (e.autoFill === undefined || typeof e.autoFill === "boolean") &&
     (e.mistakes === undefined || typeof e.mistakes === "boolean") &&
-    (e.restarted === undefined || typeof e.restarted === "boolean") &&
     (e.practice === undefined || typeof e.practice === "boolean") &&
     typeof e.seconds === "number" &&
     typeof e.date === "string";

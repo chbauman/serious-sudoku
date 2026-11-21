@@ -21,7 +21,6 @@ let pencilUsed = false;
 let guessDepth = 0;
 let rejectedGuess = false;
 let replayed = false;
-let restarted = false;
 let digitLast = false;
 let squareLast = false;
 const resetGameFacts = () => {
@@ -539,7 +538,6 @@ function showSolveTime() {
             seconds: 0,
             practice: false,
             helped: autoFillUsed || mistakesUsed,
-            restarted,
             own: true,
         }).then(showAchievements);
         return;
@@ -557,7 +555,6 @@ function showSolveTime() {
         ...(puzzleStr ? { puzzle: puzzleStr } : {}),
         ...(autoFillUsed ? { autoFill: true } : {}),
         ...(mistakesUsed ? { mistakes: true } : {}),
-        ...(restarted ? { restarted: true } : {}),
         ...(practice ? { practice: true } : {}),
         seconds,
         date: new Date().toISOString(),
@@ -567,7 +564,6 @@ function showSolveTime() {
         seconds,
         practice,
         helped,
-        restarted,
         fill: autoFillUsed,
         mistakes: mistakesUsed,
         pencil: pencilUsed,
@@ -733,7 +729,6 @@ function saveGame() {
             guessDepth,
             rejected: rejectedGuess,
             replayed,
-            restarted,
             digitLast,
             squareLast,
             elapsed: elapsedMs,
@@ -782,7 +777,6 @@ async function loadGame() {
         guessDepth = Number.isInteger(g.guessDepth) ? g.guessDepth : undefined;
         rejectedGuess = g.rejected === true;
         replayed = g.replayed === true;
-        restarted = g.restarted === true;
         digitLast = g.digitLast === true;
         squareLast = g.squareLast === true;
         elapsedMs = typeof g.elapsed === "number" ? g.elapsed : 0;
@@ -1057,7 +1051,6 @@ function setSudFromStr(retSud, index) {
     mistakesUsed = false;
     resetGameFacts();
     replayed = false;
-    restarted = false;
     winShown = false;
     enlarge();
     permuteSuds(T, Tsol);
@@ -1110,7 +1103,6 @@ function inputCustomSudoku(keepGrid = false) {
         mistakesUsed = false;
         resetGameFacts();
         replayed = false;
-        restarted = false;
         timing = false;
         updateTimer();
         elsewhere();
@@ -1211,12 +1203,7 @@ function restart() {
         inputCustomSudoku();
     }
     log("Restarting");
-    restarted = true;
-    elapsedMs = 0;
     winShown = false;
-    autoFillUsed = false;
-    mistakesUsed = false;
-    resetGameFacts();
     timing = puzzleId !== null && sudLvl >= 0;
     updateTimer();
     elsewhere();
