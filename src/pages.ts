@@ -7,6 +7,7 @@ import {
   bestEntry,
   usedHelp,
   solveStats,
+  overallStats,
   formatTime,
   HistoryEntry,
   SolveStats,
@@ -190,10 +191,11 @@ function showLevel(level: number) {
   const count = settings.countAutoFill;
   const best = bestEntry(shownEntries, level, count);
   const stats = solveStats(shownEntries, level);
+  const time = (seconds: number | null) => (seconds === null ? "-" : formatTime(seconds));
   const statsRow = (name: string, s: SolveStats) =>
-    `<tr><td>${name}</td><td class="num">${s.count}</td><td class="num">${
-      s.average === null ? "-" : formatTime(s.average)
-    }</td></tr>`;
+    `<tr><td>${name}</td><td class="num">${s.count}</td><td class="num">${time(
+      s.average
+    )}</td><td class="num">${time(s.fastest)}</td><td class="num">${time(s.slowest)}</td></tr>`;
   const indexes = shownEntries
     .map((e, i) => i)
     .filter((i) => shownEntries[i].level === level)
@@ -206,6 +208,8 @@ function showLevel(level: number) {
     '<table class="stats">' +
     `<tr><th></th><th class="num">${t("history.col.solved")}</th><th class="num">${t(
       "history.col.average"
+    )}</th><th class="num">${t("history.col.fastest")}</th><th class="num">${t(
+      "history.col.slowest"
     )}</th></tr>` +
     statsRow(t("history.row.nohelp"), stats.unassisted) +
     // The solves with help only if there are any
@@ -246,6 +250,19 @@ async function renderHistory() {
       .map((c, i) => `<${tag}${i > 0 ? ' class="num"' : ""}>${c}</${tag}>`)
       .join("") +
     "</tr>";
+
+  // The numbers of the whole history
+  const overall = overallStats(entries);
+  const statsRow = (name: string, value: string) =>
+    `<tr><td>${name}</td><td class="num">${value}</td></tr>`;
+  const withLevel = (e: HistoryEntry | null) =>
+    e === null ? "-" : `${helpIcons(e)}${formatTime(e.seconds)} · ${levelName(e.level)}`;
+  byId("history-stats").innerHTML =
+    statsRow(t("history.stats.solved"), String(overall.solved)) +
+    statsRow(t("history.row.nohelp"), String(overall.withoutHelp)) +
+    (overall.practice > 0 ? statsRow(t("history.stats.practice"), String(overall.practice)) : "") +
+    statsRow(t("history.stats.fastest"), withLevel(overall.fastest)) +
+    statsRow(t("history.stats.slowest"), withLevel(overall.slowest));
 
   // The practice solves are only listed in the recent solves
   const timed = entries.filter((e) => !e.practice);

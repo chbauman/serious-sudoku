@@ -69,7 +69,7 @@ its level.
 
 ## Menu, pages and settings
 
-The hamburger menu in the header opens the Help, Settings, History and About pages (the About page has the links to the sources, the author and the privacy policy). The pages are sections of the single
+The hamburger menu in the header opens the Achievements, History, Help, Settings and About pages (the About page has the links to the sources, the author and the privacy policy). The pages are sections of the single
 `index.html`, selected by the URL hash (`#help`, `#settings`, ...), so the browser and
 Android back buttons work and the game state is kept while a page is open.
 Settings (stored like the saved game, see `src/settings.ts`): the level that is
@@ -100,14 +100,16 @@ digit buttons also react between them).
 ## History (personal leaderboard)
 
 The time to solve a sudoku (only the time the game page is visible, restarting
-the sudoku restarts the clock), the level, the puzzle ID (`<level>-<line in the
+the sudoku does not restart the clock, and what was used before, like the help, stays), the level, the puzzle ID (`<level>-<line in the
 level file>`), the sudoku itself as it is in the level file (81 digits, 0 =
 empty, before it is shuffled, so that the solves can be rated again if the
 levels change) and whether the pencil marks
 were filled in automatically (the magic wand) are stored when you finish a
 sudoku without the solver; custom sudokus are not recorded. The History page
+starts with statistics (the number of solved sudokus, how many of them without help and how many
+in practice mode, the fastest and the slowest time with the level), then it
 has the leaderboard (per level: the best time, its date and a button for more:
-the best solve, a table with the number of solves and the average time without
+the best solve, a table with the number of solves and the average, fastest and slowest time without
 help, using help (the wand, if there are any) and all of them, and all solves of the level) and the 10 most recent solves, each with a button for its details
 (level, date, time). Solves with the magic wand are marked (left of the time)
 and only count for the best time if the setting says so, or as long as the level was
@@ -123,24 +125,65 @@ are kept.
 
 ## Achievements
 
-The menu has an Achievements page (32 of them: a sudoku of every level solved, and every level
-in under 5 minutes, solved in practice mode, after filling in the pencil marks, after finding the
-mistakes, with a guess, after rejecting a guess, a sudoku started with Replay, a sudoku you entered
-yourself (without help), 10, 20, 50 and 100 sudokus solved in total (without help), Hard or higher without any guess, without any pencil mark, the top level without pencil marks, more than an
-hour for a sudoku, guessing 4 levels deep, and finishing with all nine cells of one digit set last,
-after all the other digits are complete, and leaving one 3×3 square empty, with only its given
-digits, until the rest of the board is complete (at least 5 empty cells). The page lists the ones that are done (the hardest
-first) and the next 3 open ones, each as a round trophy (blue if done, grey if open) with its
-name; tapping it opens the details (what to do, and when it was unlocked). Practice solves and
-solves with help only earn the three that are for them (`src/achievements.ts` has the rules). They
-are checked when a sudoku is solved and shown in the same style in the win dialog. The ones
-that only need what the history has (level, time, practice mode, help) are also given for the
-solves that are already in the history, when the page is loaded, with the date of the solve.
-The total of solves without help is counted from the history and kept with the achievements
-(the history keeps only the last 500 solves). For the others the game keeps a few facts (pencil marks used, deepest guess, a rejected guess, started with Replay, last digit, last square),
-saved with the game (a game saved by an older version counts as "pencil marks used").
-The done ones are listed the hardest first (not by date), the open ones the easiest first.
-They are stored with the history (`serious-sudoku:achievements:v1`).
+The menu has an Achievements page with 32 achievements, in the order of difficulty (the easiest
+first, `src/achievements.ts` has the order and the rules). The page lists the ones that are done
+(the hardest first) and the next 3 open ones (the easiest first), each as a round trophy (blue if
+done, grey if open) with its name; tapping it opens the details (what to do, and when it was
+unlocked).
+
+<!-- achievements:start (a test checks that this table is the list in the code) -->
+| # | Achievement | How to get it |
+| --- | --- | --- |
+| 1 | Beginner solved | Solve a sudoku of the level Beginner. |
+| 2 | Practice makes perfect | Solve a sudoku in practice mode. |
+| 3 | Magic wand | Solve a sudoku after filling in the pencil marks with the tool. |
+| 4 | Detective | Solve a sudoku after finding the mistakes with the tool. |
+| 5 | First guess | Solve a sudoku with a guess. |
+| 6 | Easy solved | Solve a sudoku of the level Easy. |
+| 7 | Encore | Solve a sudoku again that you started with Replay in the history. |
+| 8 | Wrong turn | Reject a guess and still solve the sudoku. |
+| 9 | 10 solved | Solve 10 sudokus in total, without help (practice mode does not count). |
+| 10 | Medium solved | Solve a sudoku of the level Medium. |
+| 11 | Your own | Solve a sudoku that you entered yourself, without help. |
+| 12 | Beginner under 5 min | Solve a sudoku of the level Beginner in under 5 minutes. |
+| 13 | Easy under 5 min | Solve a sudoku of the level Easy in under 5 minutes. |
+| 14 | Hard solved | Solve a sudoku of the level Hard. |
+| 15 | Marathon | Take more than an hour for a sudoku and solve it. |
+| 16 | 20 solved | Solve 20 sudokus in total, without help (practice mode does not count). |
+| 17 | Medium under 5 min | Solve a sudoku of the level Medium in under 5 minutes. |
+| 18 | Pure | Solve a sudoku without any pencil mark. |
+| 19 | Expert solved | Solve a sudoku of the level Expert. |
+| 20 | Hard under 5 min | Solve a sudoku of the level Hard in under 5 minutes. |
+| 21 | No guessing | Solve a sudoku of the level Hard or higher without a single guess. |
+| 22 | Master solved | Solve a sudoku of the level Master. |
+| 23 | 50 solved | Solve 50 sudokus in total, without help (practice mode does not count). |
+| 24 | Deep thinker | Solve a sudoku after guessing 4 levels deep. |
+| 25 | Expert under 5 min | Solve a sudoku of the level Expert in under 5 minutes. |
+| 26 | Grandmaster solved | Solve a sudoku of the level Grandmaster. |
+| 27 | 100 solved | Solve 100 sudokus in total, without help (practice mode does not count). |
+| 28 | Master under 5 min | Solve a sudoku of the level Master in under 5 minutes. |
+| 29 | Pure master | Solve a Grandmaster sudoku without any pencil mark. |
+| 30 | Grandmaster under 5 min | Solve a sudoku of the level Grandmaster in under 5 minutes. |
+| 31 | Empty square | Solve a sudoku by leaving one 3×3 square completely empty (a square without any given digit) until the rest of the board is complete. |
+| 32 | One digit last | Solve a sudoku by setting all nine cells of one digit last, after all the other digits are complete. |
+<!-- achievements:end -->
+
+Rules:
+
+- Practice solves and solves with help (pencil marks filled in, mistakes found) only earn the three
+  that are for practice and the two tools; all the others need a normal solve without help.
+  Restarting a sudoku keeps the time and what was used, so it does not help to get one.
+  A solve that was started with Replay counts normally (the sudoku is shuffled).
+- They are checked when a sudoku is solved and shown in the win dialog (same style as the page).
+  The ones that only need what the history has (level, time, practice mode, help, the
+  number of solves) are also given for the solves that are already in the history, when the page is
+  loaded, with the date of the solve.
+- The total of solves without help is counted from the history and kept with the achievements (the
+  history keeps only the last 500 solves).
+- For the others the game keeps a few facts (pencil marks used, deepest guess, a rejected guess,
+  started with Replay, last digit, last square), saved with the game (a game saved by an
+  older version counts as "pencil marks used").
+- They are stored with the history (`serious-sudoku:achievements:v1`).
 
 Custom sudokus (Tools, "Input own sudoku"): any sudoku can be entered. It is only
 analysed when "Mark mistakes" or "Solve" is requested: `solveSudoku`

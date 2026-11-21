@@ -95,21 +95,25 @@ export function bestTime(
   return bestEntry(entries, level, countAutoFill)?.seconds ?? null;
 }
 
-/** Number and average time of a group of solves (average null if there is none) */
+/** Number, average, fastest and slowest time of a group of solves (the times null if there is none) */
 export interface SolveStats {
   count: number;
   average: number | null;
+  fastest: number | null;
+  slowest: number | null;
 }
 
 const statsOf = (solves: HistoryEntry[]): SolveStats => ({
   count: solves.length,
   average: solves.length ? solves.reduce((a, e) => a + e.seconds, 0) / solves.length : null,
+  fastest: solves.length ? Math.min(...solves.map((e) => e.seconds)) : null,
+  slowest: solves.length ? Math.max(...solves.map((e) => e.seconds)) : null,
 });
 
 /**
  * The solves of a level (without the practice solves): the ones without help,
- * the ones with help and all of them, each with the number and the
- * average time
+ * the ones with help and all of them, each with the number, the average, the
+ * fastest and the slowest time
  */
 export function solveStats(
   entries: HistoryEntry[],
@@ -120,6 +124,35 @@ export function solveStats(
     unassisted: statsOf(solved.filter((e) => !usedHelp(e))),
     assisted: statsOf(solved.filter(usedHelp)),
     all: statsOf(solved),
+  };
+}
+
+/** The numbers of the whole history */
+export interface OverallStats {
+  /** Solved sudokus (not in practice mode) */
+  solved: number;
+  /** Of them solved without help */
+  withoutHelp: number;
+  /** Solved in practice mode */
+  practice: number;
+  /** The solves with the fastest and the slowest time (not in practice mode, null if there is none) */
+  fastest: HistoryEntry | null;
+  slowest: HistoryEntry | null;
+}
+
+export function overallStats(entries: HistoryEntry[]): OverallStats {
+  const solved = entries.filter((e) => !e.practice);
+  const pick = (better: (a: number, b: number) => boolean) =>
+    solved.reduce<HistoryEntry | null>(
+      (best, e) => (best === null || better(e.seconds, best.seconds) ? e : best),
+      null
+    );
+  return {
+    solved: solved.length,
+    withoutHelp: solved.filter((e) => !usedHelp(e)).length,
+    practice: entries.length - solved.length,
+    fastest: pick((a, b) => a < b),
+    slowest: pick((a, b) => a > b),
   };
 }
 

@@ -1453,12 +1453,11 @@ function restart() {
   if (inputtingOwnSud) {
     inputCustomSudoku();
   }
+  // Only the digits and the pencil marks are cleared: the time goes on and what
+  // was used (help, guesses, ...) stays, so restarting does not help to get a
+  // better time or an achievement
   log("Restarting");
-  elapsedMs = 0;
   winShown = false;
-  autoFillUsed = false;
-  mistakesUsed = false;
-  resetGameFacts();
   timing = puzzleId !== null && sudLvl >= 0;
   updateTimer();
   elsewhere();

@@ -57,8 +57,7 @@ const TOTALS = [10, 20, 50, 100];
 /** The level from which a solve without a guess is an achievement */
 const NO_GUESS_LEVEL = 3;
 
-/** All achievements, in the order of the list (the open ones are shown from the top) */
-export const ACHIEVEMENTS: Achievement[] = [
+const DEFINITIONS: Achievement[] = [
   ...Array.from({ length: LEVEL_COUNT }, (_, level): Achievement => ({
     id: `level-${level}`,
     title: () => t("ach.level.title", { level: levelName(level) }),
@@ -168,6 +167,60 @@ export const ACHIEVEMENTS: Achievement[] = [
     earned: (s) => s.squareLast === true,
   },
 ];
+
+/**
+ * The ids in the order of difficulty, the easiest first: the order of the list
+ * (the open ones are shown from the top, the done ones from the bottom). Roughly:
+ * what comes with the first solves (the lowest levels, the tools, the first
+ * guess), then more play and the middle levels, then skill (no pencil marks,
+ * no guess, fast) and the hard levels, and last what needs luck with the puzzle
+ * (an empty square, one digit last).
+ */
+const ORDER = [
+  "level-0",
+  "practice",
+  "wand",
+  "detective",
+  "first-guess",
+  "level-1",
+  "replay",
+  "reject",
+  "total-10",
+  "level-2",
+  "own",
+  "fast-0",
+  "fast-1",
+  "level-3",
+  "marathon",
+  "total-20",
+  "fast-2",
+  "no-pencil",
+  "level-4",
+  "fast-3",
+  "no-guess",
+  "level-5",
+  "total-50",
+  "deep",
+  "fast-4",
+  "level-6",
+  "total-100",
+  "fast-5",
+  "no-pencil-top",
+  "fast-6",
+  "empty-square",
+  "one-digit",
+];
+
+if (ORDER.length !== DEFINITIONS.length || new Set(ORDER).size !== ORDER.length) {
+  throw new Error("The order has to list every achievement once");
+}
+
+/** All achievements, in the order of difficulty */
+export const ACHIEVEMENTS: Achievement[] = ORDER.map((id) => {
+  const a = DEFINITIONS.find((d) => d.id === id);
+  if (!a) throw new Error(`No achievement ${id}`);
+  return a;
+});
 
 export const achievementById = (id: string): Achievement | undefined =>
   ACHIEVEMENTS.find((a) => a.id === id);
